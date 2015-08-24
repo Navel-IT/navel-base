@@ -7,10 +7,10 @@
 
 package Navel::Logger;
 
-use 5.10.1;
-
 use strict;
 use warnings;
+
+use feature 'say';
 
 use parent 'Navel::Base';
 
@@ -80,12 +80,6 @@ sub clear_queue {
     $self;
 }
 
-sub join_queue {
-    my ($self, $separator) = @_;
-
-    join $separator, @{$self->{queue}};
-}
-
 sub flush_queue {
     my ($self, $clear_queue) = @_;
 
@@ -103,7 +97,7 @@ sub flush_queue {
                 );
             };
         } else {
-            say $self->join_queue("\n");
+            say join "\n", @{$self->{queue}};;
         }
     }
 
