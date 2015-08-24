@@ -59,9 +59,7 @@ sub to($@) {
 }
 
 sub from($) {
-    my $serialized = shift;
-
-    my $deserialized = decode_sereal_constructor()->decode($serialized);
+    my $deserialized = decode_sereal_constructor()->decode(shift);
 
     croak('deserialized datas are invalid') unless (reftype($deserialized) && isint($deserialized->{time}) && exists $deserialized->{datas} && exists $deserialized->{collection});
 
