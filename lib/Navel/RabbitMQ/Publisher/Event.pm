@@ -84,7 +84,6 @@ sub serialized_datas {
     );
 }
 
-
 sub routing_key {
     my $self = shift;
 
