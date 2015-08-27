@@ -25,7 +25,7 @@ our $VERSION = 0.1;
 sub read {
     my ($self, $file_path) = @_;
 
-    croak('file path missing') unless (defined $file_path);
+    croak('file path missing') unless defined $file_path;
 
     eval {
         decode_json(

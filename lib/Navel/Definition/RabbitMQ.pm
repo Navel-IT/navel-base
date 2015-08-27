@@ -66,7 +66,7 @@ sub rabbitmq_definition_validator($) {
         connector_props_delivery_mode => sub {
             my $value = shift;
 
-            $value == 1 || $value == 2 if (isint($value));
+            $value == 1 || $value == 2 if isint($value);
         },
         connector_cron => sub {
             eval {
@@ -76,7 +76,7 @@ sub rabbitmq_definition_validator($) {
         connector_boolean => sub {
             my $value = shift;
 
-            $value == 0 || $value == 1 if (isint($value));
+            $value == 0 || $value == 1 if isint($value);
         }
     );
 

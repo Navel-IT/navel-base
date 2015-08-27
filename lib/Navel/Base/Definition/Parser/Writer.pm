@@ -23,9 +23,9 @@ our $VERSION = 0.1;
 #-> methods
 
 sub write {
-    my ($self, $file_path, $definitions) = @_;
+    my ($self, %parameters) = @_;
 
-    croak('file path missing') unless (defined $file_path);
+    croak('file path missing') unless defined $file_path;
 
     write_file(
         $file_path,

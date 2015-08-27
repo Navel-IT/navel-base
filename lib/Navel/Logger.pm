@@ -14,17 +14,10 @@ use feature 'say';
 
 use parent 'Navel::Base';
 
-use Exporter::Easy (
-    OK => [qw/
-        $VERSION
-        :all
-    /],
-    TAGS => [
-        all => [qw/
-            $VERSION
-        /]
-    ]
-);
+use constant {
+    GOOD => ':)',
+    BAD => ':('
+};
 
 use File::Slurp 'append_file';
 
@@ -57,19 +50,19 @@ sub new {
 }
 
 sub push_in_queue {
-    my ($self, $messages, $severity) = @_;
+    my ($self, $message, $severity) = @_;
 
-    push @{$self->{queue}}, '[' . human_readable_localtime(time) . '] [' . $severity . '] ' . crunch($messages) if (defined $messages && $self->{severity}->does_it_log($severity));
+    push @{$self->{queue}}, '[' . human_readable_localtime(time) . '] [' . $severity . '] ' . crunch($message) if defined $messages && $self->{severity}->does_it_log($severity);
 
     $self;
 }
 
 sub good {
-    shift->push_in_queue('[OK] ' . shift, shift);
+    shift->push_in_queue(GOOD . ' ' . shift, shift);
 }
 
 sub bad {
-    shift->push_in_queue('[KO] ' . shift, shift);
+    shift->push_in_queue(BAD . ' ' . shift, shift);
 }
 
 sub clear_queue {

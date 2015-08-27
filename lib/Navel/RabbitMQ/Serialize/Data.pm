@@ -46,7 +46,7 @@ our $VERSION = 0.1;
 sub to($@) {
     my ($datas, $connector, $collection) = @_;
 
-    $connector = unblessed($connector) if (blessed($connector) eq 'Navel::Definition::Connector');
+    $connector = unblessed($connector) if blessed($connector) eq 'Navel::Definition::Connector';
 
     encode_sereal_constructor()->encode(
         {
@@ -61,17 +61,17 @@ sub to($@) {
 sub from($) {
     my $deserialized = decode_sereal_constructor()->decode(shift);
 
-    croak('deserialized datas are invalid') unless (reftype($deserialized) && isint($deserialized->{time}) && exists $deserialized->{datas} && exists $deserialized->{collection});
+    croak('deserialized datas are invalid') unless reftype($deserialized) && isint($deserialized->{time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
 
     my $connector;
 
     if (defined $deserialized->{connector}) {
-        croak('deserialized datas are invalid : connector definition is invalid') unless (connector_definition_validator($deserialized->{connector}));
+        croak('deserialized datas are invalid : connector definition is invalid') unless connector_definition_validator($deserialized->{connector});
 
         $connector = Navel::Definition::Connector->new($deserialized->{connector});
     }
 
-    $deserialized->{collection} = sprintf '%s', $deserialized->{collection} if (defined $deserialized->{collection});
+    $deserialized->{collection} = sprintf '%s', $deserialized->{collection} if defined $deserialized->{collection};
 
     {
         %{$deserialized},

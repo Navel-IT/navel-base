@@ -34,8 +34,8 @@ my %severities = (
 sub new {
     my ($class, $severity) = @_;
 
-    croak('severity must be defined') unless (defined $severity);
-    croak('severity ' . $severity . ' is invalid') unless (exists $severities{$severity});
+    croak('severity must be defined') unless defined $severity;
+    croak('severity ' . $severity . ' is invalid') unless exists $severities{$severity};
 
     bless {
         severity => $severity

@@ -27,7 +27,7 @@ our $VERSION = 0.1;
 sub new {
     my ($class, $validator, $parameters) = @_;
 
-    croak('definition is invalid') unless ($validator->($parameters));
+    croak('definition is invalid') unless $validator->($parameters);
 
     bless dclone($parameters), ref $class || $class;
 }
@@ -39,7 +39,7 @@ sub properties {
 sub original_properties {
     my ($properties, $runtime_properties) = (shift->properties(), shift);
 
-    delete $properties->{$_} for (@{$runtime_properties});
+    delete $properties->{$_} for @{$runtime_properties};
 
     $properties;
 }

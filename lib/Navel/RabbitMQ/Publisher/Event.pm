@@ -30,7 +30,7 @@ our $VERSION = 0.1;
 sub new {
     my ($class, $definition) = @_;
 
-    croak('event definition is invalid') unless (ref $definition eq 'HASH');
+    croak('event definition is invalid') unless ref $definition eq 'HASH';
 
     my $self = bless {}, ref $class || $class;
 
@@ -38,7 +38,7 @@ sub new {
         $self->{connector} = $definition->{connector};
         $self->{collection} = $self->{connector}->{collection};
     } else {
-        croak('collection cannot be undefined') unless (defined $definition->{collection});
+        croak('collection cannot be undefined') unless defined $definition->{collection};
 
         $self->{connector} = undef;
         $self->{collection} = $definition->{collection};

@@ -56,7 +56,7 @@ sub web_service_definition_validator($) {
         web_service_tls => sub {
             my $value = shift;
 
-            $value == 0 or $value == 1 if (isint($value));
+            $value == 0 or $value == 1 if isint($value);
         }
     );
 
@@ -94,11 +94,11 @@ sub url {
         $self->{port}
     );
 
-    $url->query(ca => $self->{ca}) if (defined $self->{ca});
-    $url->query(cert => $self->{cert}) if (defined $self->{cert});
-    $url->query(ciphers => $self->{ciphers}) if (defined $self->{ciphers});
-    $url->query(key => $self->{key}) if (defined $self->{key});
-    $url->query(verify => $self->{verify}) if (defined $self->{verify});
+    $url->query(ca => $self->{ca}) if defined $self->{ca};
+    $url->query(cert => $self->{cert}) if defined $self->{cert};
+    $url->query(ciphers => $self->{ciphers}) if defined $self->{ciphers};
+    $url->query(key => $self->{key}) if defined $self->{key};
+    $url->query(verify => $self->{verify}) if defined $self->{verify};
 
     $url;
 }

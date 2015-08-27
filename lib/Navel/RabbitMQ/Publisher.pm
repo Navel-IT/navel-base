@@ -26,7 +26,7 @@ our $VERSION = 0.1;
 sub new {
     my ($class, $definition) = @_;
 
-    croak('one or more objects are invalids') unless (blessed($definition) eq 'Navel::Definition::RabbitMQ');
+    croak('one or more objects are invalids') unless blessed($definition) eq 'Navel::Definition::RabbitMQ';
 
     bless {
         definition => $definition,
@@ -38,7 +38,7 @@ sub new {
 sub connect {
     my ($self, $callbacks) = @_;
 
-    croak('one or more callbacks are not coderef') unless (ref $callbacks eq 'HASH' && ref $callbacks->{on_success} eq 'CODE' && ref $callbacks->{on_failure} eq 'CODE' && ref $callbacks->{on_read_failure} eq 'CODE' && ref $callbacks->{on_return} eq 'CODE' && ref $callbacks->{on_close} eq 'CODE');
+    croak('one or more callbacks are not coderef') unless ref $callbacks eq 'HASH' && ref $callbacks->{on_success} eq 'CODE' && ref $callbacks->{on_failure} eq 'CODE' && ref $callbacks->{on_read_failure} eq 'CODE' && ref $callbacks->{on_return} eq 'CODE' && ref $callbacks->{on_close} eq 'CODE';
 
     $self->{net} = AnyEvent::RabbitMQ->new()->load_xml_spec()->connect(
         host => $self->{definition}->{host},
@@ -88,7 +88,7 @@ sub push_in_queue {
 
     my $event = Navel::RabbitMQ::Publisher::Event->new($definition);
 
-    $event->$status_method() if (defined $status_method);
+    $event->$status_method() if defined $status_method;
 
     push @{$self->{queue}}, $event;
 
