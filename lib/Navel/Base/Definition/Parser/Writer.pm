@@ -23,7 +23,7 @@ our $VERSION = 0.1;
 #-> methods
 
 sub write {
-    my ($self, %parameters) = @_;
+    my ($self, $file_path, $definitions) = @_;
 
     croak('file path missing') unless defined $file_path;
 
