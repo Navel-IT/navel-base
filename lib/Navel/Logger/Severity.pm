@@ -34,8 +34,7 @@ my %severities = (
 sub new {
     my ($class, $severity) = @_;
 
-    croak('severity must be defined') unless defined $severity;
-    croak('severity ' . $severity . ' is invalid') unless exists $severities{$severity};
+    croak('severity is invalid') unless defined $severity && exists $severities{$severity};
 
     bless {
         severity => $severity
@@ -43,9 +42,9 @@ sub new {
 }
 
 sub does_it_log {
-    my ($self, $severity) = @_;
+    my ($self, %options) = @_;
 
-    defined $severity && exists $severities{$severity} && $severities{$self->{severity}} >= $severities{$severity};
+    defined $options{severity} && exists $severities{$options{severity}} && $severities{$self->{severity}} >= $severities{$options{severity}};
 }
 
 # sub AUTOLOAD {}

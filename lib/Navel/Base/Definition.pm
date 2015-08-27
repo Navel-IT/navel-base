@@ -16,6 +16,8 @@ use Carp 'croak';
 
 use Storable 'dclone';
 
+use Data::Validate::Struct;
+
 use Navel::Utils qw/
     unblessed
 /;
@@ -25,11 +27,11 @@ our $VERSION = 0.1;
 #-> methods
 
 sub new {
-    my ($class, $validator, $parameters) = @_;
+    my ($class, %options) = @_;
 
-    croak('definition is invalid') unless $validator->($parameters);
+    croak('definition is invalid') unless $options{validator}->($options{definition});
 
-    bless dclone($parameters), ref $class || $class;
+    bless dclone($options{definition}), ref $class || $class;
 }
 
 sub properties {
@@ -37,23 +39,23 @@ sub properties {
 }
 
 sub original_properties {
-    my ($properties, $runtime_properties) = (shift->properties(), shift);
+    my ($properties, %options) = (shift->properties(), @_);
 
-    delete $properties->{$_} for @{$runtime_properties};
+    delete $properties->{$_} for @{$options{runtime_properties}};
 
     $properties;
 }
 
 sub merge {
-    my ($self, $validator, $properties_values) = @_;
+    my ($self, %options) = @_;
 
-    if ($validator->(
+    if ($options{validator}->(
         {
             %{$self->properties()},
-            %{$properties_values}
+            %{$options{values}}
         }
     )) {
-        while (my ($property, $value) = each %{$properties_values}) {
+        while (my ($property, $value) = each %{$options{values}}) {
             $self->{$property} = $value;
         }
 
@@ -62,7 +64,7 @@ sub merge {
 }
 
 BEGIN {
-    sub create_setters {
+    sub create_setters { # only works for a subclass with SUPER::merge()
         my $class = shift;
 
         no strict 'refs';
@@ -71,16 +73,10 @@ BEGIN {
 
         for my $property (@_) {
             *{$class . '::set_' . $property} = sub {
-                shift->merge(
-                    {
-                        $property => shift
-                    }
-                );
+                shift->merge(@_);
             };
         }
     }
-
-    __PACKAGE__->create_setters('name');
 }
 
 # sub AUTOLOAD {}

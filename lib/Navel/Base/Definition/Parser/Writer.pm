@@ -12,8 +12,6 @@ use warnings;
 
 use parent 'Navel::Base';
 
-use Carp 'croak';
-
 use File::Slurp;
 
 use Navel::Utils 'encode_json_pretty';
@@ -23,16 +21,14 @@ our $VERSION = 0.1;
 #-> methods
 
 sub write {
-    my ($self, %parameters) = @_;
-
-    croak('file path missing') unless defined $file_path;
+    my ($self, %options) = @_;
 
     write_file(
-        $file_path,
+        $options{file_path},
         {
             binmode => ':utf8'
         },
-        \encode_json_pretty($definitions)
+        \encode_json_pretty($options{definitions})
     );
 
     $self;

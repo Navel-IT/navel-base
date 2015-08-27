@@ -103,6 +103,8 @@ sub substitute_all_keys($$$@) {
             substitute_all_keys($hash->{$new_key}, $old, $new, $recursive) || return 0;
         }
     }
+
+    1;
 }
 
 sub privasize($@) {

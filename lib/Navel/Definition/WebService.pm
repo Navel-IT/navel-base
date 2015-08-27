@@ -67,20 +67,22 @@ sub web_service_definition_validator($) {
 
 sub new {
     shift->SUPER::new(
-        \&web_service_definition_validator,
-        @_
+        validator => \&web_service_definition_validator,
+        definition => shift
     );
 }
 
 sub merge {
    shift->SUPER::merge(
-        \&web_service_definition_validator,
-        @_ 
+        validator => \&web_service_definition_validator,
+        values => shift
    );
 }
 
 sub original_properties {
-    shift->SUPER::original_properties(\@RUNTIME_PROPERTIES);
+    shift->SUPER::original_properties(
+        runtime_properties => \@RUNTIME_PROPERTIES
+    );
 }
 
 sub url {
@@ -105,6 +107,7 @@ sub url {
 
 BEGIN {
     __PACKAGE__->create_setters(qw/
+        name
         interface_mask
         port
         tls

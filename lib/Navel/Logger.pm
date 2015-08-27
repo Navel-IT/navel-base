@@ -32,37 +32,48 @@ our $VERSION = 0.1;
 #-> globals
 
 binmode STDOUT, ':utf8';
-
 binmode STDERR, ':utf8';
 
 #-> methods
 
 sub new {
-    my ($class, $default_severity, $severity, $file_path) = @_;
+    my ($class, %options) = @_;
 
     bless {
         severity => eval {
-            Navel::Logger::Severity->new($severity)
-        } || Navel::Logger::Severity->new($default_severity),
-        file_path => $file_path,
+            Navel::Logger::Severity->new($options{severity})
+        } || Navel::Logger::Severity->new($options{default_severity}),
+        file_path => $options{default_severity},
         queue => []
     }, ref $class || $class;
 }
 
 sub push_in_queue {
-    my ($self, $message, $severity) = @_;
+    my ($self, %options) = @_;
 
-    push @{$self->{queue}}, '[' . human_readable_localtime(time) . '] [' . $severity . '] ' . crunch($message) if defined $messages && $self->{severity}->does_it_log($severity);
+    $options{message} = crunch($options{message});
+
+    push @{$self->{queue}}, '[' . human_readable_localtime(time) . '] [' . $options{severity} . '] ' . $options{message} if defined $options{message} && $self->{severity}->does_it_log(
+        severity => $options{severity}
+    );
 
     $self;
 }
 
 sub good {
-    shift->push_in_queue(GOOD . ' ' . shift, shift);
+    my ($self, %options) = @_;
+
+    $options{message} = GOOD . ' ' . $options{message};
+
+    $self->push_in_queue(%options);
 }
 
 sub bad {
-    shift->push_in_queue(BAD . ' ' . shift, shift);
+    my ($self, %options) = @_;
+
+    $options{message} = BAD . ' ' . $options{message};
+
+    $self->push_in_queue(%options);
 }
 
 sub clear_queue {
@@ -74,7 +85,7 @@ sub clear_queue {
 }
 
 sub flush_queue {
-    my ($self, $clear_queue) = @_;
+    my ($self, %options) = @_;
 
     if (@{$self->{queue}}) {
         if (defined $self->{file_path}) {
@@ -94,7 +105,7 @@ sub flush_queue {
         }
     }
 
-    $clear_queue ? $self->clear_queue() : $self;
+    $options{clear_queue} ? $self->clear_queue() : $self;
 }
 
 # sub AUTOLOAD {}

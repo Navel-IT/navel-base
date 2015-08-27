@@ -70,7 +70,7 @@ sub rabbitmq_definition_validator($) {
         },
         connector_cron => sub {
             eval {
-                DateTime::Event::Cron::Quartz->new(shift);
+                DateTime::Event::Cron::Quartz->new(@_);
             };
         },
         connector_boolean => sub {
@@ -87,24 +87,27 @@ sub rabbitmq_definition_validator($) {
 
 sub new {
     shift->SUPER::new(
-        \&rabbitmq_definition_validator,
-        @_
+        validator => \&rabbitmq_definition_validator,
+        definition => shift
     );
 }
 
 sub merge {
    shift->SUPER::merge(
-        \&rabbitmq_definition_validator,
-        @_
+        validator => \&rabbitmq_definition_validator,
+        values => shift
    );
 }
 
 sub original_properties {
-    shift->SUPER::original_properties(\@RUNTIME_PROPERTIES);
+    shift->SUPER::original_properties(
+        runtime_properties => \@RUNTIME_PROPERTIES
+    );
 }
 
 BEGIN {
     __PACKAGE__->create_setters(qw/
+        name
         host
         port
         user

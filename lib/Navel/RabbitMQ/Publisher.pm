@@ -12,8 +12,6 @@ use warnings;
 
 use parent 'Navel::Base';
 
-use Carp 'croak';
-
 use AnyEvent::RabbitMQ 1.19;
 
 use Navel::RabbitMQ::Publisher::Event;
@@ -24,21 +22,17 @@ our $VERSION = 0.1;
 #-> methods
 
 sub new {
-    my ($class, $definition) = @_;
-
-    croak('one or more objects are invalids') unless blessed($definition) eq 'Navel::Definition::RabbitMQ';
+    my ($class, %options) = @_;
 
     bless {
-        definition => $definition,
+        definition => $options{rabbitmq_definition},
         net => undef,
         queue => []
     }, ref $class || $class;
 }
 
 sub connect {
-    my ($self, $callbacks) = @_;
-
-    croak('one or more callbacks are not coderef') unless ref $callbacks eq 'HASH' && ref $callbacks->{on_success} eq 'CODE' && ref $callbacks->{on_failure} eq 'CODE' && ref $callbacks->{on_read_failure} eq 'CODE' && ref $callbacks->{on_return} eq 'CODE' && ref $callbacks->{on_close} eq 'CODE';
+    my ($self, %options) = @_;
 
     $self->{net} = AnyEvent::RabbitMQ->new()->load_xml_spec()->connect(
         host => $self->{definition}->{host},
@@ -51,11 +45,11 @@ sub connect {
         tune => {
             heartbeat => $self->{definition}->{heartbeat}
         },
-        on_success => $callbacks->{on_success},
-        on_failure => $callbacks->{on_failure},
-        on_read_failure => $callbacks->{on_read_failure},
-        on_return => $callbacks->{on_return},
-        on_close => $callbacks->{on_close}
+        on_success => $options{on_success},
+        on_failure => $options{on_failure},
+        on_read_failure => $options{on_read_failure},
+        on_return => $options{on_return},
+        on_close => $options{on_close}
     );
 
     $self;
@@ -84,9 +78,11 @@ sub clear_queue {
 }
 
 sub push_in_queue {
-    my ($self, $definition, $status_method) = @_;
+    my ($self, %options) = @_;
 
-    my $event = Navel::RabbitMQ::Publisher::Event->new($definition);
+    my $event = Navel::RabbitMQ::Publisher::Event->new($options{event_definition});
+
+    my $status_method = delete $options{status_method};
 
     $event->$status_method() if defined $status_method;
 

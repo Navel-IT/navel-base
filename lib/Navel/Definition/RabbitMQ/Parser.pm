@@ -18,8 +18,8 @@ our $VERSION = 0.1;
 
 sub new {
     shift->SUPER::new(
-        'Navel::Definition::RabbitMQ',
-        1,
+        definition_class => 'Navel::Definition::RabbitMQ',
+        do_not_need_at_least_one => 1,
         @_
     );
 }

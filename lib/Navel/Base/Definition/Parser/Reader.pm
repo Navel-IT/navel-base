@@ -12,8 +12,6 @@ use warnings;
 
 use parent 'Navel::Base';
 
-use Carp 'croak';
-
 use File::Slurp;
 
 use Navel::Utils 'decode_json';
@@ -23,14 +21,12 @@ our $VERSION = 0.1;
 #-> methods
 
 sub read {
-    my ($self, $file_path) = @_;
-
-    croak('file path missing') unless defined $file_path;
+    my ($self, %options) = @_;
 
     eval {
         decode_json(
             scalar read_file(
-                $file_path,
+                $options{file_path},
                 binmode => ':utf8'
             )
         );

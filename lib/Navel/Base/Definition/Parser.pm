@@ -27,22 +27,22 @@ our $VERSION = 0.1;
 #-> methods
 
 sub new {
-    my ($class, $definition_package, $do_not_need_at_least_one, $maximum) = @_;
+    my ($class, %options) = @_;
 
     my $self = bless {
-        definition_package => $definition_package,
-        do_not_need_at_least_one => $do_not_need_at_least_one,
+        definition_class => $options{definition_class},
+        do_not_need_at_least_one => $options{do_not_need_at_least_one},
         raw => [],
         definitions => []
     }, ref $class || $class;
 
-    $self->set_maximum($maximum);
+    $self->set_maximum($options{maximum});
 }
 
 sub read {
     my $self = shift;
 
-    $self->{raw} = $self->SUPER::read(shift);
+    $self->{raw} = $self->SUPER::read(@_);
 
     $self;
 }
@@ -51,12 +51,12 @@ sub write {
     my $self = shift;
 
     $self->SUPER::write(
-        shift,
-        [
+        definitions => [
             map {
                 $_->original_properties()
             } @{$self->{definitions}}
-        ]
+        ],
+        @_
     );
 
     $self;
@@ -66,30 +66,30 @@ sub make_definition {
     my ($self, $raw_definition) = @_;
 
     my $definition = eval {
-        $self->{definition_package}->new($raw_definition);
+        $self->{definition_class}->new($raw_definition);
     };
 
-    $@ ? croak($self->{definition_package} . ' : ' . $@) : $definition;
+    $@ ? croak($self->{definition_class} . ' : ' . $@) : $definition;
 };
 
 sub make {
-    my ($self, $extra_parameters) = @_;
+    my ($self, %options) = @_;
 
-    if (eval 'require ' . $self->{definition_package}) {
+    if (eval 'require ' . $self->{definition_class}) {
         if (reftype($self->{raw}) eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
-            $self->add_definition(reftype($extra_parameters) eq 'HASH'
+            $self->add_definition(reftype($options{extra_parameters}) eq 'HASH'
             ?
                 {
                     %{$_},
-                    %{$extra_parameters}
+                    %{$options{extra_parameters}}
                 }
             : $_
             ) for @{$self->{raw}};
         } else {
-            croak($self->{definition_package} . ' : raw datas need to exists and to be encapsulated in an array');
+            croak($self->{definition_class} . ' : raw datas need to exists and to be encapsulated in an array');
         }
     } else {
-        croak($self->{definition_package} . ' : require failed');
+        croak($self->{definition_class} . ' : require failed');
     }
 
     $self;
@@ -98,9 +98,11 @@ sub make {
 sub set_maximum {
     my ($self, $maximum) = @_;
 
-    $maximum = $maximum || 0;
+    my $minimum = 0;
 
-    croak('maximum must be an integer equal or greater than 0') unless isint($maximum) && $maximum >= 0;
+    $maximum = $maximum || $minimum;
+
+    croak('maximum must be an integer equal or greater than ' . $minimum) unless isint($maximum) && $maximum >= $minimum;
 
     $self->{maximum} = $maximum;
 
@@ -108,31 +110,27 @@ sub set_maximum {
 }
 
 sub definition_by_name {
-    my ($self, $definition_name) = @_;
-
-    croak('definition_name must be defined') unless defined $definition_name;
+    my ($self, $name) = @_;
 
     for (@{$self->{definitions}}) {
-        return $_ if $_->{name} eq $definition_name;
+        return $_ if $_->{name} eq $name;
     }
 
     undef;
 }
 
 sub definition_properties_by_name {
-    my $definition = shift->definition_by_name(shift);
+    my $definition = shift->definition_by_name(@_);
 
     defined $definition ? $definition->properties() : undef;
 }
 
 sub all_by_property_name {
-    my ($self, $property_name) = @_;
-
-    croak('property_name must be defined') unless defined $property_name;
+    my ($self, $name) = @_;
 
     [
         map {
-            $_->can($property_name) ? $_->$property_name() : $_->{$property_name}
+            $_->can($name) ? $_->$name() : $_->{$name}
         } @{$self->{definitions}}
     ];
 }
@@ -142,8 +140,8 @@ sub add_definition {
 
     my $definition = $self->make_definition($raw_definition);
 
-    croak($self->{definition_package} . ' : the maximum number of definition (' . $self->{maximum} . ') has been reached') if $self->{maximum} && @{$self->{definitions}} > $self->{maximum};
-    croak($self->{definition_package} . ' : duplicate definition detected') if defined $self->definition_by_name($definition->{name});
+    croak($self->{definition_class} . ' : the maximum number of definition (' . $self->{maximum} . ') has been reached') if $self->{maximum} && @{$self->{definitions}} > $self->{maximum};
+    croak($self->{definition_class} . ' : duplicate definition detected') if defined $self->definition_by_name($definition->{name});
 
     push @{$self->{definitions}}, $definition;
 
@@ -151,23 +149,21 @@ sub add_definition {
 }
 
 sub delete_definition {
-    my ($self, $definition_name, $do_before_slice) = @_;
-
-    croak('definition_name must be defined') unless defined $definition_name;
+    my ($self, %options) = @_;
 
     my $definition_to_delete_index = 0;
 
     my $finded;
 
-    $definition_to_delete_index++ until $finded = $self->{definitions}->[$definition_to_delete_index]->{name} eq $definition_name;
+    $definition_to_delete_index++ until $finded = $self->{definitions}->[$definition_to_delete_index]->{name} eq $options{definition_name};
 
-    croak($self->{definition_package} . ' : definition ' . $definition_name . ' does not exists') unless $finded;
+    croak($self->{definition_class} . ' : definition ' . $options{definition_name} . ' does not exists') unless $finded;
 
-    $do_before_slice->($self->{definitions}->[$definition_to_delete_index]) if ref $do_before_slice eq 'CODE';
+    $options{do_before_slice}->($self->{definitions}->[$definition_to_delete_index]) if ref $options{do_before_slice} eq 'CODE';
 
     splice @{$self->{definitions}}, $definition_to_delete_index, 1;
 
-    $definition_name;
+    $options{definition_name};
 }
 
 BEGIN {

@@ -20,7 +20,9 @@ BEGIN {
 my $web_services_definitions_path = 't/03-webservices.json';
 
 lives_ok {
-    Navel::Definition::WebService::Parser->new()->read($web_services_definitions_path)->make();
+    Navel::Definition::WebService::Parser->new()->read(
+        file_path => $web_services_definitions_path
+    )->make();
 } 'making configuration from ' . $web_services_definitions_path;
 
 #-> END

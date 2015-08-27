@@ -70,7 +70,7 @@ sub connector_definition_validator($) {
         },
         connector_cron => sub {
             eval {
-                DateTime::Event::Cron::Quartz->new(shift);
+                DateTime::Event::Cron::Quartz->new(@_);
             };
         }
     );
@@ -82,20 +82,22 @@ sub connector_definition_validator($) {
 
 sub new {
     shift->SUPER::new(
-        \&connector_definition_validator,
-        @_
+        validator => \&connector_definition_validator,
+        definition => shift
     );
 }
 
 sub merge {
    shift->SUPER::merge(
-        \&connector_definition_validator,
-        @_
+        validator => \&connector_definition_validator,
+        values => shift
    );
 }
 
 sub original_properties {
-    shift->SUPER::original_properties(\@RUNTIME_PROPERTIES);
+    shift->SUPER::original_properties(
+        runtime_properties => \@RUNTIME_PROPERTIES
+    );
 }
 
 sub is_type_code {
@@ -114,6 +116,7 @@ sub exec_file_path {
 
 BEGIN {
     __PACKAGE__->create_setters(qw/
+        name
         collection
         type
         singleton

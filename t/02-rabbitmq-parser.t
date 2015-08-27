@@ -20,7 +20,9 @@ BEGIN {
 my $rabbitmq_definitions_path = 't/02-rabbitmq.json';
 
 lives_ok {
-    Navel::Definition::RabbitMQ::Parser->new()->read($rabbitmq_definitions_path)->make();
+    Navel::Definition::RabbitMQ::Parser->new()->read(
+        file_path => $rabbitmq_definitions_path
+    )->make();
 } 'making configuration from ' . $rabbitmq_definitions_path;
 
 #-> END

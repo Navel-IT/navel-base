@@ -44,16 +44,16 @@ our $VERSION = 0.1;
 #-> functions
 
 sub to($@) {
-    my ($datas, $connector, $collection) = @_;
+    my %options = @_;
 
-    $connector = unblessed($connector) if blessed($connector) eq 'Navel::Definition::Connector';
+    $options{connector} = unblessed($options{connector}) if blessed($options{connector}) eq 'Navel::Definition::Connector';
 
     encode_sereal_constructor()->encode(
         {
-            datas => $datas,
+            datas => $options{datas},
             time => time,
-            connector => $connector,
-            collection => defined $collection ? sprintf '%s', $collection : $collection
+            connector => $options{connector},
+            collection => defined $options{collection} ? sprintf '%s', $options{collection} : $options{collection}
         }
     );
 }

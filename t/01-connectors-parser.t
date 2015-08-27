@@ -20,8 +20,10 @@ BEGIN {
 my $connectors_definitions_path = 't/01-connectors.json';
 
 lives_ok {
-    Navel::Definition::Connector::Parser->new()->read($connectors_definitions_path)->make(
-        {
+    Navel::Definition::Connector::Parser->new()->read(
+        file_path => $connectors_definitions_path
+    )->make(
+        extra_parameters => {
             exec_directory_path => 't/'
         }
     );

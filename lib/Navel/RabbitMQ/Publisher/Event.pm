@@ -78,9 +78,9 @@ sub serialized_datas {
     my $self = shift;
 
     to(
-        $self->{datas},
-        $self->{connector},
-        $self->{collection}
+        datas => $self->{datas},
+        connector => $self->{connector},
+        collection => $self->{collection}
     );
 }
 
