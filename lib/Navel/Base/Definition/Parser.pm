@@ -69,7 +69,7 @@ sub make_definition {
         $self->{definition_class}->new($raw_definition);
     };
 
-    $@ ? croak($self->{definition_class} . ' : ' . $@) : $definition;
+    $@ ? croak($self->{definition_class} . ': ' . $@) : $definition;
 };
 
 sub make {
@@ -86,10 +86,10 @@ sub make {
             : $_
             ) for @{$self->{raw}};
         } else {
-            croak($self->{definition_class} . ' : raw datas need to exists and to be encapsulated in an array');
+            croak($self->{definition_class} . ': raw datas need to exists and to be encapsulated in an array');
         }
     } else {
-        croak($self->{definition_class} . ' : require failed');
+        croak($self->{definition_class} . ': require failed');
     }
 
     $self;
@@ -140,8 +140,8 @@ sub add_definition {
 
     my $definition = $self->make_definition($raw_definition);
 
-    croak($self->{definition_class} . ' : the maximum number of definition (' . $self->{maximum} . ') has been reached') if $self->{maximum} && @{$self->{definitions}} > $self->{maximum};
-    croak($self->{definition_class} . ' : duplicate definition detected') if defined $self->definition_by_name($definition->{name});
+    croak($self->{definition_class} . ': the maximum number of definition (' . $self->{maximum} . ') has been reached') if $self->{maximum} && @{$self->{definitions}} > $self->{maximum};
+    croak($self->{definition_class} . ': duplicate definition detected') if defined $self->definition_by_name($definition->{name});
 
     push @{$self->{definitions}}, $definition;
 
@@ -157,7 +157,7 @@ sub delete_definition {
 
     $definition_to_delete_index++ until $finded = $self->{definitions}->[$definition_to_delete_index]->{name} eq $options{definition_name};
 
-    croak($self->{definition_class} . ' : definition ' . $options{definition_name} . ' does not exists') unless $finded;
+    croak($self->{definition_class} . ': definition ' . $options{definition_name} . ' does not exists') unless $finded;
 
     $options{do_before_slice}->($self->{definitions}->[$definition_to_delete_index]) if ref $options{do_before_slice} eq 'CODE';
 
