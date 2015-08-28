@@ -21,6 +21,8 @@ use constant {
 
 use File::Slurp 'append_file';
 
+use AnyEvent::IO;
+
 use Navel::Logger::Severity;
 use Navel::Utils qw/
     human_readable_localtime
@@ -89,23 +91,44 @@ sub flush_queue {
 
     if (@{$self->{queue}}) {
         if (defined $self->{file_path}) {
-            eval {
-                append_file(
-                    $self->{file_path},
-                    {
-                        binmode => ':utf8'
-                    },
-                    [
-                        map { $_ . "\n" } @{$self->{queue}}
-                    ]
+            if ($options{async}) {
+                my $queue = join "\n", @{$self->{queue}};
+
+                aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0,
+                    sub {
+                        my $filehandle = shift;
+
+                        if ($filehandle) {
+                            aio_write($filehandle, $queue . "\n",
+                                sub {
+                                    aio_close($filehandle,
+                                        sub {
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    }
                 );
-            };
+            } else {
+                eval {
+                    append_file(
+                        $self->{file_path},
+                        {
+                            binmode => ':utf8'
+                        },
+                        [
+                            map { $_ . "\n" } @{$self->{queue}}
+                        ]
+                    );
+                };
+            }
         } else {
-            say join "\n", @{$self->{queue}};;
+            say join "\n", @{$self->{queue}};
         }
     }
 
-    $options{clear_queue} ? $self->clear_queue() : $self;
+    $self->clear_queue();
 }
 
 # sub AUTOLOAD {}
