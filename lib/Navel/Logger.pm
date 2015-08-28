@@ -43,7 +43,7 @@ sub new {
         severity => eval {
             Navel::Logger::Severity->new($options{severity})
         } || Navel::Logger::Severity->new($options{default_severity}),
-        file_path => $options{default_severity},
+        file_path => $options{file_path},
         queue => []
     }, ref $class || $class;
 }
