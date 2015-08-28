@@ -25,7 +25,7 @@ unlink $log_file if ok(Navel::Logger->new(
 )->push_in_queue(
     message => __FILE__,
     severity => 'notice'
-)->flush_queue(), 'new()->push_in_queue()->flush_queue() : push datas in ' . $log_file);
+)->flush_queue(), 'new()->push_in_queue()->flush_queue(): push datas in ' . $log_file);
 
 #-> END
 

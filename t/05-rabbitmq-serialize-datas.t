@@ -39,10 +39,10 @@ if (lives_ok {
         ),
         collection => 'test'
     );
-} 'to() : serialize') {
+} 'to(): serialize') {
     lives_ok {
         from($serialized);
-    } 'from() : deserialize';
+    } 'from(): deserialize';
 }
 
 done_testing();

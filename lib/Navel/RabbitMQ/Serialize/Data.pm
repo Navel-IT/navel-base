@@ -66,7 +66,7 @@ sub from($) {
     my $connector;
 
     if (defined $deserialized->{connector}) {
-        croak('deserialized datas are invalid : connector definition is invalid') unless connector_definition_validator($deserialized->{connector});
+        croak('deserialized datas are invalid: connector definition is invalid') unless connector_definition_validator($deserialized->{connector});
 
         $connector = Navel::Definition::Connector->new($deserialized->{connector});
     }
