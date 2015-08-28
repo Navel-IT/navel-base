@@ -23,8 +23,6 @@ our $VERSION = 0.1;
 sub write {
     my ($self, %options) = @_;
 
-    croak('file path missing') unless defined $file_path;
-
     write_file(
         $options{file_path},
         {
