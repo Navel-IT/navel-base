@@ -41,7 +41,7 @@ sub write {
 
                     aio_truncate($filehandle, 0,
                         sub {
-                            if ($@) {
+                            if (@_) {
                                 my $json_definitions = encode_json_pretty($options{definitions});
 
                                 aio_write($filehandle, $json_definitions,
