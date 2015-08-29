@@ -19,7 +19,7 @@ use constant {
     BAD => ':('
 };
 
-use File::Slurp 'append_file';
+use File::Slurp;
 
 use AnyEvent::IO;
 
@@ -111,17 +111,15 @@ sub flush_queue {
                     }
                 );
             } else {
-                eval {
-                    append_file(
-                        $self->{file_path},
-                        {
-                            binmode => ':utf8'
-                        },
-                        [
-                            map { $_ . "\n" } @{$self->{queue}}
-                        ]
-                    );
-                };
+                append_file(
+                    $self->{file_path},
+                    {
+                        binmode => ':utf8'
+                    },
+                    [
+                        map { $_ . "\n" } @{$self->{queue}}
+                    ]
+                );
             }
         } else {
             say join "\n", @{$self->{queue}};

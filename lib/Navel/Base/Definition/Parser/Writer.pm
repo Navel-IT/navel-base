@@ -14,6 +14,8 @@ use parent 'Navel::Base';
 
 use File::Slurp;
 
+use AnyEvent::IO;
+
 use Navel::Utils 'encode_json_pretty';
 
 our $VERSION = 0.1;
@@ -23,13 +25,52 @@ our $VERSION = 0.1;
 sub write {
     my ($self, %options) = @_;
 
-    write_file(
-        $options{file_path},
-        {
-            binmode => ':utf8'
-        },
-        \encode_json_pretty($options{definitions})
-    );
+    if ($options{async}) {
+        aio_open($options{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY, 0,
+            sub {
+                my $filehandle = shift;
+
+                if ($filehandle) {
+                    my $json_definitions = encode_json_pretty($options{definitions});
+
+                    aio_write($filehandle, $json_definitions,
+                        sub {
+                            if (shift == length $json_definitions) {
+                                $options{on_success}->($options{file_path});
+                            } else {
+                                $options{on_error}->($options{file_path} . ': the definitions have not been properly written, they are probably corrupt');
+                            }
+
+                            aio_close($filehandle,
+                                sub {
+                                    $options{on_error}->($options{file_path} . ': ' . $!) unless shift;
+                                }
+                            );
+                        }
+                    );
+                } else {
+                    $options{on_error}->($options{file_path} . ': ' . $!);
+                }
+            }
+        );
+    } else {
+        eval {
+            write_file(
+                $options{file_path},
+                {
+                    err_mode => 'carp',
+                    binmode => ':utf8'
+                },
+                \encode_json_pretty($options{definitions})
+            );
+        };
+
+        unless ($@) {
+            $options{on_success}->($options{file_path});
+        } else {
+            $options{on_error}->($options{file_path} . ': ' . $@);
+        }
+    }
 
     $self;
 }
