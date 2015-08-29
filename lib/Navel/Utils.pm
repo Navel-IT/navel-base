@@ -78,7 +78,7 @@ sub reftype($) {
 sub human_readable_localtime($) {
     my ($sec, $min, $hour, $mday, $mon, $year) = localtime shift;
 
-    sprintf '%d/%02d/%02d %02d:%02d:%02d', 1900 + $year, $mday, $mon, $hour, $min, $sec;
+    sprintf '%d/%02d/%02d %02d:%02d:%02d', $mday, $mon, 1900 + $year, $hour, $min, $sec;
 }
 
 sub replace_key($$$) {
