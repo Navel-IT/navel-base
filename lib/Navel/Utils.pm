@@ -15,7 +15,10 @@ use subs 'substitute_all_keys';
 use Exporter::Easy (
     OK => [qw/
         :all
+        :string
+        :numeric
         :scalar
+        :pripub
         :hash
         :json
         :json_pretty
