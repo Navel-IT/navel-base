@@ -42,12 +42,15 @@ our $VERSION = 0.1;
 sub to($@) {
     my %options = @_;
 
+    croak('time is invalid') unless isint($options{time});
+
     $options{connector} = unblessed($options{connector}) if blessed($options{connector}) eq 'Navel::Definition::Connector';
 
     encode_sereal_constructor()->encode(
         {
             datas => $options{datas},
-            time => time,
+            starting_time => $options{starting_time},
+            ending_time => $options{ending_time},
             connector => $options{connector},
             collection => defined $options{collection} ? sprintf '%s', $options{collection} : $options{collection}
         }
@@ -57,7 +60,7 @@ sub to($@) {
 sub from($) {
     my $deserialized = decode_sereal_constructor()->decode(shift);
 
-    croak('deserialized datas are invalid') unless reftype($deserialized) eq 'HASH' && isint($deserialized->{time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
+    croak('deserialized datas are invalid') unless reftype($deserialized) eq 'HASH' && isint($deserialized->{starting_time}) && isint($deserialized->{ending_time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
 
     my $connector;
 

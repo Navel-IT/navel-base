@@ -80,7 +80,7 @@ sub clear_queue {
 sub push_in_queue {
     my ($self, %options) = @_;
 
-    my $event = Navel::RabbitMQ::Publisher::Event->new($options{event_definition});
+    my $event = Navel::RabbitMQ::Publisher::Event->new(%{$options{event_definition}});
 
     my $status_method = delete $options{status_method};
 

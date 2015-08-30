@@ -37,7 +37,8 @@ if (lives_ok {
                 exec_directory_path => ''
             }
         ),
-        collection => 'test'
+        starting_time => time,
+        ending_time => time
     );
 } 'to(): serialize') {
     lives_ok {

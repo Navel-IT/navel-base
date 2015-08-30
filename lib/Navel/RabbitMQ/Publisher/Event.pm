@@ -21,31 +21,34 @@ use parent 'Navel::Base';
 use Carp 'croak';
 
 use Navel::RabbitMQ::Serialize::Data 'to';
-use Navel::Utils 'blessed';
+use Navel::Utils qw/
+    blessed
+    isint
+ /;
 
 our $VERSION = 0.1;
 
 #-> methods
 
 sub new {
-    my ($class, $definition) = @_;
-
-    croak('event definition is invalid') unless ref $definition eq 'HASH';
+    my ($class, %options) = @_;
 
     my $self = bless {}, ref $class || $class;
 
-    if (blessed($definition->{connector}) eq 'Navel::Definition::Connector') {
-        $self->{connector} = $definition->{connector};
+    if (blessed($options{connector}) eq 'Navel::Definition::Connector') {
+        $self->{connector} = $options{connector};
         $self->{collection} = $self->{connector}->{collection};
     } else {
-        croak('collection cannot be undefined') unless defined $definition->{collection};
+        croak('collection cannot be undefined') unless defined $options{collection};
 
         $self->{connector} = undef;
-        $self->{collection} = $definition->{collection};
+        $self->{collection} = $options{collection};
     }
 
     $self->set_ok();
-    $self->{datas} = $definition->{datas};
+    $self->{datas} = $options{datas};
+
+    $self->{$_} = isint($options{$_}) ? $options{$_} : time for qw/starting_time ending_time/;
 
     $self;
 }
@@ -79,6 +82,8 @@ sub serialized_datas {
 
     to(
         datas => $self->{datas},
+        starting_time => $self->{starting_time},
+        ending_time => $self->{ending_time},
         connector => $self->{connector},
         collection => $self->{collection}
     );
