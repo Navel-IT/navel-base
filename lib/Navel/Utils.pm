@@ -15,7 +15,7 @@ use subs 'substitute_all_keys';
 use Exporter::Easy (
     OK => [qw/
         crunch
-        isnum
+        isint
         isfloat
         blessed
         reftype
@@ -46,7 +46,7 @@ use Exporter::Easy (
             crunch
         /],
         numeric => [qw/
-            isnum
+            isint
             isfloat
         /],
         scalar => [qw/
