@@ -30,8 +30,7 @@ use Carp 'croak';
 
 use Navel::Definition::Connector 'connector_definition_validator';
 use Navel::Utils qw/
-    blessed
-    unblessed
+    :scalar
     :sereal
     isint
 /;
