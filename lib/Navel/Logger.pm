@@ -94,22 +94,18 @@ sub flush_queue {
             if ($options{async}) {
                 my $queue = join "\n", @{$self->{queue}};
 
-                aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0,
-                    sub {
-                        my $filehandle = shift;
+                aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0, sub {
+                    my $filehandle = shift;
 
-                        if ($filehandle) {
-                            aio_write($filehandle, $queue . "\n",
+                    if ($filehandle) {
+                        aio_write($filehandle, $queue . "\n", sub {
+                            aio_close($filehandle,
                                 sub {
-                                    aio_close($filehandle,
-                                        sub {
-                                        }
-                                    );
                                 }
                             );
-                        }
+                        });
                     }
-                );
+                });
             } else {
                 append_file(
                     $self->{file_path},
