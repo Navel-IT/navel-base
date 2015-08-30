@@ -31,9 +31,9 @@ use Exporter::Easy (
 
 use Data::Validate::Struct;
 
-use Scalar::Util::Numeric 'isint';
-
 use DateTime::Event::Cron::Quartz;
+
+use Navel::Utils 'isint';
 
 our $VERSION = 0.1;
 

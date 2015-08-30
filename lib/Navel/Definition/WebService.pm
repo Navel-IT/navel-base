@@ -28,9 +28,7 @@ use Exporter::Easy (
 
 use Data::Validate::Struct;
 
-use Scalar::Util::Numeric qw/
-    isint
-/;
+use Navel::Utils 'isint';
 
 use Mojo::URL;
 

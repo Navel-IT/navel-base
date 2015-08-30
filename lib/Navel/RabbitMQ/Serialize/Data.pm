@@ -28,14 +28,12 @@ use Exporter::Easy (
 
 use Carp 'croak';
 
-use Scalar::Util::Numeric 'isint';
-
-use Navel::Definition::Connector ':all';
+use Navel::Definition::Connector 'connector_definition_validator';
 use Navel::Utils qw/
     blessed
     unblessed
-    encode_sereal_constructor
-    decode_sereal_constructor
+    :sereal
+    isint
 /;
 
 our $VERSION = 0.1;

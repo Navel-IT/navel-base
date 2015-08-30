@@ -18,7 +18,7 @@ use parent qw/
 
 use Carp 'croak';
 
-use Scalar::Util::Numeric 'isint';
+use Navel::Utils 'isint';
 
 our $VERSION = 0.1;
 

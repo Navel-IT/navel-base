@@ -15,52 +15,83 @@ use subs 'substitute_all_keys';
 use Exporter::Easy (
     OK => [qw/
         :all
+        :scalar
+        :hash
+        :json
+        :json_pretty
+        :sereal
+        :time
         crunch
         blessed
         reftype
-        human_readable_localtime
+        unblessed
+        privasize
+        publicize
         replace_key
         substitute_all_keys
-        publicize
-        privasize
-        unblessed
         encode_json
         decode_json
         encode_json_pretty
         encode_sereal_constructor
         decode_sereal_constructor
+        human_readable_localtime
     /],
     TAGS => [
         all => [qw/
+            :string
+            :numeric
+            :scalar
+            :pripub
+            :hash
+            :json
+            :json_pretty
+            :sereal
+            :time
+        /],
+        string => [qw/
             crunch
+        /],
+        numeric => [qw/
+            isnum
+            isfloat
+        /],
+        scalar => [qw/
             blessed
             reftype
-            human_readable_localtime
+            unblessed
+        /],
+        pripub => [qw/
+            privasize
+            publicize
+        /],
+        hash => [qw/
             replace_key
             substitute_all_keys
-            publicize
-            privasize
-            unblessed
+        /],
+        json => [qw/
             encode_json
             decode_json
+        /],
+        json_pretty => [qw/
             encode_json_pretty
+        /],
+        sereal => [qw/
             encode_sereal_constructor
             decode_sereal_constructor
+        /],
+        time => [qw/
+            human_readable_localtime
         /]
-    ],
-    json => [qw/
-        encode_json
-        decode_json
-        encode_json_pretty
-    /],
-    sereal => [qw/
-        encode_sereal_constructor
-        decode_sereal_constructor
-    /]
+    ]
 );
 
 require Scalar::Util;
 use String::Util 'crunch';
+
+use Scalar::Util::Numeric qw/
+    isint
+    isfloat
+/;
 
 use JSON qw/
     encode_json
@@ -84,10 +115,16 @@ sub reftype($) {
    defined $reftype ? $reftype : '';
 }
 
-sub human_readable_localtime($) {
-    my ($sec, $min, $hour, $mday, $mon, $year) = localtime shift;
+sub unblessed($) {
+    return { %{+shift} };
+}
 
-    sprintf '%d/%02d/%02d %02d:%02d:%02d', $mday, $mon, 1900 + $year, $hour, $min, $sec;
+sub privasize($@) {
+    substitute_all_keys(shift, '^(.*)', '__$1', shift);
+}
+
+sub publicize($@) {
+    substitute_all_keys(shift, '^__', '', shift);
 }
 
 sub replace_key($$$) {
@@ -116,18 +153,6 @@ sub substitute_all_keys($$$@) {
     1;
 }
 
-sub privasize($@) {
-    substitute_all_keys(shift, '^(.*)', '__$1', shift);
-}
-
-sub publicize($@) {
-    substitute_all_keys(shift, '^__', '', shift);
-}
-
-sub unblessed($) {
-    return { %{+shift} };
-}
-
 sub encode_json_pretty($) {
     JSON->new()->utf8()->pretty()->encode(shift);
 }
@@ -138,6 +163,12 @@ sub encode_sereal_constructor {
 
 sub decode_sereal_constructor {
     Sereal::Decoder->new();
+}
+
+sub human_readable_localtime($) {
+    my ($sec, $min, $hour, $mday, $mon, $year) = localtime shift;
+
+    sprintf '%d/%02d/%02d %02d:%02d:%02d', $mday, $mon, 1900 + $year, $hour, $min, $sec;
 }
 
 1;
