@@ -47,7 +47,16 @@ use Exporter::Easy (
             encode_sereal_constructor
             decode_sereal_constructor
         /]
-    ]
+    ],
+    json => [qw/
+        encode_json
+        decode_json
+        encode_json_pretty
+    /],
+    sereal => [qw/
+        encode_sereal_constructor
+        decode_sereal_constructor
+    /]
 );
 
 require Scalar::Util;

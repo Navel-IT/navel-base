@@ -34,7 +34,6 @@ use Navel::Definition::Connector ':all';
 use Navel::Utils qw/
     blessed
     unblessed
-    reftype
     encode_sereal_constructor
     decode_sereal_constructor
 /;
@@ -61,7 +60,7 @@ sub to($@) {
 sub from($) {
     my $deserialized = decode_sereal_constructor()->decode(shift);
 
-    croak('deserialized datas are invalid') unless reftype($deserialized) && isint($deserialized->{time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
+    croak('deserialized datas are invalid') unless reftype($deserialized) eq 'HASH' && isint($deserialized->{time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
 
     my $connector;
 

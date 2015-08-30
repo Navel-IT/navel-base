@@ -20,8 +20,6 @@ use Carp 'croak';
 
 use Scalar::Util::Numeric 'isint';
 
-use Navel::Utils 'reftype';
-
 our $VERSION = 0.1;
 
 #-> methods
@@ -76,8 +74,8 @@ sub make {
     my ($self, %options) = @_;
 
     if (eval 'require ' . $self->{definition_class}) {
-        if (reftype($self->{raw}) eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
-            $self->add_definition(reftype($options{extra_parameters}) eq 'HASH'
+        if (ref $self->{raw} eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
+            $self->add_definition(ref $options{extra_parameters} eq 'HASH'
             ?
                 {
                     %{$_},
