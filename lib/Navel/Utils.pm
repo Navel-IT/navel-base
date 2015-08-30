@@ -14,17 +14,9 @@ use subs 'substitute_all_keys';
 
 use Exporter::Easy (
     OK => [qw/
-        :all
-        :string
-        :numeric
-        :scalar
-        :pripub
-        :hash
-        :json
-        :json_pretty
-        :sereal
-        :time
         crunch
+        isnum
+        isfloat
         blessed
         reftype
         unblessed
@@ -38,19 +30,18 @@ use Exporter::Easy (
         encode_sereal_constructor
         decode_sereal_constructor
         human_readable_localtime
+        :string
+        :numeric
+        :scalar
+        :pripub
+        :hash
+        :json
+        :json_pretty
+        :sereal
+        :time
+        :all
     /],
     TAGS => [
-        all => [qw/
-            :string
-            :numeric
-            :scalar
-            :pripub
-            :hash
-            :json
-            :json_pretty
-            :sereal
-            :time
-        /],
         string => [qw/
             crunch
         /],
@@ -84,6 +75,17 @@ use Exporter::Easy (
         /],
         time => [qw/
             human_readable_localtime
+        /],
+        all => [qw/
+            :string
+            :numeric
+            :scalar
+            :pripub
+            :hash
+            :json
+            :json_pretty
+            :sereal
+            :time
         /]
     ]
 );
