@@ -42,7 +42,8 @@ our $VERSION = 0.1;
 sub to($@) {
     my %options = @_;
 
-    croak('time is invalid') unless isint($options{time});
+    croak('starting_time is invalid') unless isint($options{starting_time});
+    croak('ending_time is invalid') unless isint($options{ending_time});
 
     $options{connector} = unblessed($options{connector}) if blessed($options{connector}) eq 'Navel::Definition::Connector';
 
