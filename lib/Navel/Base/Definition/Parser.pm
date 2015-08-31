@@ -10,6 +10,8 @@ package Navel::Base::Definition::Parser;
 use strict;
 use warnings;
 
+use feature 'state';
+
 use parent qw/
     Navel::Base
     Navel::Base::Definition::Parser::Reader
@@ -149,11 +151,9 @@ sub add_definition {
 sub delete_definition {
     my ($self, %options) = @_;
 
-    my $definition_to_delete_index = 0;
-
     my $finded;
 
-    $definition_to_delete_index++ until $finded = $self->{definitions}->[$definition_to_delete_index]->{name} eq $options{definition_name};
+    state $definition_to_delete_index++ until $finded = $self->{definitions}->[$definition_to_delete_index]->{name} eq $options{definition_name};
 
     croak($self->{definition_class} . ': definition ' . $options{definition_name} . ' does not exists') unless $finded;
 
