@@ -173,7 +173,7 @@ sub decode_sereal_constructor {
 sub human_readable_localtime($) {
     my ($sec, $min, $hour, $mday, $mon, $year) = localtime shift;
 
-    sprintf '%d/%02d/%02d %02d:%02d:%02d', $mday, $mon, 1900 + $year, $hour, $min, $sec;
+    sprintf '%02d/%02d/%02d %02d:%02d:%02d', $mday, $mon + 1, 1900 + $year, $hour, $min, $sec;
 }
 
 1;
