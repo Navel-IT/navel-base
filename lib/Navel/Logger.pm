@@ -95,7 +95,7 @@ sub queue_to_text {
 
     [
         map {
-            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . uc($_->{severity}) . ' # ' . $_->{message};
+            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . uc($_->{severity}) . ' - ' . $_->{message};
 
             $options{colored} ? colored($message, $_->{message_color}) : $message;
         } @{$self->{queue}}
