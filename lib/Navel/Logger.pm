@@ -59,7 +59,7 @@ sub push_in_queue {
     my ($self, %options) = @_;
 
     $options{message} = crunch($options{message});
-    
+
     push @{$self->{queue}}, {
         time => time,
         severity => $options{severity},
@@ -75,7 +75,7 @@ sub push_in_queue {
 sub good {
     my ($self, %options) = @_;
 
-    $options{message} = GOOD . ' ' . $options{message};
+    $options{message} = GOOD . ' - ' . $options{message};
     $options{message_color} = GOOD_COLOR;
 
     $self->push_in_queue(%options);
@@ -84,19 +84,19 @@ sub good {
 sub bad {
     my ($self, %options) = @_;
 
-    $options{message} = BAD . ' ' . $options{message};
+    $options{message} = BAD . ' - ' . $options{message};
     $options{message_color} = BAD_COLOR;
 
     $self->push_in_queue(%options);
 }
 
-sub queue_to_text {  
+sub queue_to_text {
     my ($self, %options) = @_;
-    
+
     [
         map {
-            my $message = '[' . human_readable_localtime($_->{time}) . '] [' . $_->{severity} . '] ' . $_->{message};
-            
+            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . uc($_->{severity}) . ' # ' . $_->{message};
+
             $options{colored} ? colored($message, $_->{message_color}) : $message;
         } @{$self->{queue}}
     ];
