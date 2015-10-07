@@ -42,6 +42,7 @@ WriteMakefile(
         'Data::Validate::Struct' => 0,
         'String::Util' => 0,
         'DateTime::Event::Cron::Quartz' => 0,
+        'Term::ANSIColor' => 0,
         'File::Slurp' => 0,
         'Mojo::URL' => 0,
         'JSON' => 0,

@@ -16,12 +16,17 @@ use parent 'Navel::Base';
 
 use constant {
     GOOD => ':)',
-    BAD => ':('
+    BAD => ':(',
+    DEFAULT_COLOR => 'white',
+    GOOD_COLOR => 'green',
+    BAD_COLOR => 'red'
 };
 
 use File::Slurp;
 
 use AnyEvent::IO;
+
+use Term::ANSIColor;
 
 use Navel::Logger::Severity;
 use Navel::Utils qw/
@@ -54,8 +59,13 @@ sub push_in_queue {
     my ($self, %options) = @_;
 
     $options{message} = crunch($options{message});
-
-    push @{$self->{queue}}, '[' . human_readable_localtime(time) . '] [' . $options{severity} . '] ' . $options{message} if defined $options{message} && $self->{severity}->does_it_log(
+    
+    push @{$self->{queue}}, {
+        time => time,
+        severity => $options{severity},
+        message => $options{message},
+        message_color => $options{message_color} || DEFAULT_COLOR,
+    } if defined $options{message} && $self->{severity}->does_it_log(
         severity => $options{severity}
     );
 
@@ -66,6 +76,7 @@ sub good {
     my ($self, %options) = @_;
 
     $options{message} = GOOD . ' ' . $options{message};
+    $options{message_color} = GOOD_COLOR;
 
     $self->push_in_queue(%options);
 }
@@ -74,8 +85,21 @@ sub bad {
     my ($self, %options) = @_;
 
     $options{message} = BAD . ' ' . $options{message};
+    $options{message_color} = BAD_COLOR;
 
     $self->push_in_queue(%options);
+}
+
+sub queue_to_text {  
+    my ($self, %options) = @_;
+    
+    [
+        map {
+            my $message = '[' . human_readable_localtime($_->{time}) . '] [' . $_->{severity} . '] ' . $_->{message};
+            
+            $options{colored} ? colored($message, $_->{message_color}) : $message;
+        } @{$self->{queue}}
+    ];
 }
 
 sub clear_queue {
@@ -91,14 +115,14 @@ sub flush_queue {
 
     if (@{$self->{queue}}) {
         if (defined $self->{file_path}) {
-            if ($options{async}) {
-                my $queue = join "\n", @{$self->{queue}};
+            my $queue_to_text = $self->queue_to_text();
 
+            if ($options{async}) {
                 aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0, sub {
                     my $filehandle = shift;
 
                     if ($filehandle) {
-                        aio_write($filehandle, $queue . "\n", sub {
+                        aio_write($filehandle, join("\n", @{$queue_to_text}) . "\n", sub {
                             aio_close($filehandle,
                                 sub {
                                 }
@@ -113,12 +137,14 @@ sub flush_queue {
                         binmode => ':utf8'
                     },
                     [
-                        map { $_ . "\n" } @{$self->{queue}}
+                        map { $_ . "\n" } @{$queue_to_text}
                     ]
                 );
             }
         } else {
-            say join "\n", @{$self->{queue}};
+            say join "\n", @{$self->queue_to_text(
+                colored => 1
+            )};
         }
     }
 
