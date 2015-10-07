@@ -149,7 +149,9 @@ sub add_definition {
 sub delete_definition {
     my ($self, %options) = @_;
 
-    my ($finded, $definition_to_delete_index);
+    my $finded;
+
+    my $definition_to_delete_index = 0;
 
     $definition_to_delete_index++ until $finded = $self->{definitions}->[$definition_to_delete_index]->{name} eq $options{definition_name};
 
