@@ -19,6 +19,7 @@ use Exporter::Easy (
         isfloat
         blessed
         reftype
+        exclusive_none
         unblessed
         privasize
         publicize
@@ -53,6 +54,9 @@ use Exporter::Easy (
             blessed
             reftype
             unblessed
+        /],
+        list => [qw/
+            exclusive_none
         /],
         pripub => [qw/
             privasize
@@ -98,6 +102,8 @@ use Scalar::Util::Numeric qw/
     isfloat
 /;
 
+use List::MoreUtils 'none';
+
 use JSON qw/
     encode_json
     decode_json
@@ -118,6 +124,16 @@ sub reftype($) {
    my $reftype = Scalar::Util::reftype(shift);
 
    defined $reftype ? $reftype : '';
+}
+
+sub exclusive_none($$) {
+    my ($reference, $difference) = @_;
+
+    none {
+        my $to_check = $_;
+
+        none { $to_check eq $_ } @{$reference};
+    } @{$difference};
 }
 
 sub unblessed($) {

@@ -33,13 +33,14 @@ use Data::Validate::Struct;
 
 use DateTime::Event::Cron::Quartz;
 
-use Navel::Utils 'isint';
+use Navel::Utils qw/
+    isint
+    exclusive_none
+/;
 
 our $VERSION = 0.1;
 
-our @RUNTIME_PROPERTIES = qw/
-    exec_directory_path
-/;
+our %PROPERTIES;
 
 #-> functions
 
@@ -75,7 +76,7 @@ sub connector_definition_validator($) {
         }
     );
 
-    $validator->validate($parameters) && (exists $parameters->{source} and ! defined $parameters->{source} || $parameters->{source} =~ /^[\w_\-]+$/) && exists $parameters->{input}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
+    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]) && (exists $parameters->{source} and ! defined $parameters->{source} || $parameters->{source} =~ /^[\w_\-]+$/) && exists $parameters->{input}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
 }
 
 #-> methods
@@ -96,7 +97,7 @@ sub merge {
 
 sub original_properties {
     shift->SUPER::original_properties(
-        runtime_properties => \@RUNTIME_PROPERTIES
+        runtime_properties => $PROPERTIES{runtime}
     );
 }
 
@@ -115,16 +116,25 @@ sub exec_file_path {
 }
 
 BEGIN {
-    __PACKAGE__->create_setters(qw/
-        name
-        collection
-        type
-        singleton
-        scheduling
-        source
-        input
-        exec_directory_path
-    /);
+    %PROPERTIES = (
+        persistant => [qw/
+            name
+            collection
+            type
+            singleton
+            scheduling
+            source
+            input
+        /],
+        runtime => [qw/
+            exec_directory_path
+        /]
+    );
+
+    __PACKAGE__->create_setters(
+        @{$PROPERTIES{persistant}},
+        @{$PROPERTIES{runtime}}
+    );
 }
 
 # sub AUTOLOAD {}

@@ -28,11 +28,14 @@ use Data::Validate::Struct;
 
 use DateTime::Event::Cron::Quartz;
 
-use Navel::Utils 'isint';
+use Navel::Utils qw/
+    isint
+    exclusive_none
+/;
 
 our $VERSION = 0.1;
 
-our @RUNTIME_PROPERTIES;
+our %PROPERTIES;
 
 #-> functions
 
@@ -80,7 +83,7 @@ sub rabbitmq_definition_validator($) {
         }
     );
 
-    $validator->validate($parameters);
+    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]);
 }
 
 #-> methods
@@ -101,26 +104,35 @@ sub merge {
 
 sub original_properties {
     shift->SUPER::original_properties(
-        runtime_properties => \@RUNTIME_PROPERTIES
+        runtime_properties => $PROPERTIES{runtime}
     );
 }
 
 BEGIN {
-    __PACKAGE__->create_setters(qw/
-        name
-        host
-        port
-        user
-        password
-        timeout
-        vhost
-        tls
-        heartbeat
-        exchange
-        delivery_mode
-        scheduling
-        auto_connect
-    /);
+    %PROPERTIES = (
+        persistant => [qw/
+            name
+            host
+            port
+            user
+            password
+            timeout
+            vhost
+            tls
+            heartbeat
+            exchange
+            delivery_mode
+            scheduling
+            auto_connect
+        /],
+        runtime => [qw/
+        /]
+    );
+
+    __PACKAGE__->create_setters(
+        @{$PROPERTIES{persistant}},
+        @{$PROPERTIES{runtime}}
+    );
 }
 
 # sub AUTOLOAD {}

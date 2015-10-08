@@ -28,13 +28,16 @@ use Exporter::Easy (
 
 use Data::Validate::Struct;
 
-use Navel::Utils 'isint';
+use Navel::Utils qw/
+    isint
+    exclusive_none
+/;
 
 use Mojo::URL;
 
 our $VERSION = 0.1;
 
-our @RUNTIME_PROPERTIES;
+our %PROPERTIES;
 
 #-> functions
 
@@ -58,7 +61,7 @@ sub web_service_definition_validator($) {
         }
     );
 
-    $validator->validate($parameters) && exists $parameters->{ca} && exists $parameters->{cert} && exists $parameters->{ciphers} && exists $parameters->{key} && exists $parameters->{verify}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
+    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]) && exists $parameters->{ca} && exists $parameters->{cert} && exists $parameters->{ciphers} && exists $parameters->{key} && exists $parameters->{verify}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
 }
 
 #-> methods
@@ -79,7 +82,7 @@ sub merge {
 
 sub original_properties {
     shift->SUPER::original_properties(
-        runtime_properties => \@RUNTIME_PROPERTIES
+        runtime_properties => $PROPERTIES{runtime}
     );
 }
 
@@ -104,17 +107,26 @@ sub url {
 }
 
 BEGIN {
-    __PACKAGE__->create_setters(qw/
-        name
-        interface_mask
-        port
-        tls
-        ca
-        cert
-        ciphers
-        key
-        verify
-    /);
+    %PROPERTIES = (
+        persistant => [qw/
+            name
+            interface_mask
+            port
+            tls
+            ca
+            cert
+            ciphers
+            key
+            verify
+        /],
+        runtime => [qw/
+        /]
+    );
+
+    __PACKAGE__->create_setters(
+        @{$PROPERTIES{persistant}},
+        @{$PROPERTIES{runtime}}
+    );
 }
 
 # sub AUTOLOAD {}
