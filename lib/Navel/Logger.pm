@@ -73,7 +73,7 @@ sub push_in_queue {
 sub good {
     my ($self, %options) = @_;
 
-    $options{message} = GOOD . ' ' . $options{message};
+    $options{message} = GOOD . ' - ' . $options{message};
     $options{message_color} = GOOD_COLOR;
 
     $self->push_in_queue(%options);
@@ -82,7 +82,7 @@ sub good {
 sub bad {
     my ($self, %options) = @_;
 
-    $options{message} = BAD . ' ' . $options{message};
+    $options{message} = BAD . ' - ' . $options{message};
     $options{message_color} = BAD_COLOR;
 
     $self->push_in_queue(%options);
@@ -93,7 +93,7 @@ sub queue_to_text {
 
     [
         map {
-            my $message = '[' . human_readable_localtime($_->{time}) . '] [' . $_->{severity} . '] ' . $_->{message};
+            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . uc($_->{severity}) . ' - ' . $_->{message};
 
             $options{colored} ? colored($message, $_->{message_color}) : $message;
         } @{$self->{queue}}
@@ -109,7 +109,7 @@ sub clear_queue {
 }
 
 sub say_queue {
-    my $self;
+    my $self = shift;
 
     if (@{$self->{queue}}) {
         say join "\n", @{$self->queue_to_text(
@@ -139,7 +139,12 @@ sub flush_queue {
                             );
                         });
                     } else {
-                        $self->bad('Cannot push messages into ' . $self->{file_path} . ' (' . $! . ').', 'err');
+                        $self->bad(
+                            message => 'Cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
+                            severity => 'err'
+                        );
+
+                        $self->say_queue();
                     }
                 });
             } else {
@@ -155,7 +160,14 @@ sub flush_queue {
                     );
                 };
 
-                $self->bad('Cannot push messages into ' . $self->{file_path} . ' (' . $@ . ').', 'err') if ($@);
+                if ($@) {
+                    $self->bad(
+                        message => 'Cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
+                        severity => 'err'
+                    );
+
+                    $self->say_queue();
+                }
             }
         } else {
             $self->say_queue();
