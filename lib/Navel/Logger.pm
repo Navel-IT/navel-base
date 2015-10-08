@@ -47,9 +47,7 @@ sub new {
     my ($class, %options) = @_;
 
     bless {
-        severity => eval {
-            Navel::Logger::Severity->new($options{severity})
-        } || Navel::Logger::Severity->new($options{default_severity}),
+        severity => Navel::Logger::Severity->new(lc $options{severity}),
         file_path => $options{file_path},
         queue => []
     }, ref $class || $class;
@@ -75,7 +73,7 @@ sub push_in_queue {
 sub good {
     my ($self, %options) = @_;
 
-    $options{message} = GOOD . ' - ' . $options{message};
+    $options{message} = GOOD . ' ' . $options{message};
     $options{message_color} = GOOD_COLOR;
 
     $self->push_in_queue(%options);
@@ -84,7 +82,7 @@ sub good {
 sub bad {
     my ($self, %options) = @_;
 
-    $options{message} = BAD . ' - ' . $options{message};
+    $options{message} = BAD . ' ' . $options{message};
     $options{message_color} = BAD_COLOR;
 
     $self->push_in_queue(%options);
@@ -95,7 +93,7 @@ sub queue_to_text {
 
     [
         map {
-            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . uc($_->{severity}) . ' - ' . $_->{message};
+            my $message = '[' . human_readable_localtime($_->{time}) . '] [' . $_->{severity} . '] ' . $_->{message};
 
             $options{colored} ? colored($message, $_->{message_color}) : $message;
         } @{$self->{queue}}
@@ -106,6 +104,18 @@ sub clear_queue {
     my $self = shift;
 
     undef @{$self->{queue}};
+
+    $self;
+}
+
+sub say_queue {
+    my $self;
+
+    if (@{$self->{queue}}) {
+        say join "\n", @{$self->queue_to_text(
+            colored => 1
+        )};
+    }
 
     $self;
 }
@@ -128,23 +138,27 @@ sub flush_queue {
                                 }
                             );
                         });
+                    } else {
+                        $self->bad('Cannot push messages into ' . $self->{file_path} . ' (' . $! . ').', 'err');
                     }
                 });
             } else {
-                append_file(
-                    $self->{file_path},
-                    {
-                        binmode => ':utf8'
-                    },
-                    [
-                        map { $_ . "\n" } @{$queue_to_text}
-                    ]
-                );
+                eval {
+                    append_file(
+                        $self->{file_path},
+                        {
+                            binmode => ':utf8'
+                        },
+                        [
+                            map { $_ . "\n" } @{$queue_to_text}
+                        ]
+                    );
+                };
+
+                $self->bad('Cannot push messages into ' . $self->{file_path} . ' (' . $@ . ').', 'err') if ($@);
             }
         } else {
-            say join "\n", @{$self->queue_to_text(
-                colored => 1
-            )};
+            $self->say_queue();
         }
     }
 
