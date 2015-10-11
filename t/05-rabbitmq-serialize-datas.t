@@ -33,8 +33,7 @@ if (lives_ok {
                 singleton => 1,
                 scheduling => '0 * * * * ?',
                 source => undef,
-                input => undef,
-                exec_directory_path => ''
+                input => undef
             }
         ),
         starting_time => time,

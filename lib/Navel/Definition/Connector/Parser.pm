@@ -32,8 +32,6 @@ BEGIN {
         scheduling
         source
         input
-        exec_directory_path
-        exec_file_path
     /);
 }
 

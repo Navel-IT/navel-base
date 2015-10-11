@@ -80,8 +80,8 @@ sub merge {
    );
 }
 
-sub original_properties {
-    shift->SUPER::original_properties(
+sub persistant_properties {
+    shift->SUPER::persistant_properties(
         runtime_properties => $PROPERTIES{runtime}
     );
 }

@@ -53,8 +53,7 @@ sub connector_definition_validator($) {
             collection => 'word',
             type => 'connector_type',
             singleton => 'connector_singleton',
-            scheduling => 'connector_cron',
-            exec_directory_path => 'text'
+            scheduling => 'connector_cron'
         }
     );
 
@@ -95,8 +94,8 @@ sub merge {
    );
 }
 
-sub original_properties {
-    shift->SUPER::original_properties(
+sub persistant_properties {
+    shift->SUPER::persistant_properties(
         runtime_properties => $PROPERTIES{runtime}
     );
 }
@@ -109,10 +108,10 @@ sub is_type_json {
     shift->{type} eq CONNECTOR_TYPE_JSON;
 }
 
-sub exec_file_path {
+sub resolve_basename {
     my $self = shift;
-
-    $self->{exec_directory_path} . '/' . ($self->{source} || $self->{name});
+    
+    defined $self->{source} ? $self->{source} : $self->{name};
 }
 
 BEGIN {
@@ -127,7 +126,6 @@ BEGIN {
             input
         /],
         runtime => [qw/
-            exec_directory_path
         /]
     );
 

@@ -51,7 +51,7 @@ sub write {
     $self->SUPER::write(
         definitions => [
             map {
-                $_->original_properties()
+                $_->persistant_properties()
             } @{$self->{definitions}}
         ],
         @_

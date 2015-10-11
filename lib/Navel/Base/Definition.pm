@@ -38,7 +38,7 @@ sub properties {
     unblessed(shift);
 }
 
-sub original_properties {
+sub persistant_properties {
     my ($properties, %options) = (shift->properties(), @_);
 
     delete $properties->{$_} for @{$options{runtime_properties}};
