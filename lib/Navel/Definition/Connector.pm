@@ -75,7 +75,7 @@ sub connector_definition_validator($) {
         }
     );
 
-    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]) && (exists $parameters->{source} and ! defined $parameters->{source} || $parameters->{source} =~ /^[\w_\-]+$/) && exists $parameters->{input}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
+    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]) && (exists $parameters->{source} && ! defined $parameters->{source}) && exists $parameters->{input}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
 }
 
 #-> methods
@@ -110,7 +110,7 @@ sub is_type_source {
 
 sub resolve_basename {
     my $self = shift;
-    
+
     defined $self->{source} ? $self->{source} : $self->{name};
 }
 
