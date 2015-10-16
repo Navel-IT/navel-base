@@ -12,6 +12,8 @@ use warnings;
 
 use parent 'Navel::Base';
 
+use Carp 'croak';
+
 use File::Slurp;
 
 use Navel::Utils 'decode_json';
@@ -23,12 +25,20 @@ our $VERSION = 0.1;
 sub read {
     my ($self, %options) = @_;
 
-    decode_json(
-        scalar read_file(
-            $options{file_path},
-            binmode => ':utf8'
-        )
-    );
+    croak('file_path cannot be undefined') unless defined $options{file_path};
+
+    my $deserialized = eval {
+        decode_json(
+            scalar read_file(
+                $options{file_path},
+                binmode => ':utf8'
+            )
+        );
+    };
+
+    die $options{file_path} . ': ' . $@ . "\n" if $@;
+
+    $deserialized;
 }
 
 # sub AUTOLOAD {}
