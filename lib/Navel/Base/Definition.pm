@@ -12,8 +12,6 @@ use warnings;
 
 use parent 'Navel::Base';
 
-use Carp 'croak';
-
 use Storable 'dclone';
 
 use Data::Validate::Struct;
@@ -29,7 +27,7 @@ our $VERSION = 0.1;
 sub new {
     my ($class, %options) = @_;
 
-    croak('definition is invalid') unless $options{validator}->($options{definition});
+    die "definition is invalid\n" unless $options{validator}->($options{definition});
 
     bless dclone($options{definition}), ref $class || $class;
 }

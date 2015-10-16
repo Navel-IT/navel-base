@@ -16,8 +16,6 @@ use parent qw/
     Navel::Base::Definition::Parser::Writer
 /;
 
-use Carp 'croak';
-
 use Navel::Utils 'isint';
 
 our $VERSION = 0.1;
@@ -67,7 +65,7 @@ sub make_definition {
         $self->{definition_class}->new($raw_definition);
     };
 
-    $@ ? croak($self->{definition_class} . ': ' . $@) : $definition;
+    $@ ? die $self->{definition_class} . ': ' . $@ . "\n" : $definition;
 };
 
 sub make {
@@ -84,10 +82,10 @@ sub make {
             : $_
             ) for @{$self->{raw}};
         } else {
-            croak($self->{definition_class} . ': definitions must be represented in an array.');
+            die $self->{definition_class} . ": definitions must be represented in an array.\n";
         }
     } else {
-        croak($self->{definition_class} . ': require failed');
+        die $self->{definition_class} . ": require failed\n";
     }
 
     $self;
@@ -100,7 +98,7 @@ sub set_maximum {
 
     $maximum = $maximum || $minimum;
 
-    croak('maximum must be an integer equal or greater than ' . $minimum) unless isint($maximum) && $maximum >= $minimum;
+    die 'maximum must be an integer equal or greater than ' . $minimum . "\n" unless isint($maximum) && $maximum >= $minimum;
 
     $self->{maximum} = $maximum;
 
@@ -138,8 +136,8 @@ sub add_definition {
 
     my $definition = $self->make_definition($raw_definition);
 
-    croak($self->{definition_class} . ': the maximum number of definition (' . $self->{maximum} . ') has been reached') if $self->{maximum} && @{$self->{definitions}} > $self->{maximum};
-    croak($self->{definition_class} . ': duplicate definition detected') if defined $self->definition_by_name($definition->{name});
+    die $self->{definition_class} . ': the maximum number of definition (' . $self->{maximum} . ") has been reached\n" if $self->{maximum} && @{$self->{definitions}} > $self->{maximum};
+    die $self->{definition_class} . ": duplicate definition detected\n" if defined $self->definition_by_name($definition->{name});
 
     push @{$self->{definitions}}, $definition;
 
@@ -155,7 +153,7 @@ sub delete_definition {
 
     $definition_to_delete_index++ until $finded = $self->{definitions}->[$definition_to_delete_index]->{name} eq $options{definition_name};
 
-    croak($self->{definition_class} . ': definition ' . $options{definition_name} . ' does not exists') unless $finded;
+    die $self->{definition_class} . ': definition ' . $options{definition_name} . " does not exists\n" unless $finded;
 
     $options{do_before_slice}->($self->{definitions}->[$definition_to_delete_index]) if ref $options{do_before_slice} eq 'CODE';
 
