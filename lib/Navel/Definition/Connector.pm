@@ -75,7 +75,7 @@ sub connector_definition_validator($) {
         }
     );
 
-    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]) && (exists $parameters->{source} && ! defined $parameters->{source}) && exists $parameters->{input}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
+    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]) && exists $parameters->{source} && exists $parameters->{input}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
 }
 
 #-> methods
