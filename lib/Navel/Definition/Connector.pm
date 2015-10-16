@@ -13,8 +13,8 @@ use warnings;
 use parent 'Navel::Base::Definition';
 
 use constant {
-    CONNECTOR_TYPE_CODE => 'code',
-    CONNECTOR_TYPE_JSON => 'json'
+    CONNECTOR_TYPE_PACKAGE => 'package',
+    CONNECTOR_TYPE_SOURCE => 'source'
 };
 
 use Exporter::Easy (
@@ -61,7 +61,7 @@ sub connector_definition_validator($) {
         connector_type => sub {
             my $value = shift;
 
-            $value eq CONNECTOR_TYPE_CODE || $value eq CONNECTOR_TYPE_JSON;
+            $value eq CONNECTOR_TYPE_PACKAGE || $value eq CONNECTOR_TYPE_SOURCE;
         },
         connector_singleton => sub {
             my $value = shift;
@@ -100,12 +100,12 @@ sub persistant_properties {
     );
 }
 
-sub is_type_code {
-    shift->{type} eq CONNECTOR_TYPE_CODE;
+sub is_type_package {
+    shift->{type} eq CONNECTOR_TYPE_PACKAGE;
 }
 
-sub is_type_json {
-    shift->{type} eq CONNECTOR_TYPE_JSON;
+sub is_type_source {
+    shift->{type} eq CONNECTOR_TYPE_SOURCE;
 }
 
 sub resolve_basename {
