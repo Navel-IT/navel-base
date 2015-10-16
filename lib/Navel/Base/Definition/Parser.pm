@@ -84,7 +84,7 @@ sub make {
             : $_
             ) for @{$self->{raw}};
         } else {
-            croak($self->{definition_class} . ': raw datas need to exists and to be encapsulated in an array');
+            croak($self->{definition_class} . ': definitions must be represented in an array.');
         }
     } else {
         croak($self->{definition_class} . ': require failed');
