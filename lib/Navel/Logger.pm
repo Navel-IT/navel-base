@@ -15,9 +15,8 @@ use feature 'say';
 use parent 'Navel::Base';
 
 use constant {
-    GOOD => ':)',
-    BAD => ':(',
-    DEFAULT_COLOR => 'white',
+    GOOD_MESSAGE => 'It seems perfect',
+    BAD_MESSAGE => 'Something went wrong',
     GOOD_COLOR => 'green',
     BAD_COLOR => 'red'
 };
@@ -62,7 +61,7 @@ sub push_in_queue {
         time => time,
         severity => $options{severity},
         message => $options{message},
-        message_color => $options{message_color} || DEFAULT_COLOR,
+        message_color => $options{message_color},
     } if defined $options{message} && $self->{severity}->does_it_log(
         severity => $options{severity}
     );
@@ -73,7 +72,7 @@ sub push_in_queue {
 sub good {
     my ($self, %options) = @_;
 
-    $options{message} = GOOD . ' - ' . $options{message};
+    $options{message} = GOOD_MESSAGE . ' - ' . $options{message};
     $options{message_color} = GOOD_COLOR;
 
     $self->push_in_queue(%options);
@@ -82,7 +81,7 @@ sub good {
 sub bad {
     my ($self, %options) = @_;
 
-    $options{message} = BAD . ' - ' . $options{message};
+    $options{message} = BAD_MESSAGE . ' - ' . $options{message};
     $options{message_color} = BAD_COLOR;
 
     $self->push_in_queue(%options);
@@ -95,7 +94,7 @@ sub queue_to_text {
         map {
             my $message = '[' . human_readable_localtime($_->{time}) . '] ' . uc($_->{severity}) . ' - ' . $_->{message};
 
-            $options{colored} ? colored($message, $_->{message_color}) : $message;
+            $options{colored} && defined $_->{message_color} ? colored($message, $_->{message_color}) : $message;
         } @{$self->{queue}}
     ];
 }
