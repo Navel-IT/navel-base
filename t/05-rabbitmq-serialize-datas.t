@@ -29,7 +29,7 @@ if (lives_ok {
             {
                 name => 'test-1',
                 collection => 'test',
-                type => 'code',
+                type => 'source',
                 singleton => 1,
                 scheduling => '0 * * * * ?',
                 source => undef,
