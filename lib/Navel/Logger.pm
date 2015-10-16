@@ -15,8 +15,8 @@ use feature 'say';
 use parent 'Navel::Base';
 
 use constant {
-    GOOD_MESSAGE => 'It seems perfect',
-    BAD_MESSAGE => 'Something went wrong',
+    GOOD_MESSAGE => 'Sounds perfect',
+    BAD_MESSAGE => "Something going wrong around here",
     GOOD_COLOR => 'green',
     BAD_COLOR => 'red'
 };
