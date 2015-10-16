@@ -23,14 +23,12 @@ our $VERSION = 0.1;
 sub read {
     my ($self, %options) = @_;
 
-    eval {
-        decode_json(
-            scalar read_file(
-                $options{file_path},
-                binmode => ':utf8'
-            )
-        );
-    };
+    decode_json(
+        scalar read_file(
+            $options{file_path},
+            binmode => ':utf8'
+        )
+    );
 }
 
 # sub AUTOLOAD {}
