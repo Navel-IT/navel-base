@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Definition::Connector;
+package Navel::Definition::Collector;
 
 use strict;
 use warnings;
@@ -13,18 +13,18 @@ use warnings;
 use parent 'Navel::Base::Definition';
 
 use constant {
-    CONNECTOR_TYPE_PACKAGE => 'package',
-    CONNECTOR_TYPE_SOURCE => 'source'
+    COLLECTOR_TYPE_PACKAGE => 'package',
+    COLLECTOR_TYPE_SOURCE => 'source'
 };
 
 use Exporter::Easy (
     OK => [qw/
         :all
-        connector_definition_validator
+        collector_definition_validator
     /],
     TAGS => [
         all => [qw/
-            connector_definition_validator
+            collector_definition_validator
         /]
     ]
 );
@@ -44,31 +44,31 @@ our %PROPERTIES;
 
 #-> functions
 
-sub connector_definition_validator($) {
+sub collector_definition_validator($) {
     my $parameters = shift;
 
     my $validator = Data::Validate::Struct->new(
         {
             name => 'word',
             collection => 'word',
-            type => 'connector_type',
-            singleton => 'connector_singleton',
-            scheduling => 'connector_cron'
+            type => 'collector_type',
+            singleton => 'collector_singleton',
+            scheduling => 'collector_cron'
         }
     );
 
     $validator->type(
-        connector_type => sub {
+        collector_type => sub {
             my $value = shift;
 
-            $value eq CONNECTOR_TYPE_PACKAGE || $value eq CONNECTOR_TYPE_SOURCE;
+            $value eq COLLECTOR_TYPE_PACKAGE || $value eq COLLECTOR_TYPE_SOURCE;
         },
-        connector_singleton => sub {
+        collector_singleton => sub {
             my $value = shift;
 
             $value == 0 || $value == 1 if isint($value);
         },
-        connector_cron => sub {
+        collector_cron => sub {
             eval {
                 DateTime::Event::Cron::Quartz->new(@_);
             };
@@ -82,14 +82,14 @@ sub connector_definition_validator($) {
 
 sub new {
     shift->SUPER::new(
-        validator => \&connector_definition_validator,
+        validator => \&collector_definition_validator,
         definition => shift
     );
 }
 
 sub merge {
    shift->SUPER::merge(
-        validator => \&connector_definition_validator,
+        validator => \&collector_definition_validator,
         values => shift
    );
 }
@@ -101,11 +101,11 @@ sub persistant_properties {
 }
 
 sub is_type_package {
-    shift->{type} eq CONNECTOR_TYPE_PACKAGE;
+    shift->{type} eq COLLECTOR_TYPE_PACKAGE;
 }
 
 sub is_type_source {
-    shift->{type} eq CONNECTOR_TYPE_SOURCE;
+    shift->{type} eq COLLECTOR_TYPE_SOURCE;
 }
 
 sub resolve_basename {
@@ -149,7 +149,7 @@ __END__
 
 =head1 NAME
 
-Navel::Definition::Connector
+Navel::Definition::Collector
 
 =head1 AUTHOR
 

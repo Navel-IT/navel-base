@@ -25,7 +25,7 @@ if (lives_ok {
             a => 0,
             b => 1
         },
-        connector => Navel::Definition::Connector->new(
+        collector => Navel::Definition::Collector->new(
             {
                 name => 'test-1',
                 collection => 'test',

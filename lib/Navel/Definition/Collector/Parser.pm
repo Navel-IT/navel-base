@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Definition::Connector::Parser;
+package Navel::Definition::Collector::Parser;
 
 use strict;
 use warnings;
@@ -18,7 +18,7 @@ our $VERSION = 0.1;
 
 sub new {
     shift->SUPER::new(
-        definition_class => 'Navel::Definition::Connector',
+        definition_class => 'Navel::Definition::Collector',
         do_not_need_at_least_one => 1,
         @_
     );
@@ -49,7 +49,7 @@ __END__
 
 =head1 NAME
 
-Navel::Definition::Connector::Parser
+Navel::Definition::Collector::Parser
 
 =head1 AUTHOR
 

@@ -49,34 +49,34 @@ sub rabbitmq_definition_validator($) {
             port => 'port',
             user => 'text',
             password => 'text',
-            timeout => 'connector_positive_integer',
+            timeout => 'collector_positive_integer',
             vhost => 'text',
-            tls => 'connector_boolean',
-            heartbeat => 'connector_positive_integer',
+            tls => 'collector_boolean',
+            heartbeat => 'collector_positive_integer',
             exchange => 'text',
-            delivery_mode => 'connector_props_delivery_mode',
-            scheduling => 'connector_cron',
-            auto_connect => 'connector_boolean'
+            delivery_mode => 'collector_props_delivery_mode',
+            scheduling => 'collector_cron',
+            auto_connect => 'collector_boolean'
         }
     );
 
     $validator->type(
-        connector_positive_integer => sub {
+        collector_positive_integer => sub {
             my $value = shift;
 
             isint($value) && $value >= 0;
         },
-        connector_props_delivery_mode => sub {
+        collector_props_delivery_mode => sub {
             my $value = shift;
 
             $value == 1 || $value == 2 if isint($value);
         },
-        connector_cron => sub {
+        collector_cron => sub {
             eval {
                 DateTime::Event::Cron::Quartz->new(@_);
             };
         },
-        connector_boolean => sub {
+        collector_boolean => sub {
             my $value = shift;
 
             $value == 0 || $value == 1 if isint($value);

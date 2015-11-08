@@ -35,13 +35,13 @@ sub new {
 
     my $self = bless {}, ref $class || $class;
 
-    if (blessed($options{connector}) eq 'Navel::Definition::Connector') {
-        $self->{connector} = $options{connector};
-        $self->{collection} = $self->{connector}->{collection};
+    if (blessed($options{collector}) eq 'Navel::Definition::Collector') {
+        $self->{collector} = $options{collector};
+        $self->{collection} = $self->{collector}->{collection};
     } else {
         croak('collection cannot be undefined') unless defined $options{collection};
 
-        $self->{connector} = undef;
+        $self->{collector} = undef;
         $self->{collection} = $options{collection};
     }
 
@@ -84,7 +84,7 @@ sub serialized_datas {
         datas => $self->{datas},
         starting_time => $self->{starting_time},
         ending_time => $self->{ending_time},
-        connector => $self->{connector},
+        collector => $self->{collector},
         collection => $self->{collection}
     );
 }

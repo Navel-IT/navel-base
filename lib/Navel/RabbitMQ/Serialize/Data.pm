@@ -28,7 +28,7 @@ use Exporter::Easy (
 
 use Carp 'croak';
 
-use Navel::Definition::Connector 'connector_definition_validator';
+use Navel::Definition::Collector 'collector_definition_validator';
 use Navel::Utils qw/
     :scalar
     :sereal
@@ -45,14 +45,14 @@ sub to($@) {
     croak('starting_time is invalid') unless isint($options{starting_time});
     croak('ending_time is invalid') unless isint($options{ending_time});
 
-    $options{connector} = unblessed($options{connector}) if blessed($options{connector}) eq 'Navel::Definition::Connector';
+    $options{collector} = unblessed($options{collector}) if blessed($options{collector}) eq 'Navel::Definition::Collector';
 
     encode_sereal_constructor()->encode(
         {
             datas => $options{datas},
             starting_time => $options{starting_time},
             ending_time => $options{ending_time},
-            connector => $options{connector},
+            collector => $options{collector},
             collection => defined $options{collection} ? sprintf '%s', $options{collection} : $options{collection}
         }
     );
@@ -63,12 +63,12 @@ sub from($) {
 
     croak('deserialized datas are invalid') unless reftype($deserialized) eq 'HASH' && isint($deserialized->{starting_time}) && isint($deserialized->{ending_time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
 
-    my $connector;
+    my $collector;
 
-    if (defined $deserialized->{connector}) {
-        croak('deserialized datas are invalid: connector definition is invalid') unless connector_definition_validator($deserialized->{connector});
+    if (defined $deserialized->{collector}) {
+        croak('deserialized datas are invalid: collector definition is invalid') unless collector_definition_validator($deserialized->{collector});
 
-        $connector = Navel::Definition::Connector->new($deserialized->{connector});
+        $collector = Navel::Definition::Collector->new($deserialized->{collector});
     }
 
     $deserialized->{collection} = sprintf '%s', $deserialized->{collection} if defined $deserialized->{collection};
@@ -77,7 +77,7 @@ sub from($) {
         %{$deserialized},
         %{
             {
-                connector => $connector
+                collector => $collector
             }
         }
     };

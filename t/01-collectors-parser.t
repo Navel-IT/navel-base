@@ -12,18 +12,18 @@ use Test::More tests => 2;
 use Test::Exception;
 
 BEGIN {
-    use_ok('Navel::Definition::Connector::Parser');
+    use_ok('Navel::Definition::Collector::Parser');
 }
 
 #-> main
 
-my $connectors_definitions_path = 't/01-connectors.json';
+my $collectors_definitions_path = 't/01-collectors.json';
 
 lives_ok {
-    Navel::Definition::Connector::Parser->new()->read(
-        file_path => $connectors_definitions_path
+    Navel::Definition::Collector::Parser->new()->read(
+        file_path => $collectors_definitions_path
     )->make();
-} 'making configuration from ' . $connectors_definitions_path;
+} 'making configuration from ' . $collectors_definitions_path;
 
 #-> END
 
