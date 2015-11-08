@@ -16,6 +16,8 @@ use parent qw/
     Navel::Base::Definition::Parser::Writer
 /;
 
+use Carp 'croak';
+
 use Navel::Utils 'isint';
 
 our $VERSION = 0.1;
@@ -82,10 +84,10 @@ sub make {
             : $_
             ) for @{$self->{raw}};
         } else {
-            die $self->{definition_class} . ": definitions must be represented in an array.\n";
+            die $self->{definition_class} . ": definitions must be represented in an array\n";
         }
     } else {
-        die $self->{definition_class} . ": require failed\n";
+        croak($self->{definition_class} . ": require failed");
     }
 
     $self;
