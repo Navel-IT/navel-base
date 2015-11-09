@@ -17,20 +17,6 @@ use constant {
     COLLECTOR_TYPE_SOURCE => 'source'
 };
 
-use Exporter::Easy (
-    OK => [qw/
-        :all
-        collector_definition_validator
-    /],
-    TAGS => [
-        all => [qw/
-            collector_definition_validator
-        /]
-    ]
-);
-
-use Data::Validate::Struct;
-
 use DateTime::Event::Cron::Quartz;
 
 use Navel::Utils qw/
@@ -42,54 +28,67 @@ our $VERSION = 0.1;
 
 our %PROPERTIES;
 
-#-> functions
+#-> methods
 
-sub collector_definition_validator($) {
-    my $parameters = shift;
+sub new {
+    shift->SUPER::new(
+        definition => shift
+    );
+}
 
-    my $validator = Data::Validate::Struct->new(
-        {
+sub validate {
+    my ($class, %options) = @_;
+
+    $class->SUPER::validate(
+        errors_callback => $options{errors_callback},
+        parameters => $options{parameters},
+        definition_class => __PACKAGE__,
+        validator_struct => {
             name => 'word',
             collection => 'word',
             type => 'collector_type',
             singleton => 'collector_singleton',
             scheduling => 'collector_cron'
-        }
-    );
-
-    $validator->type(
-        collector_type => sub {
-            my $value = shift;
-
-            $value eq COLLECTOR_TYPE_PACKAGE || $value eq COLLECTOR_TYPE_SOURCE;
         },
-        collector_singleton => sub {
-            my $value = shift;
+        validator_types => {
+            collector_type => sub {
+                my $value = shift;
 
-            $value == 0 || $value == 1 if isint($value);
+                $value eq COLLECTOR_TYPE_PACKAGE || $value eq COLLECTOR_TYPE_SOURCE;
+            },
+            collector_singleton => sub {
+                my $value = shift;
+
+                $value == 0 || $value == 1 if isint($value);
+            },
+            collector_cron => sub {
+                eval {
+                    DateTime::Event::Cron::Quartz->new(@_);
+                };
+            }
         },
-        collector_cron => sub {
-            eval {
-                DateTime::Event::Cron::Quartz->new(@_);
-            };
+        additional_validator => sub {
+            if (exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$options{parameters}}])) {
+                for (qw/source input/) {
+                    unless (exists $options{parameters}->{$_}) {
+                        $options{errors_callback}->(__PACKAGE__, [$_ . ' key is missing']) if ref $options{errors_callback} eq 'CODE';
+
+                        return 0;
+                    }
+                }
+
+                return 1;
+            } else {
+                $options{errors_callback}->(__PACKAGE__, ['at least one unknown key has been detected']) if ref $options{errors_callback} eq 'CODE';
+            }
+
+            0;
         }
-    );
-
-    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]) && exists $parameters->{source} && exists $parameters->{input}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
-}
-
-#-> methods
-
-sub new {
-    shift->SUPER::new(
-        validator => \&collector_definition_validator,
-        definition => shift
     );
 }
 
 sub merge {
    shift->SUPER::merge(
-        validator => \&collector_definition_validator,
         values => shift
    );
 }

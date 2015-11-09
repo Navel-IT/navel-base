@@ -12,20 +12,6 @@ use warnings;
 
 use parent 'Navel::Base::Definition';
 
-use Exporter::Easy (
-    OK => [qw/
-        :all
-        rabbitmq_definition_validator
-    /],
-    TAGS => [
-        all => [qw/
-            rabbitmq_definition_validator
-        /]
-    ]
-);
-
-use Data::Validate::Struct;
-
 use DateTime::Event::Cron::Quartz;
 
 use Navel::Utils qw/
@@ -39,11 +25,22 @@ our %PROPERTIES;
 
 #-> functions
 
-sub rabbitmq_definition_validator($) {
-    my $parameters = shift;
+#-> methods
 
-    my $validator = Data::Validate::Struct->new(
-        {
+sub new {
+    shift->SUPER::new(
+        definition => shift
+    );
+}
+
+sub validate {
+    my ($class, %options) = @_;
+
+    $class->SUPER::validate(
+        errors_callback => $options{errors_callback},
+        parameters => $options{parameters},
+        definition_class => __PACKAGE__,
+        validator_struct => {
             name => 'word',
             host => 'hostname',
             port => 'port',
@@ -57,47 +54,43 @@ sub rabbitmq_definition_validator($) {
             delivery_mode => 'collector_props_delivery_mode',
             scheduling => 'collector_cron',
             auto_connect => 'collector_boolean'
+        },
+        validator_types => {
+            collector_positive_integer => sub {
+                my $value = shift;
+
+                isint($value) && $value >= 0;
+            },
+            collector_props_delivery_mode => sub {
+                my $value = shift;
+
+                $value == 1 || $value == 2 if isint($value);
+            },
+            collector_cron => sub {
+                eval {
+                    DateTime::Event::Cron::Quartz->new(@_);
+                };
+            },
+            collector_boolean => sub {
+                my $value = shift;
+
+                $value == 0 || $value == 1 if isint($value);
+            }
+        },
+        additional_validator => sub {
+            unless (exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$options{parameters}}])) {
+                $options{errors_callback}->(__PACKAGE__, ['at least one unknown key has been detected']) if ref $options{errors_callback} eq 'CODE';
+
+                return 0;
+            }
+
+            1;
         }
-    );
-
-    $validator->type(
-        collector_positive_integer => sub {
-            my $value = shift;
-
-            isint($value) && $value >= 0;
-        },
-        collector_props_delivery_mode => sub {
-            my $value = shift;
-
-            $value == 1 || $value == 2 if isint($value);
-        },
-        collector_cron => sub {
-            eval {
-                DateTime::Event::Cron::Quartz->new(@_);
-            };
-        },
-        collector_boolean => sub {
-            my $value = shift;
-
-            $value == 0 || $value == 1 if isint($value);
-        }
-    );
-
-    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]);
-}
-
-#-> methods
-
-sub new {
-    shift->SUPER::new(
-        validator => \&rabbitmq_definition_validator,
-        definition => shift
     );
 }
 
 sub merge {
    shift->SUPER::merge(
-        validator => \&rabbitmq_definition_validator,
         values => shift
    );
 }

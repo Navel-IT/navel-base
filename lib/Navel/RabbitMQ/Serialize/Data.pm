@@ -28,7 +28,7 @@ use Exporter::Easy (
 
 use Carp 'croak';
 
-use Navel::Definition::Collector 'collector_definition_validator';
+use Navel::Definition::Collector;
 use Navel::Utils qw/
     :scalar
     :sereal
@@ -66,7 +66,9 @@ sub from($) {
     my $collector;
 
     if (defined $deserialized->{collector}) {
-        croak('deserialized datas are invalid: collector definition is invalid') unless collector_definition_validator($deserialized->{collector});
+        croak('deserialized datas are invalid: collector definition is invalid') unless Navel::Definition::Collector->validate(
+            parameters => $deserialized->{collector}
+        );
 
         $collector = Navel::Definition::Collector->new($deserialized->{collector});
     }

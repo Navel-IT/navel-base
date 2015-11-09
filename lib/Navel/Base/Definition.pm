@@ -27,9 +27,31 @@ our $VERSION = 0.1;
 sub new {
     my ($class, %options) = @_;
 
-    die "definition is invalid\n" unless $options{validator}->($options{definition});
+    die "definition is invalid\n" unless $class->validate(
+        parameters => $options{definition}
+    );
 
     bless dclone($options{definition}), ref $class || $class;
+}
+
+sub validate {
+    my ($class, %options) = @_;
+
+    my $validator = Data::Validate::Struct->new($options{validator_struct});
+
+    while (my ($type_name, $type_sub) = each %{$options{validator_types}}) {
+        $validator->type(
+            $type_name => $type_sub
+        );
+    }
+
+    if ($validator->validate($options{parameters})) {
+        return ref $options{additional_validator} eq 'CODE'  ? $options{additional_validator}->() : 1;
+    } else {
+        $options{errors_callback}->($options{definition_class}, $validator->{errors}) if ref $options{errors_callback} eq 'CODE';
+    }
+
+    0;
 }
 
 sub properties {
@@ -47,8 +69,8 @@ sub persistant_properties {
 sub merge {
     my ($self, %options) = @_;
 
-    if ($options{validator}->(
-        {
+    if ($self->validate(
+        parameters => {
             %{$self->properties()},
             %{$options{values}}
         }

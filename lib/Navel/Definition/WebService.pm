@@ -14,20 +14,6 @@ use parent qw/
     Navel::Base::Definition
 /;
 
-use Exporter::Easy (
-    OK => [qw/
-        :all
-        web_service_definition_validator
-    /],
-    TAGS => [
-        all => [qw/
-            web_service_definition_validator
-        /]
-    ]
-);
-
-use Data::Validate::Struct;
-
 use Navel::Utils qw/
     isint
     exclusive_none
@@ -39,43 +25,56 @@ our $VERSION = 0.1;
 
 our %PROPERTIES;
 
-#-> functions
-
-sub web_service_definition_validator($) {
-    my $parameters = shift;
-
-    my $validator = Data::Validate::Struct->new(
-        {
-            name => 'word',
-            interface_mask => 'text',
-            port => 'port',
-            tls => 'web_service_tls'
-        }
-    );
-
-    $validator->type(
-        web_service_tls => sub {
-            my $value = shift;
-
-            $value == 0 or $value == 1 if isint($value);
-        }
-    );
-
-    $validator->validate($parameters) && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$parameters}]) && exists $parameters->{ca} && exists $parameters->{cert} && exists $parameters->{ciphers} && exists $parameters->{key} && exists $parameters->{verify}; # unfortunately, Data::Validate::Struct doesn't work with undef (JSON's null) value
-}
-
 #-> methods
 
 sub new {
     shift->SUPER::new(
-        validator => \&web_service_definition_validator,
         definition => shift
+    );
+}
+
+sub validate {
+    my ($class, %options) = @_;
+
+    $class->SUPER::validate(
+        errors_callback => $options{errors_callback},
+        parameters => $options{parameters},
+        definition_class => __PACKAGE__,
+        validator_struct => {
+            name => 'word',
+            interface_mask => 'text',
+            port => 'port',
+            tls => 'web_service_tls'
+        },
+        validator_types => {
+            web_service_tls => sub {
+                my $value = shift;
+
+                $value == 0 or $value == 1 if isint($value);
+            }
+        },
+        additional_validator => sub {
+            if (exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$options{parameters}}])) {
+                for (qw/ca cert ciphers key verify/) {
+                    unless (exists $options{parameters}->{$_}) {
+                        $options{errors_callback}->(__PACKAGE__, [$_ . ' key is missing']) if ref $options{errors_callback} eq 'CODE';
+
+                        return 0;
+                    }
+                }
+
+                return 1;
+            } else {
+                $options{errors_callback}->(__PACKAGE__, ['at least one unknown key has been detected']) if ref $options{errors_callback} eq 'CODE';
+            }
+
+            0;
+        }
     );
 }
 
 sub merge {
    shift->SUPER::merge(
-        validator => \&web_service_definition_validator,
         values => shift
    );
 }
