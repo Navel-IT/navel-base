@@ -46,7 +46,7 @@ sub validate {
     }
 
     if ($validator->validate($options{parameters})) {
-        return ref $options{additional_validator} eq 'CODE'  ? $options{additional_validator}->() : 1;
+        return ref $options{additional_validator} eq 'CODE' ? $options{additional_validator}->() : 1;
     } else {
         $options{errors_callback}->($options{definition_class}, $validator->{errors}) if ref $options{errors_callback} eq 'CODE';
     }
