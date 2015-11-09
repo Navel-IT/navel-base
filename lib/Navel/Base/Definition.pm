@@ -14,7 +14,7 @@ use parent 'Navel::Base';
 
 use Storable 'dclone';
 
-use Data::Validate::Struct;
+use Data::Validate::Struct 0.08;
 
 use Navel::Utils qw/
     unblessed
