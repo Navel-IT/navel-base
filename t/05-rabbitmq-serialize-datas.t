@@ -50,4 +50,3 @@ done_testing();
 #-> END
 
 __END__
-

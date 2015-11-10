@@ -30,4 +30,3 @@ unlink $log_file if ok(Navel::Logger->new(
 #-> END
 
 __END__
-
