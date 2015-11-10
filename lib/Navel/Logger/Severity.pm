@@ -19,14 +19,38 @@ our $VERSION = 0.1;
 #-> class variables
 
 my %severities = (
-    emerg => 0,
-    alert => 1,
-    crit => 2,
-    err => 3,
-    warn => 4,
-    notice => 5,
-    info => 6,
-    debug => 7
+    emerg => {
+        priority => 0,
+        color => 'magenta'
+    },
+    alert => {
+        priority => 1,
+        color => 'red'
+    },
+    crit => {
+        priority => 2,
+        color => 'red'
+    },
+    error => {
+        priority => 3,
+        color => 'red'
+    },
+    warning => {
+        priority => 4,
+        color => 'yellow'
+    },
+    notice => {
+        priority => 5,
+        color => 'white'
+    },
+    info => {
+        priority => 6,
+        color => 'green'
+    },
+    debug => {
+        priority => 7,
+        color => 'cyan'
+    }
 );
 
 #-> methods
@@ -42,9 +66,15 @@ sub new {
 }
 
 sub does_it_log {
-    my ($self, %options) = @_;
+    my ($self, $severity) = @_;
 
-    defined $options{severity} && exists $severities{$options{severity}} && $severities{$self->{severity}} >= $severities{$options{severity}};
+    defined $severity && exists $severities{$severity} && $severities{$self->{severity}}->{priority} >= $severities{$severity}->{priority};
+}
+
+sub color {
+    my ($self, $severity) = @_;
+
+    defined $severity && exists $severities{$severity} && $severities{$severity}->{color};
 }
 
 # sub AUTOLOAD {}
