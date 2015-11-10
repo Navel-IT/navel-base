@@ -27,15 +27,21 @@ our $VERSION = 0.1;
 sub new {
     my ($class, %options) = @_;
 
-    die "definition is invalid\n" unless $class->validate(
+    my $errors = $class->validate(
         parameters => $options{definition}
     );
+
+    die $errors if @{$errors};
 
     bless dclone($options{definition}), ref $class || $class;
 }
 
 sub validate {
     my ($class, %options) = @_;
+
+    my @errors;
+
+    my $definition_fullname;
 
     my $validator = Data::Validate::Struct->new($options{validator_struct});
 
@@ -45,13 +51,27 @@ sub validate {
         );
     }
 
-    if ($validator->validate($options{parameters})) {
-        return ref $options{additional_validator} eq 'CODE' ? $options{additional_validator}->() : 1;
+    @errors = @{$validator->{errors}} unless $validator->validate($options{parameters});
+
+    push @errors, @{$options{additional_validator}->()} if ref $options{additional_validator} eq 'CODE';
+
+    if (defined $options{if_possible_suffix_errors_with_key_value}) {
+        my $definition_name = eval {
+            $options{parameters}->{$options{if_possible_suffix_errors_with_key_value}};
+        };
+
+        $definition_fullname = $definition_name if defined $definition_name;
+
+        $definition_fullname = $options{definition_class} . '[' . $definition_fullname . ']';
     } else {
-        $options{errors_callback}->($options{definition_class}, $validator->{errors}) if ref $options{errors_callback} eq 'CODE';
+        $definition_fullname = $options{definition_class};
     }
 
-    0;
+    [
+        map {
+            $definition_fullname . ': ' . $_ . '.'
+        } @errors
+    ];
 }
 
 sub properties {
@@ -69,18 +89,20 @@ sub persistant_properties {
 sub merge {
     my ($self, %options) = @_;
 
-    if ($self->validate(
+    my $errors = $self->validate(
         parameters => {
             %{$self->properties()},
             %{$options{values}}
         }
-    )) {
+    );
+
+    unless (@{$errors}) {
         while (my ($property, $value) = each %{$options{values}}) {
             $self->{$property} = $value;
         }
-
-        1;
     }
+
+    $errors;
 }
 
 BEGIN {

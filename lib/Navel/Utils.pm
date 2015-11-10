@@ -10,11 +10,13 @@ package Navel::Utils;
 use strict;
 use warnings;
 
-use subs 'substitute_all_keys';
+use subs qw/
+    flatten
+    substitute_all_keys
+/;
 
 use Exporter::Easy (
     OK => [qw/
-        crunch
         isint
         isfloat
         blessed
@@ -23,6 +25,7 @@ use Exporter::Easy (
         unblessed
         privasize
         publicize
+        flatten
         replace_key
         substitute_all_keys
         encode_json
@@ -31,10 +34,10 @@ use Exporter::Easy (
         encode_sereal_constructor
         decode_sereal_constructor
         human_readable_localtime
-        :string
         :numeric
         :scalar
         :pripub
+        :array
         :hash
         :json
         :json_pretty
@@ -43,9 +46,6 @@ use Exporter::Easy (
         :all
     /],
     TAGS => [
-        string => [qw/
-            crunch
-        /],
         numeric => [qw/
             isint
             isfloat
@@ -61,6 +61,9 @@ use Exporter::Easy (
         pripub => [qw/
             privasize
             publicize
+        /],
+        array => [qw/
+            flatten
         /],
         hash => [qw/
             replace_key
@@ -81,10 +84,10 @@ use Exporter::Easy (
             human_readable_localtime
         /],
         all => [qw/
-            :string
             :numeric
             :scalar
             :pripub
+            :array
             :hash
             :json
             :json_pretty
@@ -95,7 +98,6 @@ use Exporter::Easy (
 );
 
 require Scalar::Util;
-use String::Util 'crunch';
 
 use Scalar::Util::Numeric qw/
     isint
@@ -146,6 +148,12 @@ sub privasize($@) {
 
 sub publicize($@) {
     substitute_all_keys(shift, '^__', '', shift);
+}
+
+sub flatten {
+    map {
+        ref eq 'ARRAY' ? flatten(@{$_}) : $_
+    } @_;
 }
 
 sub replace_key($$$) {

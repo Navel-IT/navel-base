@@ -40,9 +40,9 @@ sub validate {
     my ($class, %options) = @_;
 
     $class->SUPER::validate(
-        errors_callback => $options{errors_callback},
         parameters => $options{parameters},
         definition_class => __PACKAGE__,
+        if_possible_suffix_errors_with_key_value => 'name',
         validator_struct => {
             name => 'word',
             collection => 'word',
@@ -68,29 +68,30 @@ sub validate {
             }
         },
         additional_validator => sub {
-            if (exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$options{parameters}}])) {
-                for (qw/source input/) {
-                    unless (exists $options{parameters}->{$_}) {
-                        $options{errors_callback}->(__PACKAGE__, [$_ . ' key is missing']) if ref $options{errors_callback} eq 'CODE';
+            my @errors;
 
-                        return 0;
-                    }
+            if (ref $options{parameters} eq 'HASH') {
+                unless (exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$options{parameters}}])) {
+                    @errors = ('at least one unknown key has been detected');
                 }
 
-                return 1;
-            } else {
-                $options{errors_callback}->(__PACKAGE__, ['at least one unknown key has been detected']) if ref $options{errors_callback} eq 'CODE';
+                for (qw/
+                    source
+                    input
+                /) {
+                    push @errors, 'required key ' . $_ . ' is missing' unless exists $options{parameters}->{$_};
+                }
             }
 
-            0;
+            \@errors;
         }
     );
 }
 
 sub merge {
-   shift->SUPER::merge(
+    shift->SUPER::merge(
         values => shift
-   );
+    );
 }
 
 sub persistant_properties {

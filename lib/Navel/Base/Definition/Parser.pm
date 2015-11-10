@@ -30,6 +30,7 @@ sub new {
     my $self = bless {
         definition_class => $options{definition_class},
         do_not_need_at_least_one => $options{do_not_need_at_least_one},
+        defnitions_validation_on_errors => $options{defnitions_validation_on_errors},
         raw => [],
         definitions => []
     }, ref $class || $class;
@@ -61,13 +62,7 @@ sub write {
 }
 
 sub make_definition {
-    my ($self, $raw_definition) = @_;
-
-    my $definition = eval {
-        $self->{definition_class}->new($raw_definition);
-    };
-
-    $@ ? die $self->{definition_class} . ': ' . $@ . "\n" : $definition;
+    shift->{definition_class}->new(shift);
 };
 
 sub make {
@@ -75,16 +70,31 @@ sub make {
 
     if (eval 'require ' . $self->{definition_class}) {
         if (ref $self->{raw} eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
-            $self->add_definition(ref $options{extra_parameters} eq 'HASH'
-            ?
-                {
-                    %{$_},
-                    %{$options{extra_parameters}}
+            my @errors;
+
+            for (@{$self->{raw}}) {
+                my $definition_parameters = ref $options{extra_parameters} eq 'HASH'
+                ?
+                    {
+                        %{$_},
+                        %{$options{extra_parameters}}
+                    }
+                : $_;
+
+                eval {
+                    $self->make_definition($definition_parameters);
+                };
+
+                unless ($@) {
+                    $self->add_definition($definition_parameters);
+                } else {
+                    push @errors, $@;
                 }
-            : $_
-            ) for @{$self->{raw}};
+            }
+
+            die \@errors if @errors;
         } else {
-            die $self->{definition_class} . ": definitions must be represented in an array\n";
+            die $self->{definition_class} . ": definitions must be encapsulated in an array\n";
         }
     } else {
         croak($self->{definition_class} . ": require failed");

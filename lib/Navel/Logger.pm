@@ -29,8 +29,8 @@ use Term::ANSIColor;
 
 use Navel::Logger::Severity;
 use Navel::Utils qw/
+    flatten
     human_readable_localtime
-    crunch
 /;
 
 our $VERSION = 0.1;
@@ -39,6 +39,33 @@ our $VERSION = 0.1;
 
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
+
+#-> functions
+
+sub stepped_log {
+    my $stepped_log;
+
+    for (@_) {
+        if (ref $_ eq 'ARRAY') {
+            if (@{$_}) {
+                my %new_step_shift = (
+                    character => ' ',
+                    value => 4
+                );
+
+                $stepped_log = "\n" . join "\n", map {
+                    ($new_step_shift{character} x $new_step_shift{value}) . $_
+                } flatten($_);
+            }
+        } else {
+            $stepped_log = $_;
+        }
+
+        chomp $stepped_log;
+    }
+
+    $stepped_log;
+}
 
 #-> methods
 
@@ -55,12 +82,10 @@ sub new {
 sub push_in_queue {
     my ($self, %options) = @_;
 
-    $options{message} = crunch($options{message});
-
     push @{$self->{queue}}, {
         time => time,
         severity => $options{severity},
-        message => $options{message},
+        message => stepped_log($options{message}),
         message_color => $options{message_color},
     } if defined $options{message} && $self->{severity}->does_it_log(
         severity => $options{severity}
@@ -72,7 +97,7 @@ sub push_in_queue {
 sub good {
     my ($self, %options) = @_;
 
-    $options{message} = GOOD_MESSAGE . ' - ' . $options{message};
+    $options{message} = GOOD_MESSAGE . ' - ' . stepped_log($options{message});
     $options{message_color} = GOOD_COLOR;
 
     $self->push_in_queue(%options);
@@ -81,7 +106,7 @@ sub good {
 sub bad {
     my ($self, %options) = @_;
 
-    $options{message} = BAD_MESSAGE . ' - ' . $options{message};
+    $options{message} = BAD_MESSAGE . ' - ' . stepped_log($options{message});
     $options{message_color} = BAD_COLOR;
 
     $self->push_in_queue(%options);
