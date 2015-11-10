@@ -43,9 +43,13 @@ binmode STDERR, ':utf8';
 #-> functions
 
 sub stepped_log {
+    my $class = shift;
+
     my $stepped_log;
 
     for (@_) {
+        $stepped_log .= "\n" if defined $stepped_log;
+
         if (ref $_ eq 'ARRAY') {
             if (@{$_}) {
                 my %new_step_shift = (
@@ -53,16 +57,16 @@ sub stepped_log {
                     value => 4
                 );
 
-                $stepped_log = "\n" . join "\n", map {
+                $stepped_log .= (defined $stepped_log ? '' : "\n") . join "\n", map {
                     ($new_step_shift{character} x $new_step_shift{value}) . $_
                 } flatten($_);
             }
         } else {
-            $stepped_log = $_;
+            $stepped_log .= $_;
         }
-
-        chomp $stepped_log;
     }
+
+    chomp $stepped_log;
 
     $stepped_log;
 }
@@ -85,31 +89,10 @@ sub push_in_queue {
     push @{$self->{queue}}, {
         time => time,
         severity => $options{severity},
-        message => stepped_log($options{message}),
-        message_color => $options{message_color},
-    } if defined $options{message} && $self->{severity}->does_it_log(
-        severity => $options{severity}
-    );
+        message => $options{message}
+    } if defined $options{message} && $self->{severity}->does_it_log($options{severity});
 
     $self;
-}
-
-sub good {
-    my ($self, %options) = @_;
-
-    $options{message} = GOOD_MESSAGE . ' - ' . stepped_log($options{message});
-    $options{message_color} = GOOD_COLOR;
-
-    $self->push_in_queue(%options);
-}
-
-sub bad {
-    my ($self, %options) = @_;
-
-    $options{message} = BAD_MESSAGE . ' - ' . stepped_log($options{message});
-    $options{message_color} = BAD_COLOR;
-
-    $self->push_in_queue(%options);
 }
 
 sub queue_to_text {
@@ -117,9 +100,9 @@ sub queue_to_text {
 
     [
         map {
-            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . uc($_->{severity}) . ' - ' . $_->{message};
+            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . ucfirst($_->{severity}) . ': ' . $_->{message};
 
-            $options{colored} && defined $_->{message_color} ? colored($message, $_->{message_color}) : $message;
+            $options{colored} ? colored($message, $self->{severity}->color($_->{severity})) : $message;
         } @{$self->{queue}}
     ];
 }
@@ -163,9 +146,9 @@ sub flush_queue {
                             );
                         });
                     } else {
-                        $self->bad(
+                        $self->push_in_queue(
                             message => 'Cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
-                            severity => 'err'
+                            severity => 'crit'
                         );
 
                         $self->say_queue();
@@ -185,9 +168,9 @@ sub flush_queue {
                 };
 
                 if ($@) {
-                    $self->bad(
+                    $self->push_in_queue(
                         message => 'Cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
-                        severity => 'err'
+                        severity => 'crit'
                     );
 
                     $self->say_queue();
