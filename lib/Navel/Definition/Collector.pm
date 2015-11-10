@@ -19,10 +19,7 @@ use constant {
 
 use DateTime::Event::Cron::Quartz;
 
-use Navel::Utils qw/
-    isint
-    exclusive_none
-/;
+use Navel::Utils 'exclusive_none';
 
 our $VERSION = 0.1;
 
@@ -47,21 +44,13 @@ sub validate {
             name => 'word',
             collection => 'word',
             type => 'collector_type',
-            singleton => 'collector_singleton',
-            scheduling => 'collector_cron'
+            singleton => 'collector_0_or_1',
+            scheduling => 'collector_quartz_expression'
         },
         validator_types => {
-            collector_type => sub {
-                my $value = shift;
-
-                $value eq COLLECTOR_TYPE_PACKAGE || $value eq COLLECTOR_TYPE_SOURCE;
-            },
-            collector_singleton => sub {
-                my $value = shift;
-
-                $value == 0 || $value == 1 if isint($value);
-            },
-            collector_cron => sub {
+            collector_type => qr/^(@{[COLLECTOR_TYPE_PACKAGE]}|@{[COLLECTOR_TYPE_SOURCE]})$/,
+            collector_0_or_1 => qr/^[01]$/,
+            collector_quartz_expression => sub {
                 eval {
                     DateTime::Event::Cron::Quartz->new(@_);
                 };
@@ -71,9 +60,15 @@ sub validate {
             my @errors;
 
             if (ref $options{parameters} eq 'HASH') {
-                unless (exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$options{parameters}}])) {
-                    @errors = ('at least one unknown key has been detected');
-                }
+                @errors = ('at least one unknown key has been detected') unless exclusive_none(
+                    [
+                        @{$PROPERTIES{persistant}},
+                        @{$PROPERTIES{runtime}}
+                    ],
+                    [
+                        keys %{$options{parameters}}
+                    ]
+                );
 
                 for (qw/
                     source

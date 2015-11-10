@@ -14,7 +14,7 @@ use parent 'Navel::Base';
 
 use Storable 'dclone';
 
-use Data::Validate::Struct 0.08;
+use Data::Validate::Struct 0.1;
 
 use Navel::Utils qw/
     unblessed
@@ -45,11 +45,7 @@ sub validate {
 
     my $validator = Data::Validate::Struct->new($options{validator_struct});
 
-    while (my ($type_name, $type_sub) = each %{$options{validator_types}}) {
-        $validator->type(
-            $type_name => $type_sub
-        );
-    }
+    $validator->type(%{$options{validator_types}});
 
     @errors = @{$validator->{errors}} unless $validator->validate($options{parameters});
 

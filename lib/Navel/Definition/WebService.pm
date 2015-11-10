@@ -14,10 +14,7 @@ use parent qw/
     Navel::Base::Definition
 /;
 
-use Navel::Utils qw/
-    isint
-    exclusive_none
-/;
+use Navel::Utils 'exclusive_none';
 
 use Mojo::URL;
 
@@ -37,7 +34,6 @@ sub validate {
     my ($class, %options) = @_;
 
     $class->SUPER::validate(
-        on_errors => $options{on_errors},
         parameters => $options{parameters},
         definition_class => __PACKAGE__,
         if_possible_suffix_errors_with_key_value => 'name',
@@ -45,22 +41,24 @@ sub validate {
             name => 'word',
             interface_mask => 'text',
             port => 'port',
-            tls => 'web_service_tls'
+            tls => 'webservice_0_or_1'
         },
         validator_types => {
-            web_service_tls => sub {
-                my $value = shift;
-
-                $value == 0 or $value == 1 if isint($value);
-            }
+            webservice_0_or_1 => qr/^[01]$/
         },
         additional_validator => sub {
             my @errors;
 
-            if (ref $options{parameters} eq 'HASH' ) {
-                unless (exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$options{parameters}}])) {
-                    @errors = ('at least one unknown key has been detected');
-                }
+            if (ref $options{parameters} eq 'HASH') {
+                @errors = ('at least one unknown key has been detected') unless exclusive_none(
+                    [
+                        @{$PROPERTIES{persistant}},
+                        @{$PROPERTIES{runtime}}
+                    ],
+                    [
+                        keys %{$options{parameters}}
+                    ]
+                );
 
                 for (qw/
                     ca

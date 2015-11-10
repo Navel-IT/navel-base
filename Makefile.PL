@@ -40,7 +40,7 @@ WriteMakefile(
         'Carp' => 0,
         'Scalar::Util::Numeric' => 0,
         'List::MoreUtils' => 0,
-        'Data::Validate::Struct' => 0.08,
+        'Data::Validate::Struct' => 0.1,
         'DateTime::Event::Cron::Quartz' => 0,
         'Term::ANSIColor' => 0,
         'File::Slurp' => 0,

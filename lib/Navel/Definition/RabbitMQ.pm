@@ -37,7 +37,6 @@ sub validate {
     my ($class, %options) = @_;
 
     $class->SUPER::validate(
-        on_errors => $options{on_errors},
         parameters => $options{parameters},
         definition_class => __PACKAGE__,
         if_possible_suffix_errors_with_key_value => 'name',
@@ -47,42 +46,42 @@ sub validate {
             port => 'port',
             user => 'text',
             password => 'text',
-            timeout => 'collector_positive_integer',
+            timeout => 'rabbitmq_positive_integer',
             vhost => 'text',
-            tls => 'collector_boolean',
-            heartbeat => 'collector_positive_integer',
+            tls => 'rabbitmq_0_or_1',
+            heartbeat => 'rabbitmq_positive_integer',
             exchange => 'text',
-            delivery_mode => 'collector_props_delivery_mode',
-            scheduling => 'collector_cron',
-            auto_connect => 'collector_boolean'
+            delivery_mode => 'rabbitmq_1_or_2',
+            scheduling => 'collector_quartz_expression',
+            auto_connect => 'rabbitmq_0_or_1'
         },
         validator_types => {
-            collector_positive_integer => sub {
+            rabbitmq_positive_integer => sub {
                 my $value = shift;
 
                 isint($value) && $value >= 0;
             },
-            collector_props_delivery_mode => sub {
-                my $value = shift;
-
-                $value == 1 || $value == 2 if isint($value);
-            },
-            collector_cron => sub {
+            rabbitmq_0_or_1 => qr/^[01]$/,
+            rabbitmq_1_or_2 => qr/^[12]$/,
+            collector_quartz_expression => sub {
                 eval {
                     DateTime::Event::Cron::Quartz->new(@_);
                 };
-            },
-            collector_boolean => sub {
-                my $value = shift;
-
-                $value == 0 || $value == 1 if isint($value);
             }
         },
         additional_validator => sub {
             my @errors;
 
-            unless (ref $options{parameters} eq 'HASH' && exclusive_none([@{$PROPERTIES{persistant}}, @{$PROPERTIES{runtime}}], [keys %{$options{parameters}}])) {
-                @errors = ('at least one unknown key has been detected');
+            if (ref $options{parameters} eq 'HASH') {
+                @errors = ('at least one unknown key has been detected') unless exclusive_none(
+                    [
+                        @{$PROPERTIES{persistant}},
+                        @{$PROPERTIES{runtime}}
+                    ],
+                    [
+                        keys %{$options{parameters}}
+                    ]
+                );
             }
 
             \@errors;
