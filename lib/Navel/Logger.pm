@@ -14,13 +14,6 @@ use feature 'say';
 
 use parent 'Navel::Base';
 
-use constant {
-    GOOD_MESSAGE => 'Sounds perfect',
-    BAD_MESSAGE => "Something going wrong around here",
-    GOOD_COLOR => 'green',
-    BAD_COLOR => 'red'
-};
-
 use File::Slurp;
 
 use AnyEvent::IO;

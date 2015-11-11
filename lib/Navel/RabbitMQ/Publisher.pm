@@ -82,9 +82,7 @@ sub push_in_queue {
 
     my $event = Navel::RabbitMQ::Publisher::Event->new(%{$options{event_definition}});
 
-    my $status_method = delete $options{status_method};
-
-    $event->$status_method() if defined $status_method;
+    $event->($options{status_method})() if defined $options{status_method};
 
     push @{$self->{queue}}, $event;
 

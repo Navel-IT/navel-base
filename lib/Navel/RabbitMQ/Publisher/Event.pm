@@ -45,7 +45,7 @@ sub new {
         $self->{collection} = $options{collection};
     }
 
-    $self->set_ok();
+    $self->set_status_to_ok();
     $self->{datas} = $options{datas};
 
     $self->{$_} = isint($options{$_}) ? $options{$_} : time for qw/starting_time ending_time/;
@@ -53,7 +53,7 @@ sub new {
     $self;
 }
 
-sub set_ok {
+sub set_status_to_ok {
     my $self = shift;
 
     $self->{status_code} = OK;
@@ -61,7 +61,7 @@ sub set_ok {
     $self;
 }
 
-sub set_ko_no_source {
+sub set_status_to_ko_no_source {
     my $self = shift;
 
     $self->{status_code} = KO_NO_SOURCE;
@@ -69,7 +69,7 @@ sub set_ko_no_source {
     $self;
 }
 
-sub set_ko_exception {
+sub set_status_to_ko_exception {
     my $self = shift;
 
     $self->{status_code} = KO_EXCEPTION;
