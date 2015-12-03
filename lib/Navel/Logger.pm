@@ -92,7 +92,10 @@ sub push_in_queue {
 sub queue_to_text {
     my ($self, %options) = @_;
 
-    my $colored = defined $options{colored} ? $options{colored} : $self->{colored};
+    my $colored = defined $self->{file_path}
+        ? $options{colored} || 0
+        : defined $options{colored} ? $options{colored} : $self->{colored}
+    ;
 
     [
         map {
@@ -112,9 +115,11 @@ sub clear_queue {
 }
 
 sub say_queue {
-    my $self = shift;
+    my ($self, %options) = @_;
 
-    say join "\n", @{$self->queue_to_text()} if @{$self->{queue}};
+    say join "\n", @{$self->queue_to_text(
+        colored => $options{colored}
+    )} if @{$self->{queue}};
 
     $self;
 }
@@ -124,7 +129,9 @@ sub flush_queue {
 
     if (@{$self->{queue}}) {
         if (defined $self->{file_path}) {
-            my $queue_to_text = $self->queue_to_text();
+            my $queue_to_text = $self->queue_to_text(
+                colored => $options{colored}
+            );
 
             if ($options{async}) {
                 aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0, sub {
@@ -143,7 +150,9 @@ sub flush_queue {
                             severity => 'crit'
                         );
 
-                        $self->say_queue();
+                        $self->say_queue(
+                            colored => $self->{colored}
+                        );
                     }
                 });
             } else {
@@ -165,7 +174,9 @@ sub flush_queue {
                         severity => 'crit'
                     );
 
-                    $self->say_queue();
+                    $self->say_queue(
+                        colored => $self->{colored}
+                    );
                 }
             }
         } else {
