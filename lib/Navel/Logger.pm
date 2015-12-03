@@ -74,7 +74,7 @@ sub new {
         file_path => $options{file_path},
         colored => defined $options{colored} ? $options{colored} : 1,
         show_severity => defined $options{show_severity} ? $options{show_severity} : 1,
-        lcfirst_messages => $options{lcfirst_messages},
+        ucfirst_messages => $options{ucfirst_messages},
         queue => []
     }, ref $class || $class;
 }
@@ -101,7 +101,7 @@ sub queue_to_text {
 
     [
         map {
-            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . ($self->{lcfirst_messages} ? lcfirst $_->{message} : $_->{message});
+            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . ($self->{ucfirst_messages} ? ucfirst $_->{message} : $_->{message});
 
             $colored ? colored($message, $self->{severity}->color($_->{severity})) : $message;
         } @{$self->{queue}}
@@ -148,7 +148,7 @@ sub flush_queue {
                         });
                     } else {
                         $self->push_in_queue(
-                            message => 'Cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
+                            message => 'cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
                             severity => 'crit'
                         );
 
@@ -172,7 +172,7 @@ sub flush_queue {
 
                 if ($@) {
                     $self->push_in_queue(
-                        message => 'Cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
+                        message => 'cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
                         severity => 'crit'
                     );
 
