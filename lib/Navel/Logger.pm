@@ -73,6 +73,7 @@ sub new {
         severity => Navel::Logger::Severity->new(lc $options{severity}),
         file_path => $options{file_path},
         colored => defined $options{colored} ? $options{colored} : 1,
+        lcfirst_messages => $options{lcfirst_messages},
         queue => []
     }, ref $class || $class;
 }
@@ -99,7 +100,7 @@ sub queue_to_text {
 
     [
         map {
-            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . ucfirst($_->{severity}) . ': ' . $_->{message};
+            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . ucfirst($_->{severity}) . ': ' . ($self->{lcfirst_messages} ? lcfirst $_->{message} : $_->{message});
 
             $colored ? colored($message, $self->{severity}->color($_->{severity})) : $message;
         } @{$self->{queue}}
