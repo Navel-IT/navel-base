@@ -72,6 +72,7 @@ sub new {
     bless {
         severity => Navel::Logger::Severity->new(lc $options{severity}),
         file_path => $options{file_path},
+        colored => defined $options{colored} ? $options{colored} : 1,
         queue => []
     }, ref $class || $class;
 }
@@ -91,11 +92,13 @@ sub push_in_queue {
 sub queue_to_text {
     my ($self, %options) = @_;
 
+    my $colored = defined $options{colored} ? $options{colored} : $self->{colored};
+
     [
         map {
             my $message = '[' . human_readable_localtime($_->{time}) . '] ' . ucfirst($_->{severity}) . ': ' . $_->{message};
 
-            $options{colored} ? colored($message, $self->{severity}->color($_->{severity})) : $message;
+            $colored ? colored($message, $self->{severity}->color($_->{severity})) : $message;
         } @{$self->{queue}}
     ];
 }
@@ -111,11 +114,7 @@ sub clear_queue {
 sub say_queue {
     my $self = shift;
 
-    if (@{$self->{queue}}) {
-        say join "\n", @{$self->queue_to_text(
-            colored => 1
-        )};
-    }
+    say join "\n", @{$self->queue_to_text()} if @{$self->{queue}};
 
     $self;
 }
