@@ -33,7 +33,7 @@ our $VERSION = 0.1;
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
-#-> functions
+#-> methods
 
 sub stepped_log {
     my $class = shift;
@@ -63,8 +63,6 @@ sub stepped_log {
 
     $stepped_log;
 }
-
-#-> methods
 
 sub new {
     my ($class, %options) = @_;
