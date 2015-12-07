@@ -10,6 +10,8 @@ package Navel::Mojolicious::Plugin::Logger;
 use strict;
 use warnings;
 
+use constant LOGGER_PACKAGE => 'Navel::Logger';
+
 use Carp 'croak';
 
 use Mojo::Base 'Mojolicious::Plugin';
@@ -22,7 +24,7 @@ sub register {
     my ($self, $application, $register_options) = @_;
 
     croak('register_options must be a HASH') unless ref $register_options eq 'HASH';
-    croak('logger option must be an object of the Navel::Logger class') unless blessed($register_options->{logger}) eq 'Navel::Logger';
+    croak('logger option must be an object of the ' . LOGGER_PACKAGE . ' class') unless blessed($register_options->{logger}) eq LOGGER_PACKAGE;
 
     $application->helper(
         ok_ko => sub {
@@ -36,7 +38,7 @@ sub register {
                         $register_options->{logger}->push_in_queue(
                             message => $register_options->{logger}->stepped_log($_),
                             severity => 'info'
-                        ) if defined $_;
+                        ) if defined;
                     }
                 }
             }
