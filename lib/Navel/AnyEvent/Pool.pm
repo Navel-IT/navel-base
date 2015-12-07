@@ -1,0 +1,152 @@
+# Copyright 2015 Navel-IT
+# navel-base is developed by Yoann Le Garff, Nicolas Boquet and Yann Le Bras under GNU GPL v3
+
+#-> BEGIN
+
+#-> initialization
+
+package Navel::AnyEvent::Pool;
+
+use strict;
+use warnings;
+
+use constant {
+    TIMER_BACKEND_PACKAGE => 'Navel::AnyEvent::Pool::Timer'
+};
+
+use feature 'state';
+
+use Carp 'croak';
+
+use Navel::AnyEvent::Pool::Timer;
+
+use Navel::Utils 'blessed';
+
+#-> methods
+
+sub new {
+    my ($class, %options) = @_;
+
+    my $self = {
+        logger => blessed($options{logger}) eq 'Navel::Logger' ? $options{logger} : undef,
+        splay_limit => $options{splay_limit},
+        maximum => $options{maximum} || 0,
+        maximum_simultaneous_jobs => $options{maximum_simultaneous_jobs} || 0,
+        jobs => {
+            timers => {}
+        },
+        on_callbacks => {}
+    };
+
+    if (defined $self->{logger}) {
+        $self->{on_callbacks}->{on_disabled} = sub {
+            $self->{logger}->push_in_queue(
+                message => 'job ' . shift() . ' is disabled.',
+                severity => 'warning'
+            );
+        };
+
+        $self->{on_callbacks}->{on_maximum_simultaneous_jobs} = sub {
+            $self->{logger}->push_in_queue(
+                message => 'Cannot start job ' . shift() . ': there are too many jobs running (maximum of ' . $self->{maximum_simultaneous_jobs} . ').',
+                severity => 'warning'
+            );
+        };
+
+        $self->{on_callbacks}->{on_singleton_already_running} = sub {
+            $self->{logger}->push_in_queue(
+                message => 'job  ' . shift() . ' is already running.',
+                severity => 'warning'
+            );
+        };
+    }
+
+    bless $self, ref $class || $class;
+}
+
+sub attach_timer {
+    my ($self, %options) = @_;
+
+    my $timer = delete $options{timer};
+
+    my $package = TIMER_BACKEND_PACKAGE;
+
+    if (blessed($timer) eq TIMER_BACKEND_PACKAGE) {
+        $options{name} = $timer->{name};
+
+        $package = $timer;
+    }
+
+    croak('a name must be provided to add a timer') unless defined $options{name};
+
+    croak('a timer named ' . $options{name} . ' already exists') if exists $self->{jobs}->{timers}->{$options{name}};
+    croak('too many jobs already registered (maximum of ' . $self->{maximum} . ')') if $self->{maximum} && @{$self->jobs()} >= $self->{maximum};
+
+    $self->{jobs}->{timers}->{$options{name}} = $package->new(
+        (
+            %{
+                $self->{on_callbacks}
+            },
+            %options,
+            (
+                pool => $self
+            )
+        )
+    );
+}
+
+sub detach_timer {
+    my ($self, %options) = @_;
+
+    croak('a name must be provided to detach a timer') unless defined $options{name};
+
+    delete $self->{jobs}->{timers}->{$options{name}};
+}
+
+sub timers {
+    [
+        grep {
+            $_->isa(TIMER_BACKEND_PACKAGE)
+        } @{shift->jobs()}
+    ];
+}
+
+sub jobs {
+    [
+        map {
+            values %{$_}
+        } values %{shift->{jobs}}
+    ];
+}
+
+sub jobs_running {
+    state $jobs_running++ for @{shift->jobs()};
+
+    $jobs_running;
+}
+
+# sub AUTOLOAD {}
+
+# sub DESTROY {}
+
+1;
+
+#-> END
+
+__END__
+
+=pod
+
+=head1 NAME
+
+Navel::AnyEvent::Pool
+
+=head1 AUTHOR
+
+Yoann Le Garff, Nicolas Boquet and Yann Le Bras
+
+=head1 LICENSE
+
+GNU GPL v3
+
+=cut
