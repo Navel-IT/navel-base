@@ -36,9 +36,9 @@ use Exporter::Easy (
         human_readable_localtime
         :numeric
         :scalar
-        :pripub
-        :array
+        :list
         :hash
+        :pripub
         :json
         :json_pretty
         :sereal
@@ -57,17 +57,15 @@ use Exporter::Easy (
         /],
         list => [qw/
             exclusive_none
-        /],
-        pripub => [qw/
-            privasize
-            publicize
-        /],
-        array => [qw/
             flatten
         /],
         hash => [qw/
             replace_key
             substitute_all_keys
+        /],
+        pripub => [qw/
+            privasize
+            publicize
         /],
         json => [qw/
             encode_json
@@ -86,9 +84,9 @@ use Exporter::Easy (
         all => [qw/
             :numeric
             :scalar
-            :pripub
-            :array
+            :list
             :hash
+            :pripub
             :json
             :json_pretty
             :sereal
@@ -128,26 +126,20 @@ sub reftype($) {
    defined $reftype ? $reftype : '';
 }
 
+sub unblessed($) {
+    return { %{+shift} };
+}
+
 sub exclusive_none($$) {
     my ($reference, $difference) = @_;
 
     none {
         my $to_check = $_;
 
-        none { $to_check eq $_ } @{$reference};
+        none {
+            $to_check eq $_
+        } @{$reference};
     } @{$difference};
-}
-
-sub unblessed($) {
-    return { %{+shift} };
-}
-
-sub privasize($@) {
-    substitute_all_keys(shift, '^(.*)', '__$1', shift);
-}
-
-sub publicize($@) {
-    substitute_all_keys(shift, '^__', '', shift);
 }
 
 sub flatten {
@@ -180,6 +172,14 @@ sub substitute_all_keys($$$@) {
     }
 
     1;
+}
+
+sub privasize($@) {
+    substitute_all_keys(shift, '^(.*)', '__$1', shift);
+}
+
+sub publicize($@) {
+    substitute_all_keys(shift, '^__', '', shift);
 }
 
 sub encode_json_pretty($) {
