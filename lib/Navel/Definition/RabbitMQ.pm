@@ -12,8 +12,6 @@ use warnings;
 
 use parent 'Navel::Base::Definition';
 
-use DateTime::Event::Cron::Quartz;
-
 use Navel::Utils qw/
     isint
     exclusive_none
@@ -52,7 +50,7 @@ sub validate {
             heartbeat => 'rabbitmq_positive_integer',
             exchange => 'text',
             delivery_mode => 'rabbitmq_1_or_2',
-            scheduling => 'collector_quartz_expression',
+            scheduling => 'rabbitmq_positive_integer',
             auto_connect => 'rabbitmq_0_or_1'
         },
         validator_types => {
@@ -62,12 +60,7 @@ sub validate {
                 isint($value) && $value >= 0;
             },
             rabbitmq_0_or_1 => qr/^[01]$/,
-            rabbitmq_1_or_2 => qr/^[12]$/,
-            collector_quartz_expression => sub {
-                eval {
-                    DateTime::Event::Cron::Quartz->new(@_);
-                };
-            }
+            rabbitmq_1_or_2 => qr/^[12]$/
         },
         additional_validator => sub {
             my @errors;

@@ -31,7 +31,7 @@ if (lives_ok {
                 collection => 'test',
                 type => 'source',
                 singleton => 1,
-                scheduling => '0 * * * * ?',
+                scheduling => 15,
                 source => undef,
                 input => undef
             }

@@ -17,9 +17,10 @@ use constant {
     COLLECTOR_TYPE_SOURCE => 'source'
 };
 
-use DateTime::Event::Cron::Quartz;
-
-use Navel::Utils 'exclusive_none';
+use Navel::Utils qw/
+    isint
+    exclusive_none
+/;
 
 our $VERSION = 0.1;
 
@@ -45,15 +46,15 @@ sub validate {
             collection => 'word',
             type => 'collector_type',
             singleton => 'collector_0_or_1',
-            scheduling => 'collector_quartz_expression'
+            scheduling => 'collector_positive_integer'
         },
         validator_types => {
             collector_type => qr/^(@{[COLLECTOR_TYPE_PACKAGE]}|@{[COLLECTOR_TYPE_SOURCE]})$/,
             collector_0_or_1 => qr/^[01]$/,
-            collector_quartz_expression => sub {
-                eval {
-                    DateTime::Event::Cron::Quartz->new(@_);
-                };
+            collector_positive_integer => sub {
+                my $value = shift;
+
+                isint($value) && $value >= 0;
             }
         },
         additional_validator => sub {
