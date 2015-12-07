@@ -50,7 +50,8 @@ WriteMakefile(
     },
     TEST_REQUIRES => {
         'Test::More' => 0,
-        'Test::Exception' => 0
+        'Test::Exception' => 0,
+        'AnyEvent' => 0
     },
     test => {
         TESTS => 't/*.t'
