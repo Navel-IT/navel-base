@@ -43,7 +43,7 @@ sub stepped_log {
     for (@_) {
         $stepped_log .= "\n" if defined $stepped_log;
 
-        if (ref $_ eq 'ARRAY') {
+        if (ref eq 'ARRAY') {
             if (@{$_}) {
                 my %new_step_shift = (
                     character => ' ',
