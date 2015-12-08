@@ -26,25 +26,27 @@ use Navel::Utils qw/
 sub new {
     my ($class, %options) = @_;
 
-    my $self = $class;
-
     my $name = delete $options{name};
     my $callback = delete $options{callback};
 
     my %temp = (
         pool => delete $options{pool},
-        enable => delete $options{enable},
+        enabled => delete $options{enabled},
         singleton => delete $options{singleton} || 0,
         on_disabled => delete $options{on_disabled},
         on_maximum_simultaneous_jobs => delete $options{on_maximum_simultaneous_jobs},
         on_singleton_already_running => delete $options{on_singleton_already_running}
     );
 
+    my $self;
+
     if (ref $class) {
-        $self->detach_pool() if blessed $temp{pool} eq POOL_PACKAGE;
+        $self = $class;
+
+        $self->detach_pool() if blessed($temp{pool}) eq POOL_PACKAGE;
 
         while (my ($option_name, $option_value) = each %temp) {
-            $self->{$option_name} = $option_value;
+            $self->{$option_name} = $option_value if defined $option_value;
         }
     } else {
         croak('callback must a CODE reference') unless ref $callback eq 'CODE';
@@ -52,7 +54,7 @@ sub new {
         $self = bless {
             name => defined $name ? $name : croak('a name must be provided to add a timer'),
             pool => $temp{pool},
-            enable => defined $temp{enable} ? $temp{enable} : 1,
+            enabled => defined $temp{enabled} ? $temp{enabled} : 1,
             singleton => $temp{singleton},
             running => 0,
             on_disabled => $temp{on_disabled},
@@ -61,27 +63,23 @@ sub new {
         }, $class;
 
         my $wrapped_callback = sub {
-            unless ($self->is_pooled() && $self->{pool}->{maximum_simultaneous_jobs} && $self->{pool}->jobs_running() >= $self->{pool}->{maximum_simultaneous_jobs}) {
-                $self->{running} = 1;
-
-                $callback->(@_);
-
-                $self->{running} = 0;
+            unless ($self->is_pooled() && $self->{pool}->{maximum_simultaneous_jobs} && @{$self->{pool}->jobs_running()} >= $self->{pool}->{maximum_simultaneous_jobs}) {
+                $callback->($self);
             } else {
                 $self->{on_maximum_simultaneous_jobs}->($self->{name}) if ref $self->{on_disabled} eq 'CODE';
             }
         };
 
         $self->{callback} = sub {
-            if ($self->{enable}) {
+            if ($self->{enabled}) {
                 if ($self->{singleton}) {
                     unless ($self->{running}) {
-                        $wrapped_callback->(@_);
+                        $wrapped_callback->();
                     } else {
                         $self->{on_singleton_already_running}->($self->{name}) if ref $self->{on_singleton_already_running} eq 'CODE';
                     }
                 } else {
-                    $wrapped_callback->(@_);
+                    $wrapped_callback->();
                 }
             } else {
                 $self->{on_disabled}->($self->{name}) if ref $self->{on_disabled} eq 'CODE';
@@ -93,9 +91,11 @@ sub new {
 
     my $splay_limit = delete $options{splay_limit};
 
-    $self->{after} = $self->optimized_delay(
-        defined $splay_limit ? $splay_limit : $self->{pool}->{splay_limit}
-    ) if $self->is_pooled() && ! isint($self->{after});
+    unless (isint($self->{after})) {
+        $self->{after} = $self->best_delay(
+            defined $splay_limit ? $splay_limit : $self->{pool}->{splay_limit}
+        );
+    }
 
     $self->{anyevent_timer} = AnyEvent->timer(
         (
@@ -110,7 +110,7 @@ sub new {
     $self;
 }
 
-sub optimized_delay {
+sub best_delay {
     my ($self, $splay_limit) = @_;
 
     croak('if defined, splay_limit must be an integer') if defined $splay_limit && ! isint($splay_limit);
@@ -118,22 +118,18 @@ sub optimized_delay {
     my $after = 0;
 
     if ($self->is_pooled()) {
-        if (my @timers = @{$self->{pool}->timers()}) {
-            if ($splay_limit) {
-                my (%after_map, %limited_after_map);
+        if ($splay_limit && (my @timers = @{$self->{pool}->timers()})) {
+            my (%after_map, %limited_after_map);
 
-                $after_map{$_->{after}}++ for @timers;
+            $after_map{$_->{after}}++ for @timers;
 
-                $limited_after_map{$_} = $after_map{$_} || 0 for 0..$splay_limit;
+            $limited_after_map{$_} = $after_map{$_} || 0 for 0..$splay_limit;
 
-                $after = [
-                    sort {
-                        $limited_after_map{$a} <=> $limited_after_map{$b}
-                    } keys %limited_after_map
-                ]->[0];
-            } else {
-                $after = @timers + 1;
-            }
+            $after = [
+                sort {
+                    $limited_after_map{$a} <=> $limited_after_map{$b}
+                } keys %limited_after_map
+            ]->[0];
         }
     }
 
@@ -143,26 +139,44 @@ sub optimized_delay {
 sub detach_pool {
     my $self = shift;
 
+    my $detached;
+
     if ($self->is_pooled()) {
-        delete $self->{pool}->{timer}->{$self->{name}};
+        $detached = delete $self->{pool}->{jobs}->{timers}->{$self->{name}};
 
         undef $self->{pool};
     }
 
-    $self;
-}
-
-sub exec {
-    shift->{callback}->(@_);
+    $detached;
 }
 
 sub is_pooled {
     blessed(shift->{pool}) eq POOL_PACKAGE;
 }
 
+sub begin {
+    shift->{running}++;
+}
+
+sub end {
+    shift->{running}--;
+}
+
+sub exec {
+    shift->{callback}->();
+}
+
 # sub AUTOLOAD {}
 
-# sub DESTROY {}
+sub DESTROY {
+    my $self = shift;
+
+    $self->detach_pool();
+
+    undef $self->{anyevent_timer};
+
+    1;
+}
 
 1;
 

@@ -14,8 +14,6 @@ use constant {
     TIMER_BACKEND_PACKAGE => 'Navel::AnyEvent::Pool::Timer'
 };
 
-use feature 'state';
-
 use Carp 'croak';
 
 use Navel::AnyEvent::Pool::Timer;
@@ -42,7 +40,7 @@ sub new {
         $self->{on_callbacks}->{on_disabled} = sub {
             $self->{logger}->push_in_queue(
                 message => 'job ' . shift() . ' is disabled.',
-                severity => 'warning'
+                severity => 'info'
             );
         };
 
@@ -55,7 +53,7 @@ sub new {
 
         $self->{on_callbacks}->{on_singleton_already_running} = sub {
             $self->{logger}->push_in_queue(
-                message => 'job  ' . shift() . ' is already running.',
+                message => 'job ' . shift() . ' is already running.',
                 severity => 'warning'
             );
         };
@@ -96,11 +94,15 @@ sub attach_timer {
 }
 
 sub detach_timer {
-    my ($self, %options) = @_;
+    my ($self, $name) = @_;
 
-    croak('a name must be provided to detach a timer') unless defined $options{name};
+    croak('a name must be provided to detach a timer') unless defined $name;
 
-    delete $self->{jobs}->{timers}->{$options{name}};
+    my $timer = $self->{jobs}->{timers}->{$name};
+
+    $timer->detach_pool() if defined $timer;
+
+    $timer;
 }
 
 sub timers {
@@ -120,9 +122,11 @@ sub jobs {
 }
 
 sub jobs_running {
-    state $jobs_running++ for @{shift->jobs()};
-
-    $jobs_running;
+    [
+        grep {
+            $_->{running}
+        } @{shift->jobs()}
+    ];
 }
 
 # sub AUTOLOAD {}
