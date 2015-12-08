@@ -33,7 +33,7 @@ use Exporter::Easy (
         encode_json_pretty
         encode_sereal_constructor
         decode_sereal_constructor
-        human_readable_localtime
+        strftime
         :numeric
         :scalar
         :list
@@ -79,7 +79,7 @@ use Exporter::Easy (
             decode_sereal_constructor
         /],
         time => [qw/
-            human_readable_localtime
+            strftime
         /],
         all => [qw/
             :numeric
@@ -109,6 +109,8 @@ use JSON qw/
     decode_json
 /;
 use Sereal;
+
+use POSIX 'strftime';
 
 our $VERSION = 0.1;
 
@@ -192,12 +194,6 @@ sub encode_sereal_constructor {
 
 sub decode_sereal_constructor {
     Sereal::Decoder->new();
-}
-
-sub human_readable_localtime($) {
-    my ($sec, $min, $hour, $mday, $mon, $year) = localtime shift;
-
-    sprintf '%02d-%02d-%02d %02d:%02d:%02d', $mday, $mon + 1, 1900 + $year, $hour, $min, $sec;
 }
 
 1;
