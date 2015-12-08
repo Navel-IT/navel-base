@@ -23,7 +23,7 @@ use Term::ANSIColor;
 use Navel::Logger::Severity;
 use Navel::Utils qw/
     flatten
-    human_readable_localtime
+    strftime
 /;
 
 our $VERSION = 0.1;
@@ -71,6 +71,7 @@ sub new {
         severity => Navel::Logger::Severity->new(lc $options{severity}),
         file_path => $options{file_path},
         colored => defined $options{colored} ? $options{colored} : 1,
+        datetime_format => $options{datetime_format},
         show_severity => defined $options{show_severity} ? $options{show_severity} : 1,
         ucfirst_messages => $options{ucfirst_messages},
         queue => []
@@ -99,7 +100,7 @@ sub queue_to_text {
 
     [
         map {
-            my $message = '[' . human_readable_localtime($_->{time}) . '] ' . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . ($self->{ucfirst_messages} ? ucfirst $_->{message} : $_->{message});
+            my $message = (defined $self->{datetime_format} && length $self->{datetime_format} ? '[' . strftime($self->{datetime_format}, localtime $_->{time}) . '] ' : '') . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . ($self->{ucfirst_messages} ? ucfirst $_->{message} : $_->{message});
 
             $colored ? colored($message, $self->{severity}->color($_->{severity})) : $message;
         } @{$self->{queue}}
