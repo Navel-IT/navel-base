@@ -12,6 +12,8 @@ use warnings;
 
 use parent 'Navel::Base';
 
+use Carp 'croak';
+
 use AnyEvent::RabbitMQ 1.19;
 
 use Navel::RabbitMQ::Publisher::Event;
@@ -91,6 +93,8 @@ sub clear_queue {
 
 sub push_in_queue {
     my ($self, %options) = @_;
+
+    croak('event_definition must be a HASH reference') unless ref $options{event_definition} eq 'HASH';
 
     my $event = Navel::RabbitMQ::Publisher::Event->new(%{$options{event_definition}});
 

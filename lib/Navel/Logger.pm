@@ -14,6 +14,8 @@ use feature 'say';
 
 use parent 'Navel::Base';
 
+use Carp 'croak';
+
 use File::Slurp;
 
 use AnyEvent::IO;
@@ -68,12 +70,11 @@ sub new {
     my ($class, %options) = @_;
 
     bless {
-        severity => Navel::Logger::Severity->new(lc $options{severity}),
+        severity => Navel::Logger::Severity->new($options{severity}),
         file_path => $options{file_path},
         colored => defined $options{colored} ? $options{colored} : 1,
         datetime_format => $options{datetime_format},
         show_severity => defined $options{show_severity} ? $options{show_severity} : 1,
-        ucfirst_messages => $options{ucfirst_messages},
         queue => []
     }, ref $class || $class;
 }
@@ -81,11 +82,13 @@ sub new {
 sub push_in_queue {
     my ($self, %options) = @_;
 
+    croak('message must be defined') unless defined $options{message};
+
     push @{$self->{queue}}, {
         time => time,
         severity => $options{severity},
         message => $options{message}
-    } if defined $options{message} && $self->{severity}->does_it_log($options{severity});
+    } if $self->{severity}->does_it_log($options{severity});
 
     $self;
 }
@@ -93,14 +96,11 @@ sub push_in_queue {
 sub queue_to_text {
     my ($self, %options) = @_;
 
-    my $colored = defined $self->{file_path}
-        ? $options{colored} || 0
-        : defined $options{colored} ? $options{colored} : $self->{colored}
-    ;
+    my $colored = defined $self->{file_path} ? $options{colored} || 0 : defined $options{colored} ? $options{colored} : $self->{colored};
 
     [
         map {
-            my $message = (defined $self->{datetime_format} && length $self->{datetime_format} ? '[' . strftime($self->{datetime_format}, localtime $_->{time}) . '] ' : '') . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . ($self->{ucfirst_messages} ? ucfirst $_->{message} : $_->{message});
+            my $message = (defined $self->{datetime_format} && length $self->{datetime_format} ? '[' . strftime($self->{datetime_format}, localtime $_->{time}) . '] ' : '') . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . $_->{message};
 
             $colored ? colored($message, $self->{severity}->color($_->{severity})) : $message;
         } @{$self->{queue}}

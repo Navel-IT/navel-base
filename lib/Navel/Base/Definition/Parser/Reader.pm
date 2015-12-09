@@ -25,7 +25,7 @@ our $VERSION = 0.1;
 sub read {
     my ($self, %options) = @_;
 
-    croak('file_path cannot be undefined') unless defined $options{file_path};
+    croak('file_path must be defined') unless defined $options{file_path};
 
     my $deserialized = eval {
         decode_json(

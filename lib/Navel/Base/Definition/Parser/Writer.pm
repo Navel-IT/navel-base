@@ -12,6 +12,8 @@ use warnings;
 
 use parent 'Navel::Base';
 
+use Carp 'croak';
+
 use File::Slurp;
 
 use AnyEvent::IO;
@@ -24,6 +26,10 @@ our $VERSION = 0.1;
 
 sub write {
     my ($self, %options) = @_;
+
+    croak('file_path must be defined') unless defined $options{file_path};
+
+    croak('on_* must be defined') unless ref $options{on_success} eq 'CODE' && ref $options{on_error} eq 'CODE';
 
     if ($options{async}) {
         aio_open($options{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY, 0, sub {

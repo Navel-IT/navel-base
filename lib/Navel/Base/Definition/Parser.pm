@@ -120,6 +120,8 @@ sub set_maximum {
 sub definition_by_name {
     my ($self, $name) = @_;
 
+    croak('name must be defined') unless defined $name;
+
     for (@{$self->{definitions}}) {
         return $_ if $_->{name} eq $name;
     }
@@ -135,6 +137,8 @@ sub definition_properties_by_name {
 
 sub all_by_property_name {
     my ($self, $name) = @_;
+
+    croak('name must be defined') unless defined $name;
 
     [
         map {
@@ -158,6 +162,8 @@ sub add_definition {
 
 sub delete_definition {
     my ($self, %options) = @_;
+
+    croak('definition_name must be defined') unless defined $options{definition_name};
 
     my $finded;
 

@@ -39,7 +39,7 @@ sub new {
         $self->{collector} = $options{collector};
         $self->{collection} = $self->{collector}->{collection};
     } else {
-        croak('collection cannot be undefined') unless defined $options{collection};
+        croak('collection must be defined') unless defined $options{collection};
 
         $self->{collector} = undef;
         $self->{collection} = $options{collection};
@@ -48,7 +48,10 @@ sub new {
     $self->set_status_to_ok();
     $self->{datas} = $options{datas};
 
-    $self->{$_} = isint($options{$_}) ? $options{$_} : time for qw/starting_time ending_time/;
+    $self->{$_} = isint($options{$_}) ? $options{$_} : time for qw/
+        starting_time
+        ending_time
+    /;
 
     $self;
 }

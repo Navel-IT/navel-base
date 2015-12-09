@@ -14,6 +14,8 @@ use parent qw/
     Navel::Base::Definition
 /;
 
+use Carp 'croak';
+
 use Navel::Utils 'exclusive_none';
 
 use Mojo::URL;
@@ -32,6 +34,8 @@ sub new {
 
 sub validate {
     my ($class, %options) = @_;
+
+    croak('parameters must be a HASH reference') unless ref $options{parameters} eq 'HASH';
 
     $class->SUPER::validate(
         parameters => $options{parameters},
@@ -99,11 +103,17 @@ sub url {
         $self->{port}
     );
 
-    $url->query(ca => $self->{ca}) if defined $self->{ca};
-    $url->query(cert => $self->{cert}) if defined $self->{cert};
-    $url->query(ciphers => $self->{ciphers}) if defined $self->{ciphers};
-    $url->query(key => $self->{key}) if defined $self->{key};
-    $url->query(verify => $self->{verify}) if defined $self->{verify};
+    for (qw/
+        ca
+        cert
+        ciphers
+        key
+        verify
+    /) {
+        $url->query(
+            $_ => $self->{$_}
+        ) if defined $self->{$_};
+    }
 
     $url;
 }

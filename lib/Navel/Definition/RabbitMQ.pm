@@ -12,6 +12,8 @@ use warnings;
 
 use parent 'Navel::Base::Definition';
 
+use Carp 'croak';
+
 use Navel::Utils qw/
     isint
     exclusive_none
@@ -33,6 +35,8 @@ sub new {
 
 sub validate {
     my ($class, %options) = @_;
+    
+    croak('parameters must be a HASH reference') unless ref $options{parameters} eq 'HASH';
 
     $class->SUPER::validate(
         parameters => $options{parameters},

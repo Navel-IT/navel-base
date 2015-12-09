@@ -12,6 +12,8 @@ use warnings;
 
 use parent 'Navel::Base::Definition';
 
+use Carp 'croak';
+
 use constant {
     COLLECTOR_TYPE_PACKAGE => 'package',
     COLLECTOR_TYPE_SOURCE => 'source'
@@ -36,6 +38,8 @@ sub new {
 
 sub validate {
     my ($class, %options) = @_;
+    
+    croak('parameters must be a HASH reference') unless ref $options{parameters} eq 'HASH';
 
     $class->SUPER::validate(
         parameters => $options{parameters},
