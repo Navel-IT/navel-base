@@ -65,22 +65,32 @@ sub disconnect {
     $self;
 }
 
+sub is_net_ready {
+    blessed(shift->{net}) eq 'AnyEvent::RabbitMQ';
+}
+
 sub is_connected {
     my $self = shift;
 
-    blessed($self->{net}) eq 'AnyEvent::RabbitMQ' && $self->{net}->is_open();
+    $self->is_net_ready() && $self->{net}->is_open();
 }
 
 sub is_connecting {
     my $self = shift;
 
-    blessed($self->{net}) eq 'AnyEvent::RabbitMQ' && $self->{net}->{_state} == AnyEvent::RabbitMQ::_ST_OPENING; # Warning, may change
+    $self->is_net_ready() && $self->{net}->{_state} == AnyEvent::RabbitMQ::_ST_OPENING; # Warning, may change
+}
+
+sub is_disconnected {
+    my $self = shift;
+
+    $self->is_net_ready() && $self->{net}->{_state} == AnyEvent::RabbitMQ::_ST_CLOSED; # Warning, may change
 }
 
 sub is_disconnecting {
     my $self = shift;
 
-    blessed($self->{net}) eq 'AnyEvent::RabbitMQ' && $self->{net}->{_state} == AnyEvent::RabbitMQ::_ST_CLOSING; # Warning, may change
+    $self->is_net_ready() && $self->{net}->{_state} == AnyEvent::RabbitMQ::_ST_CLOSING; # Warning, may change
 }
 
 sub clear_queue {
