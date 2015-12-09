@@ -10,6 +10,8 @@ package Navel::Mojolicious::Plugin::Logger;
 use strict;
 use warnings;
 
+use parent 'Navel::Base';
+
 use Carp 'croak';
 
 use Mojo::Base 'Mojolicious::Plugin';

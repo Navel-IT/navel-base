@@ -10,6 +10,8 @@ package Navel::AnyEvent::Pool::Timer;
 use strict;
 use warnings;
 
+use parent 'Navel::Base';
+
 use constant POOL_PACKAGE => 'Navel::AnyEvent::Pool';
 
 use Carp 'croak';
