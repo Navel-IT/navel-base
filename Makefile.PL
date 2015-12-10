@@ -46,7 +46,8 @@ WriteMakefile(
         'Mojo::URL' => 0,
         'JSON' => 0,
         'Sereal' => 0,
-        'POSIX' => 0
+        'POSIX' => 0,
+        'Class::Load' => 0
     },
     TEST_REQUIRES => {
         'Test::More' => 0,

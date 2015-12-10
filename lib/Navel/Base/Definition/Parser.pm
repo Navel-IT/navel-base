@@ -16,6 +16,8 @@ use parent qw/
     Navel::Base::Definition::Parser::Writer
 /;
 
+use Class::Load 'try_load_class';
+
 use Carp 'croak';
 
 use Navel::Utils 'isint';
@@ -68,7 +70,9 @@ sub make_definition {
 sub make {
     my ($self, %options) = @_;
 
-    if (eval 'require ' . $self->{definition_class}) {
+    my @load_definition_class = try_load_class($self->{definition_class});
+
+    if ($load_definition_class[0]) {
         if (ref $self->{raw} eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
             my @errors;
 
@@ -97,7 +101,7 @@ sub make {
             die $self->{definition_class} . ": definitions must be encapsulated in an array\n";
         }
     } else {
-        croak($self->{definition_class} . ": require failed");
+        croak($self->{definition_class} . ': ' . $load_definition_class[1]);
     }
 
     $self;
