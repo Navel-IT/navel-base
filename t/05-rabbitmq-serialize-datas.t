@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use Test::More;
+use Test::More tests => 3;
 use Test::Exception;
 
 BEGIN {
@@ -19,7 +19,7 @@ BEGIN {
 
 my $serialized;
 
-if (lives_ok {
+lives_ok {
     $serialized = to(
         datas => {
             a => 0,
@@ -39,13 +39,11 @@ if (lives_ok {
         starting_time => time,
         ending_time => time
     );
-} 'to(): serialize') {
-    lives_ok {
-        from($serialized);
-    } 'from(): deserialize';
-}
+} 'to(): serialize';
 
-done_testing();
+lives_ok {
+    from($serialized);
+} 'from(): deserialize';
 
 #-> END
 

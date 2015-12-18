@@ -20,7 +20,7 @@ BEGIN {
 #-> main
 
 my $count = 0;
-my $after = 4;
+my $after = 2;
 
 my $done = AnyEvent->condvar();
 
