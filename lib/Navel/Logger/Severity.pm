@@ -55,6 +55,12 @@ my %severities = (
 
 #-> methods
 
+sub severities {
+    [
+        keys %severities
+    ];
+}
+
 sub new {
     my ($class, $severity) = @_;
 

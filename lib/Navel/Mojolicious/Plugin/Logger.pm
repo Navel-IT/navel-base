@@ -36,10 +36,7 @@ sub register {
             for my $state (qw/ok ko/) {
                 if (ref $options->{$state} eq 'ARRAY') {
                     for (@{$options->{$state}}) {
-                        $register_options->{logger}->push_in_queue(
-                            message => $register_options->{logger}->stepped_log($_),
-                            severity => 'info'
-                        ) if defined;
+                        $register_options->{logger}->info($register_options->{logger}->stepped_log($_)) if defined;
                     }
                 }
             }

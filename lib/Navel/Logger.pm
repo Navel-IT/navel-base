@@ -146,10 +146,7 @@ sub flush_queue {
                             );
                         });
                     } else {
-                        $self->push_in_queue(
-                            message => 'cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
-                            severity => 'crit'
-                        );
+                        $self->crit('cannot push messages into ' . $self->{file_path} . ': ' . $! . '.');
 
                         $self->say_queue(
                             colored => $self->{colored}
@@ -170,10 +167,7 @@ sub flush_queue {
                 };
 
                 if ($@) {
-                    $self->push_in_queue(
-                        message => 'cannot push messages into ' . $self->{file_path} . ': ' . $! . '.',
-                        severity => 'crit'
-                    );
+                    $self->crit('cannot push messages into ' . $self->{file_path} . ': ' . $! . '.');
 
                     $self->say_queue(
                         colored => $self->{colored}
@@ -186,6 +180,19 @@ sub flush_queue {
     }
 
     $self->clear_queue();
+}
+
+BEGIN {
+    no strict 'refs';
+
+    for my $severity (keys %{Navel::Logger::Severity->severities()}) {
+        *{__PACKAGE__ . '::' . $severity} = sub {
+            shift->push_in_queue(
+                message => shift,
+                severity => $severity
+            );
+        };
+    }
 }
 
 # sub AUTOLOAD {}

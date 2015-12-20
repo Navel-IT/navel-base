@@ -40,24 +40,15 @@ sub new {
 
     if (defined $self->{logger}) {
         $self->{on_callbacks}->{on_disabled} = sub {
-            $self->{logger}->push_in_queue(
-                message => 'job ' . shift() . ' is disabled.',
-                severity => 'info'
-            );
+            $self->{logger}->info('job ' . shift() . ' is disabled.');
         };
 
         $self->{on_callbacks}->{on_maximum_simultaneous_jobs} = sub {
-            $self->{logger}->push_in_queue(
-                message => 'Cannot start job ' . shift() . ': there are too many jobs running (maximum of ' . $self->{maximum_simultaneous_jobs} . ').',
-                severity => 'warning'
-            );
+            $self->{logger}->warning('Cannot start job ' . shift() . ': there are too many jobs running (maximum of ' . $self->{maximum_simultaneous_jobs} . ').');
         };
 
         $self->{on_callbacks}->{on_singleton_already_running} = sub {
-            $self->{logger}->push_in_queue(
-                message => 'job ' . shift() . ' is already running.',
-                severity => 'warning'
-            );
+            $self->{logger}->warning('job ' . shift() . ' is already running.');
         };
     }
 
