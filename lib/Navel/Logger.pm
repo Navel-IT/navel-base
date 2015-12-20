@@ -93,18 +93,22 @@ sub push_in_queue {
     $self;
 }
 
-sub queue_to_text {
-    my ($self, %options) = @_;
+sub format_queue {
+    my $self = shift;
 
-    my $colored = defined $self->{file_path} ? $options{colored} || 0 : defined $options{colored} ? $options{colored} : $self->{colored};
+    my @formatted_queue;
 
-    [
-        map {
+    if (my @queue = @{$self->{queue}}) {
+        my $colored = defined $self->{file_path} ? 0 : $self->{colored};
+
+        @formatted_queue = map {
             my $message = (defined $self->{datetime_format} && length $self->{datetime_format} ? '[' . strftime($self->{datetime_format}, localtime $_->{time}) . '] ' : '') . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . $_->{message};
 
             $colored ? colored($message, $self->{severity}->color($_->{severity})) : $message;
-        } @{$self->{queue}}
-    ];
+        } @queue;
+    }
+
+    \@formatted_queue;
 }
 
 sub clear_queue {
@@ -116,11 +120,9 @@ sub clear_queue {
 }
 
 sub say_queue {
-    my ($self, %options) = @_;
+    my $self = shift;
 
-    say join "\n", @{$self->queue_to_text(
-        colored => $options{colored}
-    )} if @{$self->{queue}};
+    say join "\n", @{$self->format_queue()};
 
     $self;
 }
@@ -130,27 +132,21 @@ sub flush_queue {
 
     if (@{$self->{queue}}) {
         if (defined $self->{file_path}) {
-            my $queue_to_text = $self->queue_to_text(
-                colored => $options{colored}
-            );
+            my $queue_to_text = $self->format_queue();
 
             if ($options{async}) {
                 aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0, sub {
                     my $filehandle = shift;
 
                     if ($filehandle) {
-                        aio_write($filehandle, join("\n", @{$queue_to_text}) . "\n", sub {
+                        aio_write($filehandle, (join "\n", @{$queue_to_text}) . "\n", sub {
                             aio_close($filehandle,
                                 sub {
                                 }
                             );
                         });
                     } else {
-                        $self->crit('cannot push messages into ' . $self->{file_path} . ': ' . $! . '.');
-
-                        $self->say_queue(
-                            colored => $self->{colored}
-                        );
+                        $self->crit('cannot push messages into ' . $self->{file_path} . ': ' . $! . '.')->say_queue();
                     }
                 });
             } else {
@@ -161,25 +157,23 @@ sub flush_queue {
                             binmode => ':utf8'
                         },
                         [
-                            map { $_ . "\n" } @{$queue_to_text}
+                            map {
+                                $_ . "\n"
+                            } @{$queue_to_text}
                         ]
                     );
                 };
 
                 if ($@) {
-                    $self->crit('cannot push messages into ' . $self->{file_path} . ': ' . $! . '.');
-
-                    $self->say_queue(
-                        colored => $self->{colored}
-                    );
+                    $self->crit('cannot push messages into ' . $self->{file_path} . ': ' . $! . '.')->say_queue();
                 }
             }
         } else {
             $self->say_queue();
         }
-    }
 
-    $self->clear_queue();
+        $self->clear_queue();
+    }
 }
 
 BEGIN {
