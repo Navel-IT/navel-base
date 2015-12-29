@@ -148,6 +148,8 @@ sub flush_queue {
                     }
                 });
             } else {
+                local $@;
+
                 eval {
                     append_file(
                         $self->{file_path},

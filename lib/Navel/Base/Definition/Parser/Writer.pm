@@ -68,6 +68,8 @@ sub write {
             }
         });
     } else {
+        local $@;
+
         eval {
             write_file(
                 $options{file_path},

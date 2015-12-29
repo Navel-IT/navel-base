@@ -50,6 +50,8 @@ sub validate {
     push @errors, @{$options{additional_validator}->()} if ref $options{additional_validator} eq 'CODE';
 
     if (defined $options{if_possible_suffix_errors_with_key_value}) {
+        local $@;
+
         my $definition_name = eval {
             $options{parameters}->{$options{if_possible_suffix_errors_with_key_value}};
         };

@@ -74,6 +74,8 @@ sub make {
         if (ref $self->{raw} eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
             my @errors;
 
+            local $@;
+
             for (@{$self->{raw}}) {
                 my $definition_parameters = ref $options{extra_parameters} eq 'HASH'
                 ?

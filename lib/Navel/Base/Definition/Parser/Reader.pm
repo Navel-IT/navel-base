@@ -25,6 +25,8 @@ sub read {
 
     croak('file_path must be defined') unless defined $options{file_path};
 
+    local $@;
+
     my $deserialized = eval {
         decode_json(
             scalar read_file(
