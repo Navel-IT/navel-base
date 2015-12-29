@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Base::Definition::Parser::Writer;
+package Navel::Base::Definition::Parser::Writer 0.1;
 
 use strict;
 use warnings;
@@ -19,8 +19,6 @@ use File::Slurp;
 use AnyEvent::IO;
 
 use Navel::Utils 'encode_json_pretty';
-
-our $VERSION = 0.1;
 
 #-> methods
 
@@ -102,6 +100,8 @@ sub write {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

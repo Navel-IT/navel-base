@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Base::Definition::Parser;
+package Navel::Base::Definition::Parser 0.1;
 
 use strict;
 use warnings;
@@ -21,8 +21,6 @@ use Class::Load 'try_load_class';
 use Carp 'croak';
 
 use Navel::Utils 'isint';
-
-our $VERSION = 0.1;
 
 #-> methods
 
@@ -213,6 +211,8 @@ BEGIN {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

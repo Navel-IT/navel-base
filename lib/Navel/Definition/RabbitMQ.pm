@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Definition::RabbitMQ;
+package Navel::Definition::RabbitMQ 0.1;
 
 use strict;
 use warnings;
@@ -18,8 +18,6 @@ use Navel::Utils qw/
     isint
     exclusive_none
 /;
-
-our $VERSION = 0.1;
 
 our %PROPERTIES;
 
@@ -35,7 +33,7 @@ sub new {
 
 sub validate {
     my ($class, %options) = @_;
-    
+
     croak('parameters must be a HASH reference') unless ref $options{parameters} eq 'HASH';
 
     $class->SUPER::validate(
@@ -136,6 +134,8 @@ BEGIN {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

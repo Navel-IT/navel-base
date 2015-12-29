@@ -5,15 +5,12 @@
 
 #-> initialization
 
-package Navel::Utils;
+package Navel::Utils 0.1;
 
 use strict;
 use warnings;
 
-use subs qw/
-    flatten
-    substitute_all_keys
-/;
+use v5.16;
 
 use Exporter::Easy (
     OK => [qw/
@@ -112,8 +109,6 @@ use Sereal;
 
 use POSIX 'strftime';
 
-our $VERSION = 0.1;
-
 #-> functions
 
 sub blessed($) {
@@ -146,7 +141,7 @@ sub exclusive_none($$) {
 
 sub flatten {
     map {
-        ref eq 'ARRAY' ? flatten(@{$_}) : $_
+        ref eq 'ARRAY' ? __SUB__->(@{$_}) : $_
     } @_;
 }
 
@@ -169,7 +164,7 @@ sub substitute_all_keys($$$@) {
         $@ ? return 0 : replace_key($hash, $_, $new_key);
 
         if ($recursive && reftype($hash->{$new_key}) eq 'HASH') {
-            substitute_all_keys($hash->{$new_key}, $old, $new, $recursive) || return 0;
+            __SUB__->($hash->{$new_key}, $old, $new, $recursive) || return 0;
         }
     }
 
@@ -203,6 +198,8 @@ sub decode_sereal_constructor {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

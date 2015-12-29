@@ -12,7 +12,7 @@ use ExtUtils::MakeMaker 6.64;
 
 #-> main
 
-my $min_perl_version = '5.10.1';
+my $min_perl_version = '5.18.0';
 
 WriteMakefile(
     NAME => 'Navel::Base',

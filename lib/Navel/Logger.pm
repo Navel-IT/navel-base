@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Logger;
+package Navel::Logger 0.1;
 
 use strict;
 use warnings;
@@ -27,8 +27,6 @@ use Navel::Utils qw/
     flatten
     strftime
 /;
-
-our $VERSION = 0.1;
 
 #-> globals
 
@@ -200,6 +198,8 @@ BEGIN {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

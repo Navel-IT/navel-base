@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::RabbitMQ::Publisher;
+package Navel::RabbitMQ::Publisher 0.1;
 
 use strict;
 use warnings;
@@ -18,8 +18,6 @@ use AnyEvent::RabbitMQ 1.19;
 
 use Navel::RabbitMQ::Publisher::Event;
 use Navel::Utils 'blessed';
-
-our $VERSION = 0.1;
 
 #-> methods
 
@@ -126,6 +124,8 @@ sub push_in_queue {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

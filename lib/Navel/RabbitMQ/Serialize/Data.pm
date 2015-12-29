@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::RabbitMQ::Serialize::Data;
+package Navel::RabbitMQ::Serialize::Data 0.1;
 
 use strict;
 use warnings;
@@ -34,8 +34,6 @@ use Navel::Utils qw/
     :sereal
     isint
 /;
-
-our $VERSION = 0.1;
 
 #-> functions
 
@@ -96,6 +94,8 @@ sub from($) {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

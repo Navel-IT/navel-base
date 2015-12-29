@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Base::Definition;
+package Navel::Base::Definition 0.1;
 
 use strict;
 use warnings;
@@ -19,8 +19,6 @@ use Data::Validate::Struct 0.1;
 use Navel::Utils qw/
     unblessed
 /;
-
-our $VERSION = 0.1;
 
 #-> methods
 
@@ -128,6 +126,8 @@ BEGIN {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

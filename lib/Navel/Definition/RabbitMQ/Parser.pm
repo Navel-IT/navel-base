@@ -5,14 +5,12 @@
 
 #-> initialization
 
-package Navel::Definition::RabbitMQ::Parser;
+package Navel::Definition::RabbitMQ::Parser 0.1;
 
 use strict;
 use warnings;
 
 use parent 'Navel::Base::Definition::Parser';
-
-our $VERSION = 0.1;
 
 #-> methods
 
@@ -50,6 +48,8 @@ BEGIN {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

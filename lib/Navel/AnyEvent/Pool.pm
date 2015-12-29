@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::AnyEvent::Pool;
+package Navel::AnyEvent::Pool 0.1;
 
 use strict;
 use warnings;
@@ -133,6 +133,8 @@ sub jobs_running {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

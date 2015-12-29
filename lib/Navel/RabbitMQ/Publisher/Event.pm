@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::RabbitMQ::Publisher::Event;
+package Navel::RabbitMQ::Publisher::Event 0.1;
 
 use strict;
 use warnings;
@@ -25,8 +25,6 @@ use Navel::Utils qw/
     blessed
     isint
  /;
-
-our $VERSION = 0.1;
 
 #-> methods
 
@@ -109,6 +107,8 @@ sub routing_key {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Mojolicious::Plugin::Logger;
+package Navel::Mojolicious::Plugin::Logger 0.1;
 
 use strict;
 use warnings;
@@ -60,6 +60,8 @@ sub register {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

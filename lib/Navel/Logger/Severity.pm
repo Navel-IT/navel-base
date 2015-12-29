@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Logger::Severity;
+package Navel::Logger::Severity 0.1;
 
 use strict;
 use warnings;
@@ -13,8 +13,6 @@ use warnings;
 use parent 'Navel::Base';
 
 use Carp 'croak';
-
-our $VERSION = 0.1;
 
 #-> class variables
 
@@ -98,6 +96,8 @@ sub color {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

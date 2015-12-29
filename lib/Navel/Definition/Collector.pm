@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Definition::Collector;
+package Navel::Definition::Collector 0.1;
 
 use strict;
 use warnings;
@@ -24,8 +24,6 @@ use Navel::Utils qw/
     exclusive_none
 /;
 
-our $VERSION = 0.1;
-
 our %PROPERTIES;
 
 #-> methods
@@ -38,7 +36,7 @@ sub new {
 
 sub validate {
     my ($class, %options) = @_;
-    
+
     croak('parameters must be a HASH reference') unless ref $options{parameters} eq 'HASH';
 
     $class->SUPER::validate(
@@ -146,6 +144,8 @@ BEGIN {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

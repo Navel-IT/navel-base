@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Definition::WebService;
+package Navel::Definition::WebService 0.1;
 
 use strict;
 use warnings;
@@ -19,8 +19,6 @@ use Carp 'croak';
 use Navel::Utils 'exclusive_none';
 
 use Mojo::URL;
-
-our $VERSION = 0.1;
 
 our %PROPERTIES;
 
@@ -152,6 +150,8 @@ BEGIN {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 

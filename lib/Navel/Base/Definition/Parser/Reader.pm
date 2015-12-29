@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Base::Definition::Parser::Reader;
+package Navel::Base::Definition::Parser::Reader 0.1;
 
 use strict;
 use warnings;
@@ -17,8 +17,6 @@ use Carp 'croak';
 use File::Slurp;
 
 use Navel::Utils 'decode_json';
-
-our $VERSION = 0.1;
 
 #-> methods
 
@@ -52,6 +50,8 @@ sub read {
 __END__
 
 =pod
+
+=encoding utf8
 
 =head1 NAME
 
