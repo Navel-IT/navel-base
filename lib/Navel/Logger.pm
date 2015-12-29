@@ -92,12 +92,18 @@ sub push_in_queue {
 }
 
 sub format_queue {
-    my $self = shift;
+    my ($self, %options) = @_;
 
     my @formatted_queue;
 
     if (my @queue = @{$self->{queue}}) {
-        my $colored = defined $self->{file_path} ? 0 : $self->{colored};
+        my $colored;
+
+        if (exists $options{colored}) {
+            $colored = delete $options{colored};
+        } else {
+            $colored = defined $self->{file_path} ? 0 : $self->{colored};
+        }
 
         @formatted_queue = map {
             my $message = (defined $self->{datetime_format} && length $self->{datetime_format} ? '[' . strftime($self->{datetime_format}, localtime $_->{time}) . '] ' : '') . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . $_->{message};
@@ -109,18 +115,18 @@ sub format_queue {
     \@formatted_queue;
 }
 
-sub clear_queue {
-    my $self = shift;
+sub say_queue {
+    my ($self, %options) = @_;
 
-    undef @{$self->{queue}};
+    say join "\n", @{$self->format_queue(%options)};
 
     $self;
 }
 
-sub say_queue {
+sub clear_queue {
     my $self = shift;
 
-    say join "\n", @{$self->format_queue()};
+    undef @{$self->{queue}};
 
     $self;
 }
@@ -130,6 +136,8 @@ sub flush_queue {
 
     if (@{$self->{queue}}) {
         if (defined $self->{file_path}) {
+            my $cannot_push_messages_message = 'cannot push messages into ' . $self->{file_path};
+
             my $queue_to_text = $self->format_queue();
 
             if ($options{async}) {
@@ -144,7 +152,9 @@ sub flush_queue {
                             );
                         });
                     } else {
-                        $self->crit('cannot push messages into ' . $self->{file_path} . ': ' . $! . '.')->say_queue();
+                        $self->crit($cannot_push_messages_message . ': ' . $! . '.')->say_queue(
+                            colored => $self->{colored}
+                        );
                     }
                 });
             } else {
@@ -165,7 +175,9 @@ sub flush_queue {
                 };
 
                 if ($@) {
-                    $self->crit('cannot push messages into ' . $self->{file_path} . ': ' . $! . '.')->say_queue();
+                    $self->crit($cannot_push_messages_message . ': ' . $! . '.')->say_queue(
+                        colored => $self->{colored}
+                    );
                 }
             }
         } else {
