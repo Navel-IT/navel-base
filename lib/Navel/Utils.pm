@@ -101,10 +101,7 @@ use Scalar::Util::Numeric qw/
 
 use List::MoreUtils 'none';
 
-use JSON qw/
-    encode_json
-    decode_json
-/;
+use JSON;
 use Sereal;
 
 use POSIX 'strftime';
