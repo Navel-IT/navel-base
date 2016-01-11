@@ -37,6 +37,7 @@ sub register {
             my ($controller, $options) = @_;
 
             $generic_error->(
+                $controller,
                 {
                     %{$options},
                     %{
@@ -57,6 +58,7 @@ sub register {
             my ($controller, $options) = @_;
 
             $generic_error->(
+                $controller,
                 {
                     %{$options},
                     %{
