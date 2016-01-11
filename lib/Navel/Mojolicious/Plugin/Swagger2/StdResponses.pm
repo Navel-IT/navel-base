@@ -14,6 +14,19 @@ use parent 'Navel::Base';
 
 use Mojo::Base 'Mojolicious::Plugin';
 
+#-> functions
+
+my $generic_error = sub {
+    my ($controller, $options) = @_;
+
+    my $callback = delete $options->{callback};
+
+    $controller->$callback(
+        $options->{ok_ko},
+        $options->{code}
+    );
+};
+
 #-> methods
 
 sub register {
@@ -23,18 +36,41 @@ sub register {
         resource_not_found => sub {
             my ($controller, $options) = @_;
 
-            my $callback = delete $options->{callback};
-
-            $controller->$callback(
-                $controller->ok_ko(
-                    {
-                        ok => [],
-                        ko => [
-                            'the resource ' . (defined $options->{resource_name} ? $options->{resource_name} : '') . ' could not be found.'
-                        ]
+            $generic_error->(
+                {
+                    %{$options},
+                    %{
+                        {
+                            ok_ko => {
+                                ok => [],
+                                ko => [
+                                    'the resource ' . (defined $options->{resource_name} ? $options->{resource_name} : '') . ' could not be found.'
+                                ]
+                            },
+                            code => 404
+                        }
                     }
-                ),
-                404
+                }
+            );
+        },
+        resource_already_exists => sub {
+            my ($controller, $options) = @_;
+
+            $generic_error->(
+                {
+                    %{$options},
+                    %{
+                        {
+                            ok_ko => {
+                                ok => [],
+                                ko => [
+                                    'the resource ' . (defined $options->{resource_name} ? $options->{resource_name} : '') . ' already exists.'
+                                ]
+                            },
+                            code => 409
+                        }
+                    }
+                }
             );
         }
     )
