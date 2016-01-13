@@ -68,11 +68,12 @@ sub new {
     my ($class, %options) = @_;
 
     bless {
+        service => $options{service},
         severity => Navel::Logger::Severity->new($options{severity}),
         file_path => $options{file_path},
         colored => defined $options{colored} ? $options{colored} : 1,
         datetime_format => $options{datetime_format},
-        show_severity => defined $options{show_severity} ? $options{show_severity} : 1,
+        service_pid => $$,
         queue => []
     }, ref $class || $class;
 }
@@ -106,7 +107,7 @@ sub format_queue {
         }
 
         @formatted_queue = map {
-            my $message = (defined $self->{datetime_format} && length $self->{datetime_format} ? '[' . strftime($self->{datetime_format}, localtime $_->{time}) . '] ' : '') . ($self->{show_severity} ? ucfirst($_->{severity}) . ': ' : '') . $_->{message};
+            my $message = (defined $self->{datetime_format} && length $self->{datetime_format} ? strftime($self->{datetime_format}, localtime $_->{time}) . ' ' : '') . (defined $self->{service} ? $self->{service} . '[' . $self->{service_pid} . '] ' : '') . '(' . $_->{severity} . '): ' . $_->{message};
 
             $colored ? colored($message, $self->{severity}->color($_->{severity})) : $message;
         } @queue;
