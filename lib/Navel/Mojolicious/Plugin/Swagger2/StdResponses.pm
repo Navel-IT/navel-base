@@ -45,7 +45,7 @@ sub register {
                             ok_ko => {
                                 ok => [],
                                 ko => [
-                                    'the resource ' . (defined $options->{resource_name} ? $options->{resource_name} : '') . ' could not be found.'
+                                    'the resource ' . (defined $options->{resource_name} ? $options->{resource_name} . ' ' : '') . 'could not be found.'
                                 ]
                             },
                             code => 404
@@ -66,7 +66,7 @@ sub register {
                             ok_ko => {
                                 ok => [],
                                 ko => [
-                                    'the resource ' . (defined $options->{resource_name} ? $options->{resource_name} : '') . ' already exists.'
+                                    'the resource ' . (defined $options->{resource_name} ? $options->{resource_name} . ' ' : '') . 'already exists.'
                                 ]
                             },
                             code => 409
