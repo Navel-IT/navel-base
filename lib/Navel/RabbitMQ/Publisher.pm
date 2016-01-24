@@ -106,7 +106,11 @@ sub push_in_queue {
 
     my $event = Navel::RabbitMQ::Publisher::Event->new(%{$options{event_definition}});
 
-    $event->($options{status_method})() if defined $options{status_method};
+    if (defined (my $status_method = delete $options{status_method})) {
+        croak('unknown status method') unless $event->can($status_method);
+
+        $event->$status_method();
+    }
 
     push @{$self->{queue}}, $event;
 
@@ -140,5 +144,3 @@ Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 GNU GPL v3
 
 =cut
-
-
