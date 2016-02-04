@@ -26,7 +26,7 @@ sub import {
         utf8
     /;
 
-    feature->import(':5.18')
+    feature->import(':5.18');
 }
 
 # sub AUTOLOAD {}
