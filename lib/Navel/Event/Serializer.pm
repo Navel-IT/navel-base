@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::RabbitMQ::Serialize::Data 0.1;
+package Navel::Event::Serializer 0.1;
 
 use strict;
 use warnings;
@@ -59,7 +59,7 @@ sub to($@) {
 sub from($) {
     my $deserialized = decode_sereal_constructor()->decode(shift);
 
-    croak('deserialized datas are invalid') unless reftype($deserialized) eq 'HASH' && isint($deserialized->{starting_time}) && isint($deserialized->{ending_time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
+    croak('deserialized datas are invalid') unless ref $deserialized eq 'HASH' && isint($deserialized->{starting_time}) && isint($deserialized->{ending_time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
 
     my $collector;
 
@@ -99,7 +99,7 @@ __END__
 
 =head1 NAME
 
-Navel::RabbitMQ::Serialize::Data
+Navel::Event::Serializer
 
 =head1 AUTHOR
 
@@ -110,5 +110,3 @@ Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 GNU GPL v3
 
 =cut
-
-

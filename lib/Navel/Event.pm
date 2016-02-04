@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::RabbitMQ::Publisher::Event 0.1;
+package Navel::Event 0.1;
 
 use strict;
 use warnings;
@@ -20,7 +20,7 @@ use parent 'Navel::Base';
 
 use Carp 'croak';
 
-use Navel::RabbitMQ::Serialize::Data 'to';
+use Navel::Event::Serializer 'to';
 use Navel::Utils qw/
     blessed
     isint
@@ -90,11 +90,11 @@ sub serialized_datas {
     );
 }
 
-sub routing_key {
-    my $self = shift;
+# sub routing_key {
+    # my $self = shift;
 
-    join '.', 'navel', $self->{collection}, $self->{status_code};
-}
+    # join '.', 'navel', $self->{collection}, $self->{status_code};
+# }
 
 # sub AUTOLOAD {}
 
@@ -112,7 +112,7 @@ __END__
 
 =head1 NAME
 
-Navel::RabbitMQ::Publisher::Event
+Navel::Event
 
 =head1 AUTHOR
 
@@ -123,5 +123,3 @@ Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 GNU GPL v3
 
 =cut
-
-

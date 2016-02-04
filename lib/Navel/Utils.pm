@@ -14,6 +14,8 @@ use v5.16;
 
 use Exporter::Easy (
     OK => [qw/
+        catch_warnings
+        try_require_namespace
         isint
         isfloat
         blessed
@@ -43,6 +45,12 @@ use Exporter::Easy (
         :all
     /],
     TAGS => [
+        warnings => [qw/
+            catch_warnings
+        /],
+        namespace => [qw/
+            try_require_namespace
+        /],
         numeric => [qw/
             isint
             isfloat
@@ -79,6 +87,8 @@ use Exporter::Easy (
             strftime
         /],
         all => [qw/
+            :warnings
+            :namespace
             :numeric
             :scalar
             :list
@@ -107,6 +117,36 @@ use Sereal;
 use POSIX 'strftime';
 
 #-> functions
+
+sub catch_warnings {
+    my ($warning_callback, $code_callback) = @_;
+
+    local $SIG{__WARN__} = sub {
+        $warning_callback->(@_);
+    };
+
+    $code_callback->();
+}
+
+sub try_require_namespace {
+    my $class = shift;
+
+    my @return = (0, undef);
+
+    if (defined $class) {
+        eval 'require ' . $class;
+
+        if ($@) {
+            @return[1] = $@;
+        } else {
+            @return[0] = 1;
+        }
+    } else {
+        @return[1] = 'class must be defined';
+    }
+
+    @return;
+}
 
 sub blessed($) {
    my $blessed = Scalar::Util::blessed(shift);
@@ -211,5 +251,3 @@ Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 GNU GPL v3
 
 =cut
-
-

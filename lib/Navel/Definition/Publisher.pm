@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Definition::Collector 0.1;
+package Navel::Definition::Publisher 0.1;
 
 use strict;
 use warnings;
@@ -14,12 +14,9 @@ use parent 'Navel::Base::Definition';
 
 use Carp 'croak';
 
-use constant {
-    COLLECTOR_TYPE_PACKAGE => 'package',
-    COLLECTOR_TYPE_SOURCE => 'source'
-};
-
 use Navel::Utils qw/
+    catch_warnings
+    try_require_namespace
     isint
     exclusive_none
 /;
@@ -39,24 +36,24 @@ sub validate {
         if_possible_suffix_errors_with_key_value => 'name',
         validator_struct => {
             name => 'word',
-            collection => 'word',
-            type => 'collector_type',
-            singleton => 'collector_0_or_1',
-            scheduling => 'collector_positive_integer'
+            backend => 'text',
+            scheduling => 'publisher_positive_integer',
+            auto_connect => 'publisher_0_or_1'
         },
         validator_types => {
-            collector_type => qr/^(@{[COLLECTOR_TYPE_PACKAGE]}|@{[COLLECTOR_TYPE_SOURCE]})$/,
-            collector_0_or_1 => qr/^[01]$/,
-            collector_positive_integer => sub {
+            publisher_positive_integer => sub {
                 my $value = shift;
 
                 isint($value) && $value >= 0;
-            }
+            },
+            publisher_0_or_1 => qr/^[01]$/
         },
         additional_validator => sub {
             my @errors;
 
             if (ref $options{parameters} eq 'HASH') {
+                my @load_backend_class;
+
                 @errors = ('at least one unknown key has been detected') unless exclusive_none(
                     [
                         @{$PROPERTIES{persistant}},
@@ -67,17 +64,51 @@ sub validate {
                     ]
                 );
 
+                catch_warnings(
+                    sub {
+                        push @errors, @_;
+                    },
+                    sub {
+                        @load_backend_class = try_require_namespace($options{parameters}->{backend});
+                    }
+                );
+
+                if ($load_backend_class[0]) {
+                    push @errors, 'the subroutine ' . $options{parameters}->{backend} . '::publish is missing' unless $options{parameters}->{backend}->can('publish');
+
+                    if (__PACKAGE__->seems_connectable($options{parameters}->{backend})) {
+                        for (qw/
+                            connect
+                            disconnect
+                            is_connected
+                            is_connecting
+                            is_disconnected
+                            is_disconnecting
+                        /) {
+                            push @errors, 'the subroutine ' . $options{parameters}->{backend} . '::' . $_ . ' is missing' unless $options{parameters}->{backend}->can($_);
+                        }
+                    }
+                } else {
+                    push @errors, $load_backend_class[1];
+                }
+
                 for (qw/
-                    source
-                    input
+                    backend_input
                 /) {
                     push @errors, 'required key ' . $_ . ' is missing' unless exists $options{parameters}->{$_};
                 }
+
             }
 
             \@errors;
         }
     );
+}
+
+sub seems_connectable {
+    my ($class, $backend_class) = @_;
+
+    eval '$' . (defined $backend_class ? $backend_class : $class->{backend}) . '::IS_CONNECTABLE' or 0;
 }
 
 sub new {
@@ -98,30 +129,14 @@ sub persistant_properties {
     );
 }
 
-sub is_type_package {
-    shift->{type} eq COLLECTOR_TYPE_PACKAGE;
-}
-
-sub is_type_source {
-    shift->{type} eq COLLECTOR_TYPE_SOURCE;
-}
-
-sub resolve_basename {
-    my $self = shift;
-
-    defined $self->{source} ? $self->{source} : $self->{name};
-}
-
 BEGIN {
     %PROPERTIES = (
         persistant => [qw/
             name
-            collection
-            type
-            singleton
+            backend
+            backend_input
             scheduling
-            source
-            input
+            auto_connect
         /],
         runtime => [qw/
         /]
@@ -149,7 +164,7 @@ __END__
 
 =head1 NAME
 
-Navel::Definition::Collector
+Navel::Definition::Publisher
 
 =head1 AUTHOR
 

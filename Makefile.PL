@@ -35,7 +35,7 @@ WriteMakefile(
     MIN_PERL_VERSION => $min_perl_version,
     PREREQ_PM => {
         'Exporter::Easy' => 0,
-        'AnyEvent::RabbitMQ' => 1.19,
+        'AnyEvent' => 0,
         'Storable' => 0,
         'Carp' => 0,
         'Scalar::Util::Numeric' => 0,
@@ -46,8 +46,7 @@ WriteMakefile(
         'Mojo::URL' => 0,
         'JSON' => 0,
         'Sereal' => 0,
-        'POSIX' => 0,
-        'Class::Load' => 0
+        'POSIX' => 0
     },
     TEST_REQUIRES => {
         'Test::More' => 0,
@@ -62,5 +61,3 @@ WriteMakefile(
 #-> END
 
 __END__
-
-

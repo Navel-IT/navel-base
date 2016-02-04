@@ -5,7 +5,7 @@
 
 #-> initialization
 
-package Navel::Definition::RabbitMQ::Parser 0.1;
+package Navel::Definition::Publisher::Parser 0.1;
 
 use strict;
 use warnings;
@@ -16,7 +16,7 @@ use parent 'Navel::Base::Definition::Parser';
 
 sub new {
     shift->SUPER::new(
-        definition_class => 'Navel::Definition::RabbitMQ',
+        definition_class => 'Navel::Definition::Publisher',
         do_not_need_at_least_one => 1,
         @_
     );
@@ -24,16 +24,10 @@ sub new {
 
 BEGIN {
     __PACKAGE__->create_getters(qw/
-        host
-        port
-        user
-        password
-        vhost
-        tls
-        heartbeat
-        exchange
-        delivery_mode
+        backend
+        backend_input
         scheduling
+        auto_connect
     /);
 }
 
@@ -53,7 +47,7 @@ __END__
 
 =head1 NAME
 
-Navel::Definition::RabbitMQ::Parser
+Navel::Definition::Publisher::Parser
 
 =head1 AUTHOR
 
@@ -64,5 +58,3 @@ Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 GNU GPL v3
 
 =cut
-
-

@@ -24,12 +24,6 @@ our %PROPERTIES;
 
 #-> methods
 
-sub new {
-    shift->SUPER::new(
-        definition => shift
-    );
-}
-
 sub validate {
     my ($class, %options) = @_;
 
@@ -75,6 +69,12 @@ sub validate {
 
             \@errors;
         }
+    );
+}
+
+sub new {
+    shift->SUPER::new(
+        definition => shift
     );
 }
 
@@ -166,5 +166,3 @@ Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 GNU GPL v3
 
 =cut
-
-

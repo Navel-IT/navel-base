@@ -16,9 +16,7 @@ use Storable 'dclone';
 
 use Data::Validate::Struct 0.1;
 
-use Navel::Utils qw/
-    unblessed
-/;
+use Navel::Utils 'unblessed';
 
 #-> methods
 
@@ -65,7 +63,7 @@ sub validate {
 
     [
         map {
-            $definition_fullname . ': ' . $_ . '.'
+            $definition_fullname . ': ' . (defined $_  ? $_ : '?'). '.'
         } @errors
     ];
 }
@@ -144,5 +142,3 @@ Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 GNU GPL v3
 
 =cut
-
-

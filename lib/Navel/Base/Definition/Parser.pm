@@ -16,11 +16,12 @@ use parent qw/
     Navel::Base::Definition::Parser::Writer
 /;
 
-use Class::Load 'try_load_class';
-
 use Carp 'croak';
 
-use Navel::Utils 'isint';
+use Navel::Utils qw/
+    try_require_namespace
+    isint
+/;
 
 #-> methods
 
@@ -68,7 +69,7 @@ sub make_definition {
 sub make {
     my ($self, %options) = @_;
 
-    my @load_definition_class = try_load_class($self->{definition_class});
+    my @load_definition_class = try_require_namespace($self->{definition_class});
 
     if ($load_definition_class[0]) {
         if (ref $self->{raw} eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
@@ -229,5 +230,3 @@ Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 GNU GPL v3
 
 =cut
-
-
