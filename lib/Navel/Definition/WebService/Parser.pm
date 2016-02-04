@@ -7,8 +7,7 @@
 
 package Navel::Definition::WebService::Parser 0.1;
 
-use strict;
-use warnings;
+use Navel::Base;
 
 use parent 'Navel::Base::Definition::Parser';
 

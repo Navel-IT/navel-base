@@ -7,8 +7,7 @@
 
 package Navel::Event::Serializer 0.1;
 
-use strict;
-use warnings;
+use Navel::Base;
 
 use Exporter::Easy (
     OK => [qw/

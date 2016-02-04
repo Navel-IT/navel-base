@@ -7,16 +7,13 @@
 
 package Navel::Event 0.1;
 
-use strict;
-use warnings;
+use Navel::Base;
 
 use constant {
     OK => 0,
     KO_NO_SOURCE => 1,
     KO_EXCEPTION => 2
 };
-
-use parent 'Navel::Base';
 
 use Carp 'croak';
 

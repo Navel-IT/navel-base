@@ -7,10 +7,7 @@
 
 package Navel::Mojolicious::Plugin::Swagger2::StdResponses 0.1;
 
-use strict;
-use warnings;
-
-use parent 'Navel::Base';
+use Navel::Base;
 
 use Mojo::Base 'Mojolicious::Plugin';
 
@@ -53,7 +50,10 @@ sub register {
                     }
                 }
             );
-        },
+        }
+    );
+
+    $application->helper(
         resource_already_exists => sub {
             my ($controller, $options) = @_;
 
@@ -75,7 +75,7 @@ sub register {
                 }
             );
         }
-    )
+    );
 }
 
 # sub AUTOLOAD {}

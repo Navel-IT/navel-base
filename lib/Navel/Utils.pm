@@ -7,10 +7,7 @@
 
 package Navel::Utils 0.1;
 
-use strict;
-use warnings;
-
-use v5.16;
+use Navel::Base;
 
 use Exporter::Easy (
     OK => [qw/

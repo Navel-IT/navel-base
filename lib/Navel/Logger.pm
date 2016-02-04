@@ -7,12 +7,7 @@
 
 package Navel::Logger 0.1;
 
-use strict;
-use warnings;
-
-use feature 'say';
-
-use parent 'Navel::Base';
+use Navel::Base;
 
 use Carp 'croak';
 

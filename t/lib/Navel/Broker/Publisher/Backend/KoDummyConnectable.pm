@@ -7,8 +7,7 @@
 
 package t::lib::Navel::Broker::Publisher::Backend::KoDummyConnectable 0.1;
 
-use strict;
-use warnings;
+use Navel::Base;
 
 our $IS_CONNECTABLE = 1;
 

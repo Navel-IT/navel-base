@@ -7,10 +7,7 @@
 
 package Navel::Broker::Publisher 0.1;
 
-use strict;
-use warnings;
-
-use parent 'Navel::Base';
+use Navel::Base;
 
 use Carp 'croak';
 

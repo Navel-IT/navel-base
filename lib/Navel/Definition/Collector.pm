@@ -7,8 +7,7 @@
 
 package Navel::Definition::Collector 0.1;
 
-use strict;
-use warnings;
+use Navel::Base;
 
 use parent 'Navel::Base::Definition';
 

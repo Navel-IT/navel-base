@@ -7,11 +7,9 @@
 
 package Navel::Base::Definition::Parser 0.1;
 
-use strict;
-use warnings;
+use Navel::Base;
 
 use parent qw/
-    Navel::Base
     Navel::Base::Definition::Parser::Reader
     Navel::Base::Definition::Parser::Writer
 /;

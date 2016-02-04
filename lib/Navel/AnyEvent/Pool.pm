@@ -7,10 +7,7 @@
 
 package Navel::AnyEvent::Pool 0.1;
 
-use strict;
-use warnings;
-
-use parent 'Navel::Base';
+use Navel::Base;
 
 use constant {
     TIMER_BACKEND_PACKAGE => 'Navel::AnyEvent::Pool::Timer'
