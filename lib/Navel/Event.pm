@@ -87,12 +87,6 @@ sub serialized_datas {
     );
 }
 
-# sub routing_key {
-    # my $self = shift;
-
-    # join '.', 'navel', $self->{collection}, $self->{status_code};
-# }
-
 # sub AUTOLOAD {}
 
 # sub DESTROY {}
