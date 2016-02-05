@@ -31,6 +31,8 @@ lives_ok {
 } 'create pool';
 
 lives_ok {
+    alarm $after + 1;
+
     $pool->attach_timer(
         name => 'begin',
         after => 1,
