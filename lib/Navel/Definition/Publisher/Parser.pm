@@ -26,6 +26,7 @@ BEGIN {
         backend
         backend_input
         scheduling
+        auto_clean
         auto_connect
     /);
 }

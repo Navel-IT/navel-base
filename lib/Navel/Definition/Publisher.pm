@@ -37,6 +37,7 @@ sub validate {
             name => 'word',
             backend => 'text',
             scheduling => 'publisher_positive_integer',
+            auto_clean => 'publisher_positive_integer',
             auto_connect => 'publisher_0_or_1'
         },
         validator_types => {
@@ -135,6 +136,7 @@ BEGIN {
             backend
             backend_input
             scheduling
+            auto_clean
             auto_connect
         /],
         runtime => [qw/

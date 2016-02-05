@@ -60,10 +60,26 @@ sub clear_queue {
     $self;
 }
 
+sub auto_clean {
+    my $self = shift;
+
+    my @events;
+
+    if ($self->{definition}->{auto_clean}) {
+        my $difference = @{$self->{queue}} - $self->{definition}->{auto_clean} + 1;
+
+        @events = splice @{$self->{queue}}, 0, $difference if $difference > 0;
+    }
+
+    \@events;
+}
+
 sub push_in_queue {
     my ($self, %options) = @_;
 
     croak('event_definition must be a HASH reference') unless ref $options{event_definition} eq 'HASH';
+
+    $self->auto_clean();
 
     my $event = Navel::Event->new(%{$options{event_definition}});
 
