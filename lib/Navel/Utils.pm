@@ -125,12 +125,10 @@ use Sereal;
 
 #-> functions
 
-sub daemonize {
+sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
     my %options = @_;
 
     $options{work_dir} = defined $options{work_dir} ? $options{work_dir} : '/';
-
-    POSIX::setsid() or die 'setsid: ' . $!;
 
     my $pid = fork();
 
@@ -140,15 +138,13 @@ sub daemonize {
         exit 0;
     }
 
-    chdir $options{work_dir};
+    POSIX::setsid() or die 'setsid: ' . $!;
 
     umask 0;
 
-    write_file($options{pid_file}, $$) if defined $options{pid_file};
+    chdir $options{work_dir};
 
-    if ($options{close_fh}) {
-        POSIX::close $_ for (0..(POSIX::sysconf(POSIX::_SC_OPEN_MAX) || 1024));
-    }
+    write_file($options{pid_file}, $$) if defined $options{pid_file};
 
     open STDIN, '< /dev/null';
     open STDOUT, '> /dev/null';
