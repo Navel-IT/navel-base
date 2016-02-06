@@ -11,6 +11,7 @@ use Navel::Base;
 
 use Exporter::Easy (
     OK => [qw/
+        daemonize
         catch_warnings
         try_require_namespace
         isint
@@ -30,6 +31,9 @@ use Exporter::Easy (
         encode_sereal_constructor
         decode_sereal_constructor
         strftime
+        :posix
+        :warnings
+        :namespace
         :numeric
         :scalar
         :list
@@ -42,6 +46,9 @@ use Exporter::Easy (
         :all
     /],
     TAGS => [
+        posix => [qw/
+            daemonize
+        /],
         warnings => [qw/
             catch_warnings
         /],
@@ -84,6 +91,7 @@ use Exporter::Easy (
             strftime
         /],
         all => [qw/
+            :posix
             :warnings
             :namespace
             :numeric
@@ -99,6 +107,13 @@ use Exporter::Easy (
     ]
 );
 
+use POSIX qw/
+    setsid
+    strftime
+/;
+
+use File::Slurp;
+
 require Scalar::Util;
 
 use Scalar::Util::Numeric qw/
@@ -111,9 +126,39 @@ use List::MoreUtils 'none';
 use JSON;
 use Sereal;
 
-use POSIX 'strftime';
-
 #-> functions
+
+sub daemonize {
+    my %options = @_;
+
+    $options{work_dir} = defined $options{work_dir} ? $options{work_dir} : '/';
+
+    POSIX::setsid() or die 'setsid: ' . $!;
+
+    my $pid = fork();
+
+    if ($pid < 0) {
+        die 'fork: ' . $!;
+    } elsif ($pid) {
+        exit 0;
+    }
+
+    chdir $options{work_dir};
+
+    umask 0;
+
+    write_file($options{pid_file}, $$) if defined $options{pid_file};
+
+    if ($options{close_fh}) {
+        POSIX::close $_ for (0..(POSIX::sysconf (&POSIX::_SC_OPEN_MAX) || 1024));
+    }
+
+    open STDIN, '< /dev/null';
+    open STDOUT, '> /dev/null';
+    open STDERR, '> &STDOUT';
+
+    $options{work_dir};
+}
 
 sub catch_warnings {
     my ($warning_callback, $code_callback) = @_;
