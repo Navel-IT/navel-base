@@ -107,10 +107,7 @@ use Exporter::Easy (
     ]
 );
 
-use POSIX qw/
-    setsid
-    strftime
-/;
+use POSIX 'strftime';
 
 use File::Slurp;
 
@@ -150,7 +147,7 @@ sub daemonize {
     write_file($options{pid_file}, $$) if defined $options{pid_file};
 
     if ($options{close_fh}) {
-        POSIX::close $_ for (0..(POSIX::sysconf (&POSIX::_SC_OPEN_MAX) || 1024));
+        POSIX::close $_ for (0..(POSIX::sysconf(POSIX::_SC_OPEN_MAX) || 1024));
     }
 
     open STDIN, '< /dev/null';
