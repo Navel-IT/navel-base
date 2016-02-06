@@ -146,9 +146,9 @@ sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
 
     write_file($options{pid_file}, $$) if defined $options{pid_file};
 
-    open STDIN, '< /dev/null';
-    open STDOUT, '> /dev/null';
-    open STDERR, '> &STDOUT';
+    open STDIN, '</dev/null';
+    open STDOUT, '>/dev/null';
+    open STDERR, '>&STDOUT';
 
     $options{work_dir};
 }
