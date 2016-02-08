@@ -9,21 +9,7 @@ package Navel::Event::Serializer 0.1;
 
 use Navel::Base;
 
-use Exporter::Easy (
-    OK => [qw/
-        $VERSION
-        :all
-        to
-        from
-    /],
-    TAGS => [
-        all => [qw/
-            $VERSION
-            to
-            from
-        /]
-    ]
-);
+use parent 'Exporter';
 
 use Carp 'croak';
 
@@ -33,6 +19,17 @@ use Navel::Utils qw/
     :sereal
     isint
 /;
+
+#-> export
+
+our @EXPORT_OK = qw/
+    to
+    from
+/;
+
+our %EXPORT_TAGS = (
+    all => \@EXPORT_OK
+);
 
 #-> functions
 

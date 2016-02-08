@@ -34,7 +34,7 @@ WriteMakefile(
     },
     MIN_PERL_VERSION => $min_perl_version,
     PREREQ_PM => {
-        'Exporter::Easy' => 0,
+        'Exporter' => 0,
         'AnyEvent' => 0,
         'Storable' => 0,
         'Carp' => 0,

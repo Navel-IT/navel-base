@@ -9,103 +9,7 @@ package Navel::Utils 0.1;
 
 use Navel::Base;
 
-use Exporter::Easy (
-    OK => [qw/
-        daemonize
-        catch_warnings
-        try_require_namespace
-        isint
-        isfloat
-        blessed
-        reftype
-        exclusive_none
-        unblessed
-        privasize
-        publicize
-        flatten
-        replace_key
-        substitute_all_keys
-        encode_json
-        decode_json
-        encode_json_pretty
-        encode_sereal_constructor
-        decode_sereal_constructor
-        strftime
-        :posix
-        :warnings
-        :namespace
-        :numeric
-        :scalar
-        :list
-        :hash
-        :pripub
-        :json
-        :json_pretty
-        :sereal
-        :time
-        :all
-    /],
-    TAGS => [
-        posix => [qw/
-            daemonize
-        /],
-        warnings => [qw/
-            catch_warnings
-        /],
-        namespace => [qw/
-            try_require_namespace
-        /],
-        numeric => [qw/
-            isint
-            isfloat
-        /],
-        scalar => [qw/
-            blessed
-            reftype
-            unblessed
-        /],
-        list => [qw/
-            exclusive_none
-            flatten
-        /],
-        hash => [qw/
-            replace_key
-            substitute_all_keys
-        /],
-        pripub => [qw/
-            privasize
-            publicize
-        /],
-        json => [qw/
-            encode_json
-            decode_json
-        /],
-        json_pretty => [qw/
-            encode_json_pretty
-        /],
-        sereal => [qw/
-            encode_sereal_constructor
-            decode_sereal_constructor
-        /],
-        time => [qw/
-            strftime
-        /],
-        all => [qw/
-            :posix
-            :warnings
-            :namespace
-            :numeric
-            :scalar
-            :list
-            :hash
-            :pripub
-            :json
-            :json_pretty
-            :sereal
-            :time
-        /]
-    ]
-);
+use parent 'Exporter';
 
 use POSIX 'strftime';
 
@@ -122,6 +26,103 @@ use List::MoreUtils 'none';
 
 use JSON;
 use Sereal;
+
+#-> export
+
+our @EXPORT_OK = qw/
+    daemonize
+    catch_warnings
+    try_require_namespace
+    isint
+    isfloat
+    blessed
+    reftype
+    exclusive_none
+    unblessed
+    privasize
+    publicize
+    flatten
+    replace_key
+    substitute_all_keys
+    encode_json
+    decode_json
+    encode_json_pretty
+    encode_sereal_constructor
+    decode_sereal_constructor
+    strftime
+/;
+
+our %EXPORT_TAGS = (
+    posix => [
+        qw/
+            daemonize
+        /
+    ],
+    warnings => [
+        qw/
+            catch_warnings
+        /
+    ],
+    namespace => [
+        qw/
+            try_require_namespace
+        /
+    ],
+    numeric => [
+        qw/
+            isint
+            isfloat
+        /
+    ],
+    scalar => [
+        qw/
+            blessed
+            reftype
+            unblessed
+        /
+    ],
+    list => [
+        qw/
+            exclusive_none
+            flatten
+        /
+    ],
+    hash => [
+        qw/
+            replace_key
+            substitute_all_keys
+        /
+    ],
+    pripub => [
+        qw/
+            privasize
+            publicize
+        /
+    ],
+    json => [
+        qw/
+            encode_json
+            decode_json
+        /
+    ],
+    json_pretty => [
+        qw/
+            encode_json_pretty
+        /
+    ],
+    sereal => [
+        qw/
+            encode_sereal_constructor
+            decode_sereal_constructor
+        /
+    ],
+    time => [
+        qw/
+            strftime
+        /
+    ],
+    all => \@EXPORT_OK
+);
 
 #-> functions
 
