@@ -131,11 +131,11 @@ sub is_pooled {
 }
 
 sub begin {
-    shift->{running}++;
+    shift->{running} = 1;
 }
 
 sub end {
-    shift->{running}--;
+    shift->{running} = 0;
 }
 
 sub exec {

@@ -170,6 +170,8 @@ sub try_require_namespace {
     my @return = (0, undef);
 
     if (defined $class) {
+        local $@;
+
         eval 'require ' . $class;
 
         if ($@) {

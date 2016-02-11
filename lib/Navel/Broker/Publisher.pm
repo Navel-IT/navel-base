@@ -143,6 +143,8 @@ sub disconnect {
     my ($self, %options) = @_;
 
     if ($self->{seems_connectable}) {
+        local $@;
+
         $catch_warnings_wrapper->(
             sub {
                 eval {
