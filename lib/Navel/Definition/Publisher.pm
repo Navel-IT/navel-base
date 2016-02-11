@@ -36,11 +36,16 @@ sub validate {
         validator_struct => {
             name => 'word',
             backend => 'text',
-            scheduling => 'publisher_positive_integer',
+            scheduling => 'publisher_integer_gt_5',
             auto_clean => 'publisher_positive_integer',
             auto_connect => 'publisher_0_or_1'
         },
         validator_types => {
+            publisher_integer_gt_5 => sub {
+                my $value = shift;
+
+                isint($value) && $value >= 5;
+            },
             publisher_positive_integer => sub {
                 my $value = shift;
 

@@ -41,15 +41,15 @@ sub validate {
             collection => 'word',
             type => 'collector_type',
             singleton => 'collector_0_or_1',
-            scheduling => 'collector_positive_integer'
+            scheduling => 'publisher_integer_gt_5'
         },
         validator_types => {
             collector_type => qr/^(@{[COLLECTOR_TYPE_PACKAGE]}|@{[COLLECTOR_TYPE_SOURCE]})$/,
             collector_0_or_1 => qr/^[01]$/,
-            collector_positive_integer => sub {
+            publisher_integer_gt_5 => sub {
                 my $value = shift;
 
-                isint($value) && $value >= 0;
+                isint($value) && $value >= 5;
             }
         },
         additional_validator => sub {

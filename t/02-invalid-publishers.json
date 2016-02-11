@@ -11,7 +11,7 @@
         "name": "KoDummyConnectable",
         "backend": "t::lib::Navel::Broker::Publisher::Backend::KoDummyConnectable",
         "backend_input": null,
-        "scheduling": 20,
+        "scheduling": 10,
         "auto_clean": 50,
         "auto_connect": 0
     }
