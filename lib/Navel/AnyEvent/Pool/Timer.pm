@@ -96,7 +96,9 @@ sub new {
 
     my $splay = delete $options{splay};
 
-    $options{after} = $splay ? __PACKAGE__->random_delay($options{interval}) : 0;
+    unless (exists $options{after}) {
+        $options{after} = $splay ? __PACKAGE__->random_delay($options{interval}) : 0;
+    }
 
     $self->{anyevent_timer} = AnyEvent->timer(
         (
