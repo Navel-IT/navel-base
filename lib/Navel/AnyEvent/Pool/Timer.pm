@@ -22,6 +22,14 @@ use Navel::Utils qw/
 
 #-> methods
 
+sub random_delay {
+    my ($class, $interval) = @_;
+
+    substr rand(
+        isint($interval) ? $interval : 0
+    ), 0, 3;
+}
+
 sub new {
     my ($class, %options) = @_;
 
@@ -86,53 +94,20 @@ sub new {
         };
     }
 
-    $self->{after} = delete $options{after};
+    my $splay = delete $options{splay};
 
-    my $splay_limit = delete $options{splay_limit};
-
-    unless (isint($self->{after})) {
-        $self->{after} = $self->best_delay(
-            defined $splay_limit ? $splay_limit : $self->{pool}->{splay_limit}
-        );
-    }
+    $options{after} = $splay ? __PACKAGE__->random_delay($options{interval}) : 0;
 
     $self->{anyevent_timer} = AnyEvent->timer(
         (
             %options,
             (
-                cb => $self->{callback},
-                after => $self->{after}
+                cb => $self->{callback}
             )
         )
     );
 
     $self;
-}
-
-sub best_delay {
-    my ($self, $splay_limit) = @_;
-
-    croak('if defined, splay_limit must be an integer') if defined $splay_limit && ! isint($splay_limit);
-
-    my $after = 0;
-
-    if ($self->is_pooled()) {
-        if ($splay_limit && (my @timers = @{$self->{pool}->timers()})) {
-            my (%after_map, %limited_after_map);
-
-            $after_map{$_->{after}}++ for @timers;
-
-            $limited_after_map{$_} = $after_map{$_} || 0 for 0..$splay_limit;
-
-            $after = [
-                sort {
-                    $limited_after_map{$a} <=> $limited_after_map{$b}
-                } keys %limited_after_map
-            ]->[0];
-        }
-    }
-
-    $after;
 }
 
 sub detach_pool {

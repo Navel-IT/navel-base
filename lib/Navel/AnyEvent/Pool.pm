@@ -26,7 +26,6 @@ sub new {
 
     my $self = {
         logger => blessed($options{logger}) eq 'Navel::Logger' ? $options{logger} : undef,
-        splay_limit => $options{splay_limit},
         maximum => $options{maximum} || 0,
         maximum_simultaneous_jobs => $options{maximum_simultaneous_jobs} || 0,
         jobs => {
