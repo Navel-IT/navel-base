@@ -111,7 +111,7 @@ sub set_maximum {
 
     my $minimum = 0;
 
-    $maximum = $maximum || $minimum;
+    $maximum ||= $minimum;
 
     die 'maximum must be an integer equal or greater than ' . $minimum . "\n" unless isint($maximum) && $maximum >= $minimum;
 
