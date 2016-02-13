@@ -15,7 +15,7 @@ use POSIX 'strftime';
 
 use File::Slurp;
 
-require Scalar::Util;
+use Scalar::Util qw//;
 
 use Scalar::Util::Numeric qw/
     isint
@@ -24,8 +24,8 @@ use Scalar::Util::Numeric qw/
 
 use List::MoreUtils 'none';
 
-use JSON;
-use Sereal;
+use JSON qw//;
+use Sereal qw//;
 
 #-> export
 
@@ -254,8 +254,16 @@ sub publicize($@) {
     substitute_all_keys(shift, '^__', '', shift);
 }
 
+sub encode_json($) {
+    JSON->new()->allow_nonref()->utf8()->encode(shift);
+}
+
+sub decode_json($) {
+    JSON->new()->allow_nonref()->utf8()->decode(shift);
+}
+
 sub encode_json_pretty($) {
-    JSON->new()->utf8()->pretty()->encode(shift);
+    JSON->new()->allow_nonref()->utf8()->pretty()->encode(shift);
 }
 
 sub encode_sereal_constructor {
