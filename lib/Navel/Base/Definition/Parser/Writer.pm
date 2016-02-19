@@ -27,43 +27,45 @@ sub write {
     croak('on_* must be defined') unless ref $options{on_success} eq 'CODE' && ref $options{on_error} eq 'CODE';
 
     if ($options{async}) {
-        aio_open($options{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY, 0, sub {
-            my $filehandle = shift;
+        aio_open($options{file_path}, IO::AIO::O_CREAT | IO::AIO::O_WRONLY, 0,
+            sub {
+                my $filehandle = shift;
 
-            if ($filehandle) {
-                my $aio_close = sub {
-                    aio_close(shift,
-                        sub {
-                            $options{on_error}->($options{file_path} . ': ' . $!) unless shift;
-                        }
-                    );
-                };
-
-                aio_truncate($filehandle, 0, sub {
-                    if (@_) {
-                        my $json_definitions = encode_json_pretty($options{definitions});
-
-                        aio_write($filehandle, $json_definitions,
+                if ($filehandle) {
+                    my $aio_close = sub {
+                        aio_close(shift,
                             sub {
-                                if (shift == length $json_definitions) {
-                                    $options{on_success}->($options{file_path});
-                                } else {
-                                    $options{on_error}->($options{file_path} . ': the definitions have not been properly written, they are probably corrupt');
-                                }
-
-                                $aio_close->($filehandle);
+                                $options{on_error}->($options{file_path} . ': ' . $!) unless shift;
                             }
                         );
-                    } else {
-                        $options{on_error}->($options{file_path} . ': ' . $!);
+                    };
 
-                        $aio_close->($filehandle);
-                    }
-                });
-            } else {
-                $options{on_error}->($options{file_path} . ': ' . $!);
+                    aio_truncate($filehandle, 0, sub {
+                        if (@_) {
+                            my $json_definitions = encode_json_pretty($options{definitions});
+
+                            aio_write($filehandle, $json_definitions,
+                                sub {
+                                    if (shift == length $json_definitions) {
+                                        $options{on_success}->($options{file_path});
+                                    } else {
+                                        $options{on_error}->($options{file_path} . ': the definitions have not been properly written, they are probably corrupt');
+                                    }
+
+                                    $aio_close->($filehandle);
+                                }
+                            );
+                        } else {
+                            $options{on_error}->($options{file_path} . ': ' . $!);
+
+                            $aio_close->($filehandle);
+                        }
+                    });
+                } else {
+                    $options{on_error}->($options{file_path} . ': ' . $!);
+                }
             }
-        });
+        );
     } else {
         local $@;
 
