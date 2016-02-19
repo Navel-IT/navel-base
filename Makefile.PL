@@ -36,6 +36,9 @@ WriteMakefile(
     PREREQ_PM => {
         'Exporter' => 0,
         'AnyEvent' => 0,
+        'AnyEvent::IO' => 0,
+        'AnyEvent::AIO' => 0,
+        'IO::AIO' => 0,
         'Storable' => 0,
         'Carp' => 0,
         'Scalar::Util::Numeric' => 0,
