@@ -9,11 +9,10 @@ package Navel::Broker::Publisher 0.1;
 
 use Navel::Base;
 
-use Carp 'croak';
-
 use Navel::Event;
 use Navel::Definition::Publisher;
 use Navel::Utils qw/
+    croak
     catch_warnings
     try_require_namespace
     blessed

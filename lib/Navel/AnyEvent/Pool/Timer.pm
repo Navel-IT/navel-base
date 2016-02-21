@@ -11,13 +11,12 @@ use Navel::Base;
 
 use constant POOL_PACKAGE => 'Navel::AnyEvent::Pool';
 
-use Carp 'croak';
-
 use AnyEvent;
 
 use Navel::Utils qw/
     isint
     blessed
+    croak
 /;
 
 #-> methods

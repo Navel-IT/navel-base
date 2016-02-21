@@ -14,10 +14,9 @@ use parent qw/
     Navel::Base::Definition::Parser::Writer
 /;
 
-use Carp 'croak';
-
 use Navel::Utils qw/
     try_require_namespace
+    croak
     isint
 /;
 

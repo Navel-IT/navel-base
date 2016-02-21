@@ -13,11 +13,12 @@ use constant {
     TIMER_BACKEND_PACKAGE => 'Navel::AnyEvent::Pool::Timer'
 };
 
-use Carp 'croak';
-
 use Navel::AnyEvent::Pool::Timer;
 
-use Navel::Utils 'blessed';
+use Navel::Utils qw/
+    croak
+    blessed
+/;
 
 #-> methods
 

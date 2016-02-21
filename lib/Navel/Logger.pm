@@ -9,10 +9,6 @@ package Navel::Logger 0.1;
 
 use Navel::Base;
 
-use Carp 'croak';
-
-use File::Slurp;
-
 use AnyEvent::IO;
 
 use Term::ANSIColor;
@@ -20,7 +16,9 @@ use Term::ANSIColor;
 use Navel::Logger::Severity;
 use Navel::Utils qw/
     flatten
+    croak
     strftime
+    append_file
 /;
 
 #-> globals

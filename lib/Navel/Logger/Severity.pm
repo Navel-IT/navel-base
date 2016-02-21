@@ -9,7 +9,9 @@ package Navel::Logger::Severity 0.1;
 
 use Navel::Base;
 
-use Carp 'croak';
+use Navel::Utils qw/
+    croak
+/;
 
 #-> class variables
 

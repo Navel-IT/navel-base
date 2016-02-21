@@ -9,13 +9,13 @@ package Navel::Base::Definition::Parser::Writer 0.1;
 
 use Navel::Base;
 
-use Carp 'croak';
-
-use File::Slurp;
-
 use AnyEvent::IO;
 
-use Navel::Utils 'encode_json_pretty';
+use Navel::Utils qw/
+    croak
+    encode_json_pretty
+    write_file
+/;
 
 #-> methods
 

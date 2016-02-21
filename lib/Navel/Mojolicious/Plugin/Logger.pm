@@ -9,11 +9,12 @@ package Navel::Mojolicious::Plugin::Logger 0.1;
 
 use Navel::Base;
 
-use Carp 'croak';
-
 use Mojo::Base 'Mojolicious::Plugin';
 
-use Navel::Utils 'blessed';
+use Navel::Utils qw/
+    croak
+    blessed
+/;
 
 #-> methods
 

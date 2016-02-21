@@ -9,11 +9,11 @@ package Navel::Base::Definition::Parser::Reader 0.1;
 
 use Navel::Base;
 
-use Carp 'croak';
-
-use File::Slurp;
-
-use Navel::Utils 'decode_json';
+use Navel::Utils qw/
+    croak
+    read_file
+    decode_json
+/;
 
 #-> methods
 

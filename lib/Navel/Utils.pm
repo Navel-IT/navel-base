@@ -11,9 +11,19 @@ use Navel::Base;
 
 use parent 'Exporter';
 
+use Carp qw/
+    carp
+    croak
+    confess
+/;
+
 use POSIX 'strftime';
 
-use File::Slurp;
+use File::Slurp qw/
+    read_file
+    write_file
+    append_file
+/;
 
 use Scalar::Util qw//;
 
@@ -30,7 +40,13 @@ use Sereal qw//;
 #-> export
 
 our @EXPORT_OK = qw/
+    carp
+    croak
+    confess
     daemonize
+    read_file
+    write_file
+    append_file
     catch_warnings
     try_require_namespace
     isint
@@ -53,9 +69,23 @@ our @EXPORT_OK = qw/
 /;
 
 our %EXPORT_TAGS = (
+    carp => [
+        qw/
+            carp
+            croak
+            confess
+        /
+    ],
     posix => [
         qw/
             daemonize
+        /
+    ],
+    fileslurp => [
+        qw/
+            read_file
+            write_file
+            append_file
         /
     ],
     warnings => [

@@ -11,12 +11,11 @@ use Navel::Base;
 
 use parent 'Exporter';
 
-use Carp 'croak';
-
 use Navel::Definition::Collector;
 use Navel::Utils qw/
     :scalar
     :sereal
+    croak
     isint
 /;
 

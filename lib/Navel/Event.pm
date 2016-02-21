@@ -15,11 +15,10 @@ use constant {
     KO_EXCEPTION => 2
 };
 
-use Carp 'croak';
-
 use Navel::Event::Serializer 'to';
 use Navel::Utils qw/
     blessed
+    croak
     isint
  /;
 
