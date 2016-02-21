@@ -11,10 +11,6 @@ use Navel::Base;
 
 use parent 'Navel::Base::Definition';
 
-use Carp 'croak';
-
-use Navel::Utils 'exclusive_none';
-
 use Mojo::URL;
 
 our %PROPERTIES;
@@ -22,50 +18,104 @@ our %PROPERTIES;
 #-> methods
 
 sub validate {
-    my ($class, %options) = @_;
-
-    croak('parameters must be a HASH reference') unless ref $options{parameters} eq 'HASH';
+    my ($class, $raw_definition) = @_;
 
     $class->SUPER::validate(
-        parameters => $options{parameters},
         definition_class => __PACKAGE__,
-        if_possible_suffix_errors_with_key_value => 'name',
-        validator_struct => {
-            name => 'word',
-            interface_mask => 'text',
-            port => 'port',
-            tls => 'webservice_0_or_1'
-        },
-        validator_types => {
-            webservice_0_or_1 => qr/^[01]$/
-        },
-        additional_validator => sub {
-            my @errors;
-
-            if (ref $options{parameters} eq 'HASH') {
-                @errors = ('at least one unknown key has been detected') unless exclusive_none(
-                    [
-                        @{$PROPERTIES{persistant}},
-                        @{$PROPERTIES{runtime}}
-                    ],
-                    [
-                        keys %{$options{parameters}}
+        validator => {
+            type => 'object',
+            required => [
+                @{$PROPERTIES{persistant}},
+                @{$PROPERTIES{runtime}}
+            ],
+            properties => {
+                name => {
+                    type => [
+                        qw/
+                            string
+                            integer
+                            number
+                        /
                     ]
-                );
-
-                for (qw/
-                    ca
-                    cert
-                    ciphers
-                    key
-                    verify
-                /) {
-                    push @errors, 'required key ' . $_ . ' is missing' unless exists $options{parameters}->{$_};
+                },
+                interface_mask => {
+                    type => [
+                        qw/
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                port => {
+                    type => 'integer',
+                    minimum => 0,
+                    maximum => 65535
+                },
+                tls => {
+                    type => [
+                        qw/
+                            integer
+                            boolean
+                        /
+                    ],
+                    minimum => 0,
+                    maximum => 1
+                },
+                ca => {
+                    type => [
+                        qw/
+                            null
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                cert => {
+                    type => [
+                        qw/
+                            null
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                ciphers => {
+                    type => [
+                        qw/
+                            null
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                key => {
+                    type => [
+                        qw/
+                            null
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                verify => {
+                    type => [
+                        qw/
+                            null
+                            string
+                            integer
+                            number
+                        /
+                    ]
                 }
             }
-
-            \@errors;
-        }
+        },
+        raw_definition => $raw_definition,
+        if_possible_suffix_errors_with_key_value => 'name'
     );
 }
 

@@ -11,7 +11,7 @@ use Navel::Base;
 
 use Storable 'dclone';
 
-use Data::Validate::Struct 0.1;
+use JSON::Validator;
 
 use Navel::Utils 'unblessed';
 
@@ -20,9 +20,7 @@ use Navel::Utils 'unblessed';
 sub new {
     my ($class, %options) = @_;
 
-    my $errors = $class->validate(
-        parameters => $options{definition}
-    );
+    my $errors = $class->validate($options{definition});
 
     die $errors if @{$errors};
 
@@ -32,23 +30,17 @@ sub new {
 sub validate {
     my ($class, %options) = @_;
 
-    my @errors;
-
     my $definition_fullname;
 
-    my $validator = Data::Validate::Struct->new($options{validator_struct});
+    my @errors = JSON::Validator->new()->schema($options{validator})->validate($options{raw_definition});
 
-    $validator->type(%{$options{validator_types}});
-
-    @errors = @{$validator->{errors}} unless $validator->validate($options{parameters});
-
-    push @errors, @{$options{additional_validator}->()} if ref $options{additional_validator} eq 'CODE';
+    push @errors, @{$options{code_validator}->()} if ref $options{code_validator} eq 'CODE';
 
     if (defined $options{if_possible_suffix_errors_with_key_value}) {
         local $@;
 
         my $definition_name = eval {
-            $options{parameters}->{$options{if_possible_suffix_errors_with_key_value}};
+            $options{raw_definition}->{$options{if_possible_suffix_errors_with_key_value}};
         };
 
         $definition_fullname = $definition_name if defined $definition_name;
@@ -60,7 +52,7 @@ sub validate {
 
     [
         map {
-            $definition_fullname . ': ' . (defined $_  ? $_ : '?'). '.'
+            $definition_fullname . ': ' . (defined $_  ? $_ : '?')
         } @errors
     ];
 }
@@ -81,7 +73,7 @@ sub merge {
     my ($self, %options) = @_;
 
     my $errors = $self->validate(
-        parameters => {
+        {
             %{$self->properties()},
             %{$options{values}}
         }

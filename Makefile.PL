@@ -41,7 +41,7 @@ WriteMakefile(
         'IO::AIO' => 0,
         'Storable' => 0,
         'Carp' => 0,
-        'Scalar::Util::Numeric' => 0,
+        'JSON::Validator' => 0,
         'List::MoreUtils' => 0,
         'Data::Validate::Struct' => 0.1,
         'Term::ANSIColor' => 0,

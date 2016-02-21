@@ -11,71 +11,82 @@ use Navel::Base;
 
 use parent 'Navel::Base::Definition';
 
-use Carp 'croak';
-
 use constant {
     COLLECTOR_TYPE_PACKAGE => 'package',
     COLLECTOR_TYPE_SOURCE => 'source'
 };
-
-use Navel::Utils qw/
-    isint
-    exclusive_none
-/;
 
 our %PROPERTIES;
 
 #-> methods
 
 sub validate {
-    my ($class, %options) = @_;
-
-    croak('parameters must be a HASH reference') unless ref $options{parameters} eq 'HASH';
+    my ($class, $raw_definition) = @_;
 
     $class->SUPER::validate(
-        parameters => $options{parameters},
         definition_class => __PACKAGE__,
-        if_possible_suffix_errors_with_key_value => 'name',
-        validator_struct => {
-            name => 'word',
-            collection => 'word',
-            type => 'collector_type',
-            singleton => 'collector_0_or_1',
-            scheduling => 'publisher_integer_gt_5'
-        },
-        validator_types => {
-            collector_type => qr/^(@{[COLLECTOR_TYPE_PACKAGE]}|@{[COLLECTOR_TYPE_SOURCE]})$/,
-            collector_0_or_1 => qr/^[01]$/,
-            publisher_integer_gt_5 => sub {
-                my $value = shift;
-
-                isint($value) && $value >= 5;
-            }
-        },
-        additional_validator => sub {
-            my @errors;
-
-            if (ref $options{parameters} eq 'HASH') {
-                @errors = ('at least one unknown key has been detected') unless exclusive_none(
-                    [
-                        @{$PROPERTIES{persistant}},
-                        @{$PROPERTIES{runtime}}
-                    ],
-                    [
-                        keys %{$options{parameters}}
+        validator => {
+            type => 'object',
+            required => [
+                @{$PROPERTIES{persistant}},
+                @{$PROPERTIES{runtime}}
+            ],
+            properties => {
+                name => {
+                    type => [
+                        qw/
+                            string
+                            integer
+                            number
+                        /
                     ]
-                );
-
-                for (qw/
-                    source
-                    input
-                /) {
-                    push @errors, 'required key ' . $_ . ' is missing' unless exists $options{parameters}->{$_};
+                },
+                collection => {
+                    type => [
+                        qw/
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                type => {
+                    type => 'string',
+                    enum => [
+                        COLLECTOR_TYPE_PACKAGE,
+                        COLLECTOR_TYPE_SOURCE
+                    ]
+                },
+                singleton => {
+                    type => [
+                        qw/
+                            integer
+                            boolean
+                        /
+                    ],
+                    minimum => 0,
+                    maximum => 1
+                },
+                scheduling => {
+                    type => 'integer',
+                    minimum => 5
+                },
+                source => {
+                    type => [
+                        qw/
+                            null
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                input => {
                 }
             }
-
-            \@errors;
-        }
+        },
+        raw_definition => $raw_definition,
+        if_possible_suffix_errors_with_key_value => 'name'
     );
 }
 

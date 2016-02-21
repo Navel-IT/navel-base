@@ -11,13 +11,9 @@ use Navel::Base;
 
 use parent 'Navel::Base::Definition';
 
-use Carp 'croak';
-
 use Navel::Utils qw/
     catch_warnings
     try_require_namespace
-    isint
-    exclusive_none
 /;
 
 our %PROPERTIES;
@@ -25,63 +21,76 @@ our %PROPERTIES;
 #-> methods
 
 sub validate {
-    my ($class, %options) = @_;
-
-    croak('parameters must be a HASH reference') unless ref $options{parameters} eq 'HASH';
+    my ($class, $raw_definition) = @_;
 
     $class->SUPER::validate(
-        parameters => $options{parameters},
         definition_class => __PACKAGE__,
-        if_possible_suffix_errors_with_key_value => 'name',
-        validator_struct => {
-            name => 'word',
-            backend => 'text',
-            scheduling => 'publisher_integer_gt_5',
-            auto_clean => 'publisher_positive_integer',
-            auto_connect => 'publisher_0_or_1'
+        validator => {
+            type => 'object',
+            required => [
+                @{$PROPERTIES{persistant}},
+                @{$PROPERTIES{runtime}}
+            ],
+            properties => {
+                name => {
+                    type => [
+                        qw/
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                backend => {
+                    type => [
+                        qw/
+                            string
+                            integer
+                            number
+                        /
+                    ]
+                },
+                backend_input => {
+                },
+                scheduling => {
+                    type => 'integer',
+                    minimum => 5
+                },
+                auto_clean => {
+                    type => 'integer',
+                    minimum => 0
+                },
+                auto_connect => {
+                    type => [
+                        qw/
+                            integer
+                            boolean
+                        /
+                    ],
+                    minimum => 0,
+                    maximum => 1
+                }
+            }
         },
-        validator_types => {
-            publisher_integer_gt_5 => sub {
-                my $value = shift;
-
-                isint($value) && $value >= 5;
-            },
-            publisher_positive_integer => sub {
-                my $value = shift;
-
-                isint($value) && $value >= 0;
-            },
-            publisher_0_or_1 => qr/^[01]$/
-        },
-        additional_validator => sub {
+        code_validator => sub {
             my @errors;
 
-            if (ref $options{parameters} eq 'HASH') {
+            if (ref $raw_definition eq 'HASH') {
                 my @load_backend_class;
-
-                @errors = ('at least one unknown key has been detected') unless exclusive_none(
-                    [
-                        @{$PROPERTIES{persistant}},
-                        @{$PROPERTIES{runtime}}
-                    ],
-                    [
-                        keys %{$options{parameters}}
-                    ]
-                );
 
                 catch_warnings(
                     sub {
                         push @errors, @_;
                     },
                     sub {
-                        @load_backend_class = try_require_namespace($options{parameters}->{backend});
+                        @load_backend_class = try_require_namespace($raw_definition->{backend});
                     }
                 );
 
                 if ($load_backend_class[0]) {
-                    push @errors, 'the subroutine ' . $options{parameters}->{backend} . '::publish is missing' unless $options{parameters}->{backend}->can('publish');
+                    push @errors, 'the subroutine ' . $raw_definition->{backend} . '::publish is missing' unless $raw_definition->{backend}->can('publish');
 
-                    if (__PACKAGE__->seems_connectable($options{parameters}->{backend})) {
+                    if (__PACKAGE__->seems_connectable($raw_definition->{backend})) {
                         for (qw/
                             connect
                             disconnect
@@ -90,23 +99,18 @@ sub validate {
                             is_disconnected
                             is_disconnecting
                         /) {
-                            push @errors, 'the subroutine ' . $options{parameters}->{backend} . '::' . $_ . ' is missing' unless $options{parameters}->{backend}->can($_);
+                            push @errors, 'the subroutine ' . $raw_definition->{backend} . '::' . $_ . ' is missing' unless $raw_definition->{backend}->can($_);
                         }
                     }
                 } else {
                     push @errors, $load_backend_class[1];
                 }
-
-                for (qw/
-                    backend_input
-                /) {
-                    push @errors, 'required key ' . $_ . ' is missing' unless exists $options{parameters}->{$_};
-                }
-
             }
 
             \@errors;
-        }
+        },
+        raw_definition => $raw_definition,
+        if_possible_suffix_errors_with_key_value => 'name'
     );
 }
 

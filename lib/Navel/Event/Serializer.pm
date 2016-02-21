@@ -60,9 +60,7 @@ sub from($) {
     my $collector;
 
     if (defined $deserialized->{collector}) {
-        croak('deserialized datas are invalid: collector definition is invalid') if @{Navel::Definition::Collector->validate(
-            parameters => $deserialized->{collector}
-        )};
+        croak('deserialized datas are invalid: collector definition is invalid') if @{Navel::Definition::Collector->validate($deserialized->{collector})};
 
         $collector = Navel::Definition::Collector->new($deserialized->{collector});
     }
