@@ -42,7 +42,6 @@ WriteMakefile(
         'Storable' => 0,
         'Carp' => 0,
         'JSON::Validator' => 0,
-        'List::MoreUtils' => 0,
         'Scalar::Util' => 0,
         'Scalar::Util::Numeric' => 0,
         'Term::ANSIColor' => 0,

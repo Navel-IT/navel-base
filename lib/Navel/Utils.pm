@@ -32,8 +32,6 @@ use Scalar::Util::Numeric qw/
     isfloat
 /;
 
-use List::MoreUtils 'none';
-
 use JSON qw//;
 use Sereal qw//;
 
@@ -53,7 +51,6 @@ our @EXPORT_OK = qw/
     isfloat
     blessed
     reftype
-    exclusive_none
     unblessed
     privasize
     publicize
@@ -113,7 +110,6 @@ our %EXPORT_TAGS = (
     ],
     list => [
         qw/
-            exclusive_none
             flatten
         /
     ],
@@ -230,18 +226,6 @@ sub reftype($) {
 
 sub unblessed($) {
     return { %{+shift} };
-}
-
-sub exclusive_none($$) {
-    my ($reference, $difference) = @_;
-
-    none {
-        my $to_check = $_;
-
-        none {
-            $to_check eq $_
-        } @{$reference};
-    } @{$difference};
 }
 
 sub flatten {
