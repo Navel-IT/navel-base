@@ -9,12 +9,6 @@ package Navel::Event 0.1;
 
 use Navel::Base;
 
-use constant {
-    OK => 0,
-    KO_NO_SOURCE => 1,
-    KO_EXCEPTION => 2
-};
-
 use Navel::Event::Serializer 'to';
 use Navel::Utils qw/
     blessed
@@ -53,23 +47,23 @@ sub new {
 sub set_status_to_ok {
     my $self = shift;
 
-    $self->{status_code} = OK;
+    $self->{status_code} = 1;
 
     $self;
 }
 
-sub set_status_to_ko_no_source {
+sub set_status_to_ko {
     my $self = shift;
 
-    $self->{status_code} = KO_NO_SOURCE;
+    $self->{status_code} = -1;
 
     $self;
 }
 
-sub set_status_to_ko_exception {
+sub set_status_to_internal_ko {
     my $self = shift;
 
-    $self->{status_code} = KO_EXCEPTION;
+    $self->{status_code} = -2;
 
     $self;
 }
