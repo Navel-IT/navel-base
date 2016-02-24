@@ -26,7 +26,7 @@ sub new {
     my ($class, %options) = @_;
 
     my $self = {
-        logger => blessed($options{logger}) eq 'Navel::Logger' ? $options{logger} : undef,
+        logger => blessed($options{logger}) && $options{logger}->isa('Navel::Logger') ? $options{logger} : undef,
         maximum => $options{maximum} || 0,
         maximum_simultaneous_jobs => $options{maximum_simultaneous_jobs} || 0,
         jobs => {
@@ -59,7 +59,7 @@ sub attach_timer {
 
     my $package = TIMER_BACKEND_PACKAGE;
 
-    if (blessed($timer) eq TIMER_BACKEND_PACKAGE) {
+    if (blessed($timer) && $timer->isa(TIMER_BACKEND_PACKAGE)) {
         $options{name} = $timer->{name};
 
         $package = $timer;

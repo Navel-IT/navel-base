@@ -51,7 +51,7 @@ our @EXPORT_OK = qw/
     isfloat
     blessed
     reftype
-    unblessed
+    unbless_and_copy_hash
     privasize
     publicize
     flatten
@@ -105,7 +105,7 @@ our %EXPORT_TAGS = (
         qw/
             blessed
             reftype
-            unblessed
+            unbless_and_copy_hash
         /
     ],
     list => [
@@ -224,8 +224,10 @@ sub reftype($) {
    defined $reftype ? $reftype : '';
 }
 
-sub unblessed($) {
-    return { %{+shift} };
+sub unbless_and_copy_hash($) {
+    return {
+        %{+shift}
+    };
 }
 
 sub flatten {

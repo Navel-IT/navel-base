@@ -49,7 +49,7 @@ sub new {
     if (ref $class) {
         $self = $class;
 
-        $self->detach_pool() if blessed($temp{pool}) eq POOL_PACKAGE;
+        $self->detach_pool() if blessed($temp{pool}) && $temp{pool}->isa(POOL_PACKAGE);
 
         while (my ($option_name, $option_value) = each %temp) {
             $self->{$option_name} = $option_value if defined $option_value;
@@ -126,7 +126,9 @@ sub detach_pool {
 }
 
 sub is_pooled {
-    blessed(shift->{pool}) eq POOL_PACKAGE;
+    my $self = shift;
+
+    blessed($self->{pool}) && $self->{pool}->isa(POOL_PACKAGE);
 }
 
 sub begin {

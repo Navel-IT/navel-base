@@ -13,7 +13,7 @@ use Storable 'dclone';
 
 use JSON::Validator;
 
-use Navel::Utils 'unblessed';
+use Navel::Utils 'unbless_and_copy_hash';
 
 #-> methods
 
@@ -58,7 +58,7 @@ sub validate {
 }
 
 sub properties {
-    unblessed(shift);
+    unbless_and_copy_hash(shift);
 }
 
 sub persistant_properties {

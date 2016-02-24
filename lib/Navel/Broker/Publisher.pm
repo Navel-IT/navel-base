@@ -36,7 +36,7 @@ my $catch_warnings_wrapper = sub {
 sub new {
     my ($class, %options) = @_;
 
-    croak('publisher definition is invalid') unless blessed($options{definition}) eq 'Navel::Definition::Publisher';
+    croak('publisher definition is invalid') unless blessed($options{definition}) && $options{definition}->isa('Navel::Definition::Publisher');
 
     my $self = bless {
         definition => $options{definition},

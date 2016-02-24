@@ -29,7 +29,7 @@ sub new {
 
     my $self = bless {}, ref $class || $class;
 
-    if (blessed($options{collector}) eq 'Navel::Definition::Collector') {
+    if (blessed($options{collector}) && $options{collector}->isa('Navel::Definition::Collector')) {
         $self->{collector} = $options{collector};
         $self->{collection} = $self->{collector}->{collection};
     } else {

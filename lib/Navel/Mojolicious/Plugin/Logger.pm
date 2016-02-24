@@ -23,7 +23,7 @@ sub register {
 
     croak('register_options must be a HASH') unless ref $register_options eq 'HASH';
 
-    croak('logger must be of Navel::Logger class') unless blessed($register_options->{logger}) eq 'Navel::Logger';
+    croak('logger must be of Navel::Logger class') unless blessed($register_options->{logger}) && $register_options->{logger}->isa('Navel::Logger');
 
     $application->helper(
         ok_ko => sub {
