@@ -27,6 +27,7 @@ sub validate {
         definition_class => __PACKAGE__,
         validator => {
             type => 'object',
+            additionalProperties => 0,
             required => [
                 @{$PROPERTIES{persistant}},
                 @{$PROPERTIES{runtime}}
