@@ -27,21 +27,21 @@ sub register {
 
     $application->helper(
         ok_ko => sub {
-            my ($controller, $options) = @_;
+            my ($controller, $ok, $ko) = @_;
 
-            croak('options must be a HASH') unless ref $options eq 'HASH';
+            croak('ok must be a ARRAY') unless ref $ok eq 'ARRAY';
+            croak('ko must be a ARRAY') unless ref $ko eq 'ARRAY';
 
-            for my $state (qw/ok ko/) {
-                if (ref $options->{$state} eq 'ARRAY') {
-                    for (@{$options->{$state}}) {
-                        $register_options->{logger}->info($register_options->{logger}->stepped_log($_)) if defined;
-                    }
-                }
-            }
+            my @infos = (
+                @{$ok},
+                @{$ko}
+            );
+
+            $register_options->{logger}->info($_) for @infos;
 
             {
-                ok => $options->{ok},
-                ko => $options->{ko}
+                ok => $ok,
+                ko => $ko
             };
         }
     )
