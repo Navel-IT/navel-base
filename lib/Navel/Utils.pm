@@ -157,15 +157,15 @@ sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
 
     $options{work_dir} = defined $options{work_dir} ? $options{work_dir} : '/';
 
-    my $pid = fork();
+    my $pid = fork;
 
     if ($pid < 0) {
-        die 'fork: ' . $!;
+        die 'fork: ' . $! . "\n";
     } elsif ($pid) {
         exit 0;
     }
 
-    POSIX::setsid() or die 'setsid: ' . $!;
+    POSIX::setsid() or die 'setsid: ' . $! . "\n";
 
     umask 0;
 
