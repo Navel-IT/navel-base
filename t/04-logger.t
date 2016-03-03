@@ -21,14 +21,10 @@ my $log_file = './' . __FILE__ . '.log';
 
 lives_ok {
     my $logger = Navel::Logger->new(
-        default_severity => 'notice',
         severity => 'notice',
         file_path => $log_file
-    )->push_in_queue(
-        message => $log_file,
-        severity => 'notice'
-    )->flush_queue();
-} 'Navel::Logger->new()->push_in_queue()->flush_queue(): push datas in ' . $log_file;
+    )->notice($log_file)->flush_queue();
+} 'Navel::Logger->new()->notice()->flush_queue(): push datas in ' . $log_file;
 
 END {
     ok(-f $log_file, $log_file . ' created') && unlink $log_file;

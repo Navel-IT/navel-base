@@ -5,12 +5,13 @@
 
 #-> initialization
 
-package Navel::Logger::Severity 0.1;
+package Navel::Logger::Message::Severity 0.1;
 
 use Navel::Base;
 
 use Navel::Utils qw/
     croak
+    blessed
 /;
 
 #-> class variables
@@ -59,29 +60,29 @@ sub severities {
 }
 
 sub new {
-    my ($class, $severity) = @_;
+    my ($class, $label) = @_;
 
-    croak('severity must be defined') unless defined $severity;
+    croak('label must be defined') unless defined $label;
 
-    $severity = lc $severity;
+    $label = lc $label;
 
-    croak('severity is invalid') unless exists $severities{$severity};
+    croak('severity is invalid') unless exists $severities{$label};
 
     bless {
-        severity => $severity
+        label => $label
     }, ref $class || $class;
 }
 
-sub does_it_log {
-    my ($self, $severity) = @_;
-
-    defined $severity && exists $severities{$severity} && $severities{$self->{severity}}->{priority} >= $severities{$severity}->{priority};
+sub color {
+    $severities{shift->{label}}->{color};
 }
 
-sub color {
+sub compare {
     my ($self, $severity) = @_;
 
-    defined $severity && exists $severities{$severity} && $severities{$severity}->{color};
+    croak('severity must be of ' . __PACKAGE__ . ' class') unless blessed($severity) && $severity->isa(__PACKAGE__);
+
+    $severities{$self->{label}}->{priority} >= $severities{$severity->{label}}->{priority};
 }
 
 # sub AUTOLOAD {}
@@ -100,7 +101,7 @@ __END__
 
 =head1 NAME
 
-Navel::Logger::Severity
+Navel::Logger::Message::Severity
 
 =head1 AUTHOR
 
