@@ -29,7 +29,7 @@ my %severities = (
         priority => 2,
         color => 'red'
     },
-    error => {
+    err => {
         priority => 3,
         color => 'red'
     },

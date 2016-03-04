@@ -13,8 +13,10 @@ use AnyEvent::IO;
 
 use Term::ANSIColor 'colored';
 
+use Sys::Syslog 'syslog';
+
 use Navel::Logger::Message;
-use Navel::Logger::Message::Facility;
+use Navel::Logger::Message::Facility::Local;
 use Navel::Logger::Message::Severity;
 use Navel::Utils qw/
     blessed
@@ -37,9 +39,10 @@ sub new {
         hostname => $options{hostname},
         service => $options{service},
         service_pid => $options{service_pid} || $$,
-        facility => Navel::Logger::Message::Facility->new($options{facility_code}),
+        facility => Navel::Logger::Message::Facility::Local->new($options{facility}),
         severity => Navel::Logger::Message::Severity->new($options{severity}),
         colored => defined $options{colored} ? $options{colored} : 1,
+        syslog => $options{syslog} || 0,
         file_path => $options{file_path},
         queue => []
     }, ref $class || $class;
@@ -64,7 +67,7 @@ sub push_in_queue {
                     hostname => $self->{hostname},
                     service => $self->{service},
                     service_pid => $self->{service_pid},
-                    facility_code => $self->{facility}->{code}
+                    facility => $self->{facility}->{label}
                 )
             )
         );
@@ -75,7 +78,7 @@ sub push_in_queue {
     $self;
 }
 
-sub stringify_queue {
+sub queue_to_string {
     my ($self, %options) = @_;
 
     my $colored = exists $options{colored} ? $options{colored} : $self->{colored};
@@ -87,10 +90,20 @@ sub stringify_queue {
     ];
 }
 
+sub queue_to_syslog {
+    my $self = shift;
+
+    [
+        map {
+            $_->to_syslog();
+        } @{$self->{queue}}
+    ];
+}
+
 sub say_queue {
     my ($self, %options) = @_;
 
-    say join "\n", @{$self->stringify_queue(%options)};
+    say join "\n", @{$self->queue_to_string(%options)};
 
     $self;
 }
@@ -107,10 +120,28 @@ sub flush_queue {
     my ($self, %options) = @_;
 
     if (@{$self->{queue}}) {
-        if (defined $self->{file_path}) {
+        if ($self->{syslog}) {
+            local $@;
+
+            for (@{$self->queue_to_syslog()}) {
+                eval {
+                    syslog(@{$_});
+                };
+
+                if ($@) {
+                    $self->crit(
+                        Navel::Logger::Message->stepped_message('cannot push messages into syslog.',
+                            [
+                                $@
+                            ]
+                        )
+                    )->say_queue();
+                }
+            }
+        } elsif (defined $self->{file_path}) {
             my $cannot_push_messages = 'cannot push messages into ' . $self->{file_path};
 
-            my $string_queue = $self->stringify_queue(
+            my $formatted_queue = $self->queue_to_string(
                 colored => 0
             );
 
@@ -119,14 +150,20 @@ sub flush_queue {
                     my $filehandle = shift;
 
                     if ($filehandle) {
-                        aio_write($filehandle, (join "\n", @{$string_queue}) . "\n", sub {
+                        aio_write($filehandle, (join "\n", @{$formatted_queue}) . "\n", sub {
                             aio_close($filehandle,
                                 sub {
                                 }
                             );
                         });
                     } else {
-                        $self->crit($cannot_push_messages . ': ' . $! . '.')->say_queue();
+                        $self->crit(
+                            Navel::Logger::Message->stepped_message($cannot_push_messages . '.',
+                                [
+                                    $!
+                                ]
+                            )
+                        )->say_queue();
                     }
                 });
             } else {
@@ -141,13 +178,19 @@ sub flush_queue {
                         [
                             map {
                                 $_ . "\n"
-                            } @{$string_queue}
+                            } @{$formatted_queue}
                         ]
                     );
                 };
 
                 if ($@) {
-                    $self->crit($cannot_push_messages . ': ' . $! . '.')->say_queue();
+                    $self->crit(
+                        Navel::Logger::Message->stepped_message($cannot_push_messages . '.',
+                            [
+                                $!
+                            ]
+                        )
+                    )->say_queue();
                 }
             }
         } else {

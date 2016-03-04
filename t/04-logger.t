@@ -21,7 +21,7 @@ my $log_file = './' . __FILE__ . '.log';
 
 lives_ok {
     my $logger = Navel::Logger->new(
-        facility_code => 16,
+        facility => 'local0',
         severity => 'notice',
         file_path => $log_file
     )->notice($log_file)->flush_queue();

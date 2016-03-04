@@ -9,7 +9,7 @@ package Navel::Logger::Message 0.1;
 
 use Navel::Base;
 
-use Navel::Logger::Message::Facility;
+use Navel::Logger::Message::Facility::Local;
 use Navel::Logger::Message::Severity;
 use Navel::Utils qw/
     flatten
@@ -53,13 +53,13 @@ sub new {
         service_pid => $options{service_pid}
     }, ref $class || $class;
 
-    $self->set_facility($options{facility_code})->set_severity($options{severity});
+    $self->set_facility($options{facility})->set_severity($options{severity});
 }
 
 sub set_facility {
     my $self = shift;
 
-    $self->{facility} = Navel::Logger::Message::Facility->new(shift);
+    $self->{facility} = Navel::Logger::Message::Facility::Local->new(shift);
 
     $self;
 }
@@ -72,6 +72,15 @@ sub set_severity {
     $self;
 }
 
+sub prepare_properties {
+    my $self = shift;
+
+    $self->{hostname} =~ s/\s//g if defined $self->{hostname};
+    $self->{service} =~ s/\s//g if defined $self->{service};
+
+    $self;
+}
+
 sub constructor_properties {
     my $self = shift;
 
@@ -79,7 +88,7 @@ sub constructor_properties {
         %{$self},
         %{
             {
-                facility_code => $self->{facility}->{code},
+                facility => $self->{facility}->{label},
                 severity => $self->{severity}->{label}
             }
         }
@@ -89,17 +98,21 @@ sub constructor_properties {
 sub to_string {
     my $self = shift;
 
-    my ($hostname, $service) = ('', '');
+    $self->prepare_properties();
 
-    if (defined $self->{hostname}) {
-        ($hostname = $self->{hostname}) =~ s/\s//g;
-    }
+    (isint($self->{time}) && defined $self->{datetime_format} && length $self->{datetime_format} ? strftime($self->{datetime_format}, (localtime $self->{time})) . ' ' : '') . (length $self->{hostname} ? $self->{hostname} . ' ' : '') . (length $self->{service} ? $self->{service} . (isint($self->{service_pid}) ? '[' . $self->{service_pid} . ']' : '') : '') . ': [' . $self->{facility}->{label} . '.' . $self->{severity}->{label} . ']: ' . (defined $self->{text} ? $self->{text} : '');
+}
 
-    if (defined $self->{service}) {
-        ($service = $self->{service}) =~ s/\s//g;
-    }
+sub to_syslog {
+    my $self = shift;
 
-    (isint($self->{time}) && defined $self->{datetime_format} && length $self->{datetime_format} ? strftime($self->{datetime_format}, (localtime $self->{time})) . ' ' : '') . (length $hostname ? $hostname . ' ' : '') . (length $service ? $service . (isint($self->{service_pid}) ? '[' . $self->{service_pid} . ']' : '') : '') . ': [' . $self->{facility}->keyword() . '.' . $self->{severity}->{label} . ']: ' . (defined $self->{text} ? $self->{text} : '');
+    $self->prepare_properties();
+
+    [
+        $self->{facility}->{label} . '|' . $self->{severity}->{label},
+        '%s',
+        defined $self->{text} ? $self->{text} : ''
+    ];
 }
 
 # sub AUTOLOAD {}
