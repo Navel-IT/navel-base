@@ -11,6 +11,8 @@ use Navel::Base;
 
 use AnyEvent::IO;
 
+use Term::ANSIColor 'colored';
+
 use Navel::Logger::Message;
 use Navel::Logger::Message::Facility;
 use Navel::Logger::Message::Severity;
@@ -53,14 +55,6 @@ sub push_in_queue {
 
         $message = $options{message};
     } else {
-        my $colored;
-
-        if (exists $options{colored}) {
-            $colored = delete $options{colored};
-        } else {
-            $colored = defined $self->{file_path} ? 0 : $self->{colored};
-        }
-
         $message = Navel::Logger::Message->new(
             (
                 %options,
@@ -70,8 +64,7 @@ sub push_in_queue {
                     hostname => $self->{hostname},
                     service => $self->{service},
                     service_pid => $self->{service_pid},
-                    facility_code => $self->{facility}->{code},
-                    colored => $colored
+                    facility_code => $self->{facility}->{code}
                 )
             )
         );
@@ -82,12 +75,14 @@ sub push_in_queue {
     $self;
 }
 
-sub format_queue {
+sub stringify_queue {
     my ($self, %options) = @_;
+
+    my $colored = exists $options{colored} ? $options{colored} : $self->{colored};
 
     [
         map {
-            $_->to_string();
+            $colored ? colored($_->to_string(), $_->{severity}->color()) : $_->to_string();
         } @{$self->{queue}}
     ];
 }
@@ -95,7 +90,7 @@ sub format_queue {
 sub say_queue {
     my ($self, %options) = @_;
 
-    say join "\n", @{$self->format_queue(%options)};
+    say join "\n", @{$self->stringify_queue(%options)};
 
     $self;
 }
@@ -115,23 +110,23 @@ sub flush_queue {
         if (defined $self->{file_path}) {
             my $cannot_push_messages = 'cannot push messages into ' . $self->{file_path};
 
-            my $queue_to_text = $self->format_queue();
+            my $string_queue = $self->stringify_queue(
+                colored => 0
+            );
 
             if ($options{async}) {
                 aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0, sub {
                     my $filehandle = shift;
 
                     if ($filehandle) {
-                        aio_write($filehandle, (join "\n", @{$queue_to_text}) . "\n", sub {
+                        aio_write($filehandle, (join "\n", @{$string_queue}) . "\n", sub {
                             aio_close($filehandle,
                                 sub {
                                 }
                             );
                         });
                     } else {
-                        $self->crit($cannot_push_messages . ': ' . $! . '.')->say_queue(
-                            colored => $self->{colored}
-                        );
+                        $self->crit($cannot_push_messages . ': ' . $! . '.')->say_queue();
                     }
                 });
             } else {
@@ -146,15 +141,13 @@ sub flush_queue {
                         [
                             map {
                                 $_ . "\n"
-                            } @{$queue_to_text}
+                            } @{$string_queue}
                         ]
                     );
                 };
 
                 if ($@) {
-                    $self->crit($cannot_push_messages . ': ' . $! . '.')->say_queue(
-                        colored => $self->{colored}
-                    );
+                    $self->crit($cannot_push_messages . ': ' . $! . '.')->say_queue();
                 }
             }
         } else {
