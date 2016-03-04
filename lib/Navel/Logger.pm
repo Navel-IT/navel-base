@@ -12,8 +12,10 @@ use Navel::Base;
 use AnyEvent::IO;
 
 use Navel::Logger::Message;
+use Navel::Logger::Message::Facility;
 use Navel::Logger::Message::Severity;
 use Navel::Utils qw/
+    blessed
     croak
     append_file
 /;
@@ -30,8 +32,10 @@ sub new {
 
     bless {
         datetime_format => $options{datetime_format},
+        hostname => $options{hostname},
         service => $options{service},
         service_pid => $options{service_pid} || $$,
+        facility => Navel::Logger::Message::Facility->new($options{facility_code}),
         severity => Navel::Logger::Message::Severity->new($options{severity}),
         colored => defined $options{colored} ? $options{colored} : 1,
         file_path => $options{file_path},
@@ -42,17 +46,36 @@ sub new {
 sub push_in_queue {
     my ($self, %options) = @_;
 
-    my $message = Navel::Logger::Message->new(
-        (
-            %options,
+    my $message;
+
+    if (blessed($options{message})) {
+        croak('message must be of Navel::Logger::Message class') unless $options{message}->isa('Navel::Logger::Message');
+
+        $message = $options{message};
+    } else {
+        my $colored;
+
+        if (exists $options{colored}) {
+            $colored = delete $options{colored};
+        } else {
+            $colored = defined $self->{file_path} ? 0 : $self->{colored};
+        }
+
+        $message = Navel::Logger::Message->new(
             (
-                time => time,
-                datetime_format => $self->{datetime_format},
-                service => $self->{service},
-                service_pid => $self->{service_pid}
+                %options,
+                (
+                    time => time,
+                    datetime_format => $self->{datetime_format},
+                    hostname => $self->{hostname},
+                    service => $self->{service},
+                    service_pid => $self->{service_pid},
+                    facility_code => $self->{facility}->{code},
+                    colored => $colored
+                )
             )
-        )
-    );
+        );
+    }
 
     push @{$self->{queue}}, $message if $self->{severity}->compare($message->{severity});
 
@@ -62,23 +85,11 @@ sub push_in_queue {
 sub format_queue {
     my ($self, %options) = @_;
 
-    my @formatted_queue;
-
-    if (my @queue = @{$self->{queue}}) {
-        my $colored;
-
-        if (exists $options{colored}) {
-            $colored = delete $options{colored};
-        } else {
-            $colored = defined $self->{file_path} ? 0 : $self->{colored};
-        }
-
-        @formatted_queue = map {
-            $_->to_string($colored);
-        } @queue;
-    }
-
-    \@formatted_queue;
+    [
+        map {
+            $_->to_string();
+        } @{$self->{queue}}
+    ];
 }
 
 sub say_queue {

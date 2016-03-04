@@ -11,6 +11,7 @@ use Navel::Base;
 
 use Term::ANSIColor 'colored';
 
+use Navel::Logger::Message::Facility;
 use Navel::Logger::Message::Severity;
 use Navel::Utils qw/
     flatten
@@ -49,11 +50,21 @@ sub new {
         text => $options{text},
         time => $options{time},
         datetime_format => $options{datetime_format},
+        hostname => $options{hostname},
         service => $options{service},
-        service_pid => $options{service_pid}
+        service_pid => $options{service_pid},
+        colored => $options{colored} || 0
     }, ref $class || $class;
 
-    $self->set_severity($options{severity});
+    $self->set_facility($options{facility_code})->set_severity($options{severity});
+}
+
+sub set_facility {
+    my $self = shift;
+
+    $self->{facility} = Navel::Logger::Message::Facility->new(shift);
+
+    $self;
 }
 
 sub set_severity {
@@ -64,13 +75,14 @@ sub set_severity {
     $self;
 }
 
-sub properties {
+sub constructor_properties {
     my $self = shift;
 
     return {
         %{$self},
         %{
             {
+                facility_code => $self->{facility}->{code},
                 severity => $self->{severity}->{label}
             }
         }
@@ -78,11 +90,21 @@ sub properties {
 }
 
 sub to_string {
-    my ($self, $colored) = @_;
+    my $self = shift;
 
-    my $message = (isint($self->{time}) && defined $self->{datetime_format} && length $self->{datetime_format} ? strftime($self->{datetime_format}, (localtime $self->{time})) . ' ' : '') . (defined $self->{service} ? $self->{service} . (isint($self->{service_pid}) ? '[' . $self->{service_pid} . ']' : '') : '') . '(' . $self->{severity}->{label} . '): ' . (defined $self->{text} ? $self->{text} : '');
+    my ($hostname, $service) = ('', '');
 
-    $message = colored($message, $self->{severity}->color()) if $colored;
+    if (defined $self->{hostname}) {
+        ($hostname = $self->{hostname}) =~ s/\s//g;
+    }
+
+    if (defined $self->{service}) {
+        ($service = $self->{service}) =~ s/\s//g;
+    }
+
+    my $message = (isint($self->{time}) && defined $self->{datetime_format} && length $self->{datetime_format} ? strftime($self->{datetime_format}, (localtime $self->{time})) . ' ' : '') . (length $hostname ? $hostname . ' ' : '') . (length $service ? $service . (isint($self->{service_pid}) ? '[' . $self->{service_pid} . ']' : '') : '') . ': [' . $self->{facility}->keyword() . '.' . $self->{severity}->{label} . ']: ' . (defined $self->{text} ? $self->{text} : '');
+
+    $message = colored($message, $self->{severity}->color()) if $self->{colored};
 
     $message;
 }
@@ -104,6 +126,10 @@ __END__
 =head1 NAME
 
 Navel::Logger::Message
+
+=head1 DESCRIPTION
+
+The messsage format follow the specification provided by the RFC 3164 (with colors!)
 
 =head1 AUTHOR
 
