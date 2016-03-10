@@ -60,7 +60,7 @@ sub write {
 }
 
 sub make_definition {
-    shift->{definition_class}->new(shift);
+    shift->{definition_class}->new(@_);
 };
 
 sub make {
@@ -94,7 +94,11 @@ sub make {
                 }
             }
 
-            die \@errors if @errors;
+            if (@errors) {
+                die \@errors;
+            } else {
+                undef $self->{raw};
+            }
         } else {
             die $self->{definition_class} . ": definitions must be encapsulated in an array\n";
         }
