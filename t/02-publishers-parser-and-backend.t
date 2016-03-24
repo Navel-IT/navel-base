@@ -20,9 +20,9 @@ BEGIN {
 
 #-> main
 
-my $valid_publishers_definitions_path = 't/02-valid-publishers.json';
+my $valid_publishers_definitions_path = 't/02-valid-publishers.yml';
 
-my $invalid_publishers_definitions_path = 't/02-invalid-publishers.json';
+my $invalid_publishers_definitions_path = 't/02-invalid-publishers.yml';
 
 my $valid_publishers;
 

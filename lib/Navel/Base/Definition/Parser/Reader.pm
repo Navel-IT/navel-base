@@ -12,7 +12,7 @@ use Navel::Base;
 use Navel::Utils qw/
     croak
     read_file
-    decode_json
+    decode_yaml
 /;
 
 #-> methods
@@ -25,7 +25,7 @@ sub read {
     local $@;
 
     my $deserialized = eval {
-        decode_json(
+        decode_yaml(
             scalar read_file(
                 $options{file_path},
                 binmode => ':utf8'

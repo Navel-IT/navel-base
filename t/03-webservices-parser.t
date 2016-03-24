@@ -17,7 +17,7 @@ BEGIN {
 
 #-> main
 
-my $web_services_definitions_path = 't/03-webservices.json';
+my $web_services_definitions_path = 't/03-webservices.yml';
 
 lives_ok {
     Navel::Definition::WebService::Parser->new()->read(

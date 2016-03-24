@@ -1,0 +1,15 @@
+---
+  -
+    name: "OkDummyNotConnectable"
+    backend: "t::lib::Navel::Broker::Publisher::Backend::OkDummyNotConnectable"
+    backend_input: null
+    scheduling: 5
+    auto_clean: 0
+    auto_connect: 0
+  -
+    name: "OkDummyConnectable"
+    backend: "t::lib::Navel::Broker::Publisher::Backend::OkDummyConnectable"
+    backend_input: null
+    scheduling: 10
+    auto_clean: 50
+    auto_connect: 1

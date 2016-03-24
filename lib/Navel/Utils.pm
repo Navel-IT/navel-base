@@ -32,6 +32,10 @@ use Scalar::Util::Numeric qw/
     isfloat
 /;
 
+use YAML::XS qw/
+    Dump
+    Load
+/;
 use JSON qw//;
 use Sereal qw//;
 
@@ -57,6 +61,8 @@ our @EXPORT_OK = qw/
     flatten
     replace_key
     substitute_all_keys
+    encode_yaml
+    decode_yaml
     encode_json
     decode_json
     encode_json_pretty
@@ -123,6 +129,12 @@ our %EXPORT_TAGS = (
         qw/
             privasize
             publicize
+        /
+    ],
+    yaml => [
+        qw/
+            encode_yaml
+            decode_yaml
         /
     ],
     json => [
@@ -270,16 +282,24 @@ sub publicize($@) {
     substitute_all_keys(shift, '^__', '', shift);
 }
 
-sub encode_json($) {
-    JSON->new()->allow_nonref()->utf8()->encode(shift);
+sub encode_yaml {
+    Dump(@_);
 }
 
-sub decode_json($) {
-    JSON->new()->allow_nonref()->utf8()->decode(shift);
+sub decode_yaml {
+    Load(@_);
 }
 
-sub encode_json_pretty($) {
-    JSON->new()->allow_nonref()->utf8()->pretty()->encode(shift);
+sub encode_json {
+    JSON->new()->allow_nonref()->utf8()->encode(@_);
+}
+
+sub decode_json {
+    JSON->new()->allow_nonref()->utf8()->decode(@_);
+}
+
+sub encode_json_pretty {
+    JSON->new()->allow_nonref()->utf8()->pretty()->encode(@_);
 }
 
 sub encode_sereal_constructor {

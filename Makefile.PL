@@ -49,6 +49,7 @@ WriteMakefile(
         'File::Slurp' => 0,
         'Mojo::Base' => 0,
         'Mojo::URL' => 0,
+        'YAML::XS' => 0,
         'JSON' => 0,
         'Sereal' => 0,
         'POSIX' => 0

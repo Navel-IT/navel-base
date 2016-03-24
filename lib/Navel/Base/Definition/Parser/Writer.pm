@@ -13,7 +13,7 @@ use AnyEvent::IO;
 
 use Navel::Utils qw/
     croak
-    encode_json_pretty
+    encode_yaml
     write_file
 /;
 
@@ -42,11 +42,11 @@ sub write {
 
                     aio_truncate($filehandle, 0, sub {
                         if (@_) {
-                            my $json_definitions = encode_json_pretty($options{definitions});
+                            my $serialized_definitions = encode_yaml($options{definitions});
 
-                            aio_write($filehandle, $json_definitions,
+                            aio_write($filehandle, $serialized_definitions,
                                 sub {
-                                    if (shift == length $json_definitions) {
+                                    if (shift == length $serialized_definitions) {
                                         $options{on_success}->($options{file_path});
                                     } else {
                                         $options{on_error}->($options{file_path} . ': the definitions have not been properly written, they are probably corrupt');
@@ -76,7 +76,7 @@ sub write {
                     err_mode => 'carp',
                     binmode => ':utf8'
                 },
-                \encode_json_pretty($options{definitions})
+                \encode_yaml($options{definitions})
             );
         };
 
