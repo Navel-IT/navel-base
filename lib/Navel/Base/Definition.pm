@@ -9,22 +9,25 @@ package Navel::Base::Definition 0.1;
 
 use Navel::Base;
 
-use Storable 'dclone';
-
 use JSON::Validator;
 
-use Navel::Utils 'unbless_and_copy_hash';
+use Navel::Utils qw/
+    clone
+    unbless
+/;
 
 #-> methods
 
 sub new {
     my ($class, %options) = @_;
+    
+    my $definition = unbless(clone($options{definition}));
 
     my $errors = $class->validate($options{definition});
 
     die $errors if @{$errors};
 
-    bless dclone($options{definition}), ref $class || $class;
+    bless clone($definition), ref $class || $class;
 }
 
 sub validate {
@@ -58,7 +61,7 @@ sub validate {
 }
 
 sub properties {
-    unbless_and_copy_hash(shift);
+    unbless(copy(shift));
 }
 
 sub persistant_properties {

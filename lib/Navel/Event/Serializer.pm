@@ -38,7 +38,7 @@ sub to($@) {
     croak('starting_time is invalid') unless isint($options{starting_time});
     croak('ending_time is invalid') unless isint($options{ending_time});
 
-    $options{collector} = unbless_and_copy_hash($options{collector}) if blessed($options{collector}) && $options{collector}->isa('Navel::Definition::Collector');
+    $options{collector} = unbless(copy($options{collector})) if blessed($options{collector}) && $options{collector}->isa('Navel::Definition::Collector');
 
     encode_sereal_constructor()->encode(
         {

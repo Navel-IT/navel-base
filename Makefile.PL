@@ -39,7 +39,6 @@ WriteMakefile(
         'AnyEvent::IO' => 0,
         'AnyEvent::AIO' => 0,
         'IO::AIO' => 0,
-        'Storable' => 0,
         'Carp' => 0,
         'JSON::Validator' => 0,
         'Scalar::Util' => 0,
@@ -52,7 +51,9 @@ WriteMakefile(
         'YAML::XS' => 0,
         'JSON' => 0,
         'Sereal' => 0,
-        'POSIX' => 0
+        'POSIX' => 0,
+        'Clone' => 0,
+        'Data::Structure::Util' => 0
     },
     TEST_REQUIRES => {
         'Test::More' => 0,

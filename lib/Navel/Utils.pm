@@ -32,6 +32,10 @@ use Scalar::Util::Numeric qw/
     isfloat
 /;
 
+use Data::Structure::Util 'unbless';
+
+use Clone 'copy';
+
 use YAML::XS qw/
     Dump
     Load
@@ -57,7 +61,8 @@ our @EXPORT_OK = qw/
     isfloat
     blessed
     reftype
-    unbless_and_copy_hash
+    unbless
+    copy
     privasize
     publicize
     flatten
@@ -113,7 +118,8 @@ our %EXPORT_TAGS = (
         qw/
             blessed
             reftype
-            unbless_and_copy_hash
+            unbless
+            clone
         /
     ],
     list => [
@@ -236,12 +242,6 @@ sub reftype($) {
    my $reftype = Scalar::Util::reftype(shift);
 
    defined $reftype ? $reftype : '';
-}
-
-sub unbless_and_copy_hash($) {
-    return {
-        %{+shift}
-    };
 }
 
 sub flatten {
