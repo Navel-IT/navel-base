@@ -34,7 +34,7 @@ use Scalar::Util::Numeric qw/
 
 use Data::Structure::Util 'unbless';
 
-use Clone 'copy';
+use Clone 'clone';
 
 use YAML::XS qw/
     Dump
@@ -62,7 +62,7 @@ our @EXPORT_OK = qw/
     blessed
     reftype
     unbless
-    copy
+    clone
     privasize
     publicize
     flatten
