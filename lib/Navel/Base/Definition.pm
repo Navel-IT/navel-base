@@ -20,14 +20,16 @@ use Navel::Utils qw/
 
 sub new {
     my ($class, %options) = @_;
-    
-    my $definition = unbless(clone($options{definition}));
+
+    my $definition = unbless(
+        clone($options{definition})
+    );
 
     my $errors = $class->validate($options{definition});
 
     die $errors if @{$errors};
 
-    bless clone($definition), ref $class || $class;
+    bless $definition, ref $class || $class;
 }
 
 sub validate {
@@ -61,7 +63,9 @@ sub validate {
 }
 
 sub properties {
-    unbless(copy(shift));
+    unbless(
+        clone(shift)
+    );
 }
 
 sub persistant_properties {
