@@ -39,6 +39,8 @@ use YAML::XS qw/
 use JSON qw//;
 use Sereal qw//;
 
+$YAML::XS::QuoteNumericStrings = 0;
+
 #-> export
 
 our @EXPORT_OK = qw/
