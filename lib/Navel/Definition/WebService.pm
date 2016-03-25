@@ -156,7 +156,7 @@ sub url {
         key
         verify
     /) {
-        $url->query(
+        $url->query()->merge(
             $_ => $self->{$_}
         ) if defined $self->{$_};
     }
