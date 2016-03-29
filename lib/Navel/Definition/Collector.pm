@@ -12,8 +12,8 @@ use Navel::Base;
 use parent 'Navel::Base::Definition';
 
 use constant {
-    COLLECTOR_TYPE_PACKAGE => 'package',
-    COLLECTOR_TYPE_SOURCE => 'source'
+    COLLECTOR_TYPE_PM => 'package',
+    COLLECTOR_TYPE_PL => 'script'
 };
 
 our %PROPERTIES;
@@ -54,8 +54,8 @@ sub validate {
                 type => {
                     type => 'string',
                     enum => [
-                        COLLECTOR_TYPE_PACKAGE,
-                        COLLECTOR_TYPE_SOURCE
+                        COLLECTOR_TYPE_PM,
+                        COLLECTOR_TYPE_PL
                     ]
                 },
                 singleton => {
@@ -109,12 +109,12 @@ sub persistant_properties {
     );
 }
 
-sub is_type_package {
-    shift->{type} eq COLLECTOR_TYPE_PACKAGE;
+sub is_type_pm {
+    shift->{type} eq COLLECTOR_TYPE_PM;
 }
 
-sub is_type_source {
-    shift->{type} eq COLLECTOR_TYPE_SOURCE;
+sub is_type_pl {
+    shift->{type} eq COLLECTOR_TYPE_PL;
 }
 
 sub resolve_basename {
