@@ -42,7 +42,7 @@ for my $valid_publisher (@{$valid_publishers->{definitions}}) {
                     {
                         name => 'test-1',
                         collection => 'test',
-                        type => 'source',
+                        type => 'script',
                         singleton => 1,
                         scheduling => 15,
                         source => undef,
