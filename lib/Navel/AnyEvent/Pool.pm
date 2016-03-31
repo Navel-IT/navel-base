@@ -45,7 +45,7 @@ sub new {
         };
 
         $self->{on_callbacks}->{on_singleton_already_running} = sub {
-            $self->{logger}->warning('job ' . shift . ' is already running.');
+            $self->{logger}->info('job ' . shift . ' is already running.');
         };
     }
 
