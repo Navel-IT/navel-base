@@ -221,12 +221,12 @@ sub try_require_namespace {
         eval 'require ' . $class;
 
         if ($@) {
-            @return[1] = $@;
+            $return[1] = $@;
         } else {
-            @return[0] = 1;
+            $return[0] = 1;
         }
     } else {
-        @return[1] = 'class must be defined';
+        $return[1] = 'class must be defined';
     }
 
     @return;
