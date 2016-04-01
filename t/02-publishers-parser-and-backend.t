@@ -43,6 +43,7 @@ for my $valid_publisher (@{$valid_publishers->{definitions}}) {
                         name => 'test-1',
                         collection => 'test',
                         type => 'script',
+                        async => 0,
                         singleton => 1,
                         scheduling => 15,
                         source => undef,
@@ -52,7 +53,7 @@ for my $valid_publisher (@{$valid_publishers->{definitions}}) {
             }
         );
 
-        from($_->serialized_datas()) for @{$valid_publisher_runtime->{queue}};
+        from($_->serialized_data()) for @{$valid_publisher_runtime->{queue}};
 
         $valid_publisher_runtime->clear_queue();
     } $valid_publisher->{name} . ': not connectable and push_in_queue() + (de)serialize events + clear_queue()';

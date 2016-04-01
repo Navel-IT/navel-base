@@ -58,6 +58,16 @@ sub validate {
                         COLLECTOR_TYPE_PL
                     ]
                 },
+                async => {
+                    type => [
+                        qw/
+                            integer
+                            boolean
+                        /
+                    ],
+                    minimum => 0,
+                    maximum => 1
+                },
                 singleton => {
                     type => [
                         qw/
