@@ -40,7 +40,7 @@ sub new {
     }
 
     $self->set_status_to_ok();
-    $self->{datas} = $options{datas};
+    $self->{data} = $options{data};
 
     $self->{$_} = isint($options{$_}) ? $options{$_} : time for qw/
         starting_time
@@ -74,11 +74,11 @@ sub set_status_to_internal_ko {
     $self;
 }
 
-sub serialized_datas {
+sub serialized_data {
     my $self = shift;
 
     to(
-        datas => $self->{datas},
+        data => $self->{data},
         starting_time => $self->{starting_time},
         ending_time => $self->{ending_time},
         collector => $self->{collector},

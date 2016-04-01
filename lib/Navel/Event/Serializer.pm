@@ -44,7 +44,7 @@ sub to($@) {
 
     encode_sereal_constructor()->encode(
         {
-            datas => $options{datas},
+            data => $options{data},
             starting_time => $options{starting_time},
             ending_time => $options{ending_time},
             collector => $options{collector},
@@ -56,12 +56,12 @@ sub to($@) {
 sub from($) {
     my $deserialized = decode_sereal_constructor()->decode(shift);
 
-    croak('deserialized datas are invalid') unless ref $deserialized eq 'HASH' && isint($deserialized->{starting_time}) && isint($deserialized->{ending_time}) && exists $deserialized->{datas} && exists $deserialized->{collection};
+    croak('deserialized data are invalid') unless ref $deserialized eq 'HASH' && isint($deserialized->{starting_time}) && isint($deserialized->{ending_time}) && exists $deserialized->{data} && exists $deserialized->{collection};
 
     my $collector;
 
     if (defined $deserialized->{collector}) {
-        croak('deserialized datas are invalid: collector definition is invalid') if @{Navel::Definition::Collector->validate($deserialized->{collector})};
+        croak('deserialized data are invalid: collector definition is invalid') if @{Navel::Definition::Collector->validate($deserialized->{collector})};
 
         $collector = Navel::Definition::Collector->new($deserialized->{collector});
     }
