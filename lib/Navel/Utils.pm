@@ -43,8 +43,6 @@ use YAML::XS qw/
 use JSON qw//;
 use Sereal qw//;
 
-$YAML::XS::QuoteNumericStrings = 0;
-
 #-> export
 
 our @EXPORT_OK = qw/
@@ -203,6 +201,8 @@ sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
 sub catch_warnings {
     my ($warning_callback, $code_callback) = @_;
 
+    croak('warning_callback and code_callback should be code reference') unless ref $warning_callback eq 'CODE' && ref $code_callback eq 'CODE';
+
     local $SIG{__WARN__} = sub {
         $warning_callback->(@_);
     };
@@ -210,7 +210,7 @@ sub catch_warnings {
     $code_callback->();
 }
 
-sub try_require_namespace {
+sub try_require_namespace($) {
     my $class = shift;
 
     my @return = (0, undef);
@@ -259,6 +259,8 @@ sub replace_key($$$) {
 sub substitute_all_keys($$$@) {
     my ($hash, $old, $new, $recursive) = @_;
 
+    croak('hash required') unless ref $hash eq 'HASH';
+
     local $@;
 
     for (keys %{$hash}) {
@@ -276,19 +278,23 @@ sub substitute_all_keys($$$@) {
     1;
 }
 
-sub privasize($@) {
+sub privasize($;$) {
     substitute_all_keys(shift, '^(.*)', '__$1', shift);
 }
 
-sub publicize($@) {
+sub publicize($;$) {
     substitute_all_keys(shift, '^__', '', shift);
 }
 
 sub encode_yaml {
+    local $YAML::XS::QuoteNumericStrings = 0;
+
     Dump(@_);
 }
 
 sub decode_yaml {
+    local $YAML::XS::QuoteNumericStrings = 0;
+
     Load(@_);
 }
 
