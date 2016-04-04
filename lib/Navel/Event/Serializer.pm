@@ -9,8 +9,7 @@ package Navel::Event::Serializer 0.1;
 
 use Navel::Base;
 
-use parent 'Exporter';
-
+use Navel::Event;
 use Navel::Definition::Collector;
 use Navel::Utils qw/
     :scalar
@@ -19,21 +18,12 @@ use Navel::Utils qw/
     isint
 /;
 
-#-> export
-
-our @EXPORT_OK = qw/
-    to
-    from
-/;
-
-our %EXPORT_TAGS = (
-    all => \@EXPORT_OK
-);
-
 #-> functions
 
-sub to($@) {
+sub to {
     my %options = @_;
+
+    croak('status must be of Navel::Event::Status class') unless blessed($options{status}) && $options{status}->isa('Navel::Event::Status');
 
     croak('starting_time is invalid') unless isint($options{starting_time});
     croak('ending_time is invalid') unless isint($options{ending_time});
@@ -44,38 +34,39 @@ sub to($@) {
 
     encode_sereal_constructor()->encode(
         {
-            data => $options{data},
+            collector => $options{collector},
+            collection => defined $options{collection} ? sprintf '%s', $options{collection} : $options{collection},
+            status => $options{status}->{status},
             starting_time => $options{starting_time},
             ending_time => $options{ending_time},
-            collector => $options{collector},
-            collection => defined $options{collection} ? sprintf '%s', $options{collection} : $options{collection}
+            data => $options{data}
         }
     );
 }
 
-sub from($) {
+sub from {
     my $deserialized = decode_sereal_constructor()->decode(shift);
 
-    croak('deserialized data are invalid') unless ref $deserialized eq 'HASH' && isint($deserialized->{starting_time}) && isint($deserialized->{ending_time}) && exists $deserialized->{data} && exists $deserialized->{collection};
+    local $@;
 
-    my $collector;
+    my $event;
 
-    if (defined $deserialized->{collector}) {
-        croak('deserialized data are invalid: collector definition is invalid') if @{Navel::Definition::Collector->validate($deserialized->{collector})};
+    eval {
+        $deserialized->{collector} = Navel::Definition::Collector->new($deserialized->{collector});
 
-        $collector = Navel::Definition::Collector->new($deserialized->{collector});
-    }
-
-    $deserialized->{collection} = sprintf '%s', $deserialized->{collection} if defined $deserialized->{collection};
-
-    {
-        %{$deserialized},
-        %{
-            {
-                collector => $collector
-            }
-        }
+        $event = Navel::Event->new(
+            (
+                %{$deserialized},
+                (
+                    status => $deserialized->{status}
+                )
+            )
+        );
     };
+
+    croak($@) if $@;
+
+    $event;
 }
 
 # sub AUTOLOAD {}

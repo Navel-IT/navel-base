@@ -72,9 +72,7 @@ sub attach_timer {
 
     $self->{jobs}->{timers}->{$options{name}} = $package->new(
         (
-            %{
-                $self->{on_callbacks}
-            },
+            %{$self->{on_callbacks}},
             %options,
             (
                 pool => $self

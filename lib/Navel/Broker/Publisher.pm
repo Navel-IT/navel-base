@@ -74,19 +74,13 @@ sub auto_clean {
 }
 
 sub push_in_queue {
-    my ($self, %options) = @_;
+    my ($self, $event_definition) = @_;
 
-    croak('event_definition must be a HASH reference') unless ref $options{event_definition} eq 'HASH';
+    croak('event_definition must be a HASH reference') unless ref $event_definition eq 'HASH';
+
+    my $event = Navel::Event->new(%{$event_definition});
 
     $self->auto_clean();
-
-    my $event = Navel::Event->new(%{$options{event_definition}});
-
-    if (defined (my $status_method = delete $options{status_method})) {
-        croak('unknown status method') unless $event->can($status_method);
-
-        $event->$status_method();
-    }
 
     push @{$self->{queue}}, $event;
 

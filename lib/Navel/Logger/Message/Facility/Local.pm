@@ -9,10 +9,7 @@ package Navel::Logger::Message::Facility::Local 0.1;
 
 use Navel::Base;
 
-use Navel::Utils qw/
-    isint
-    croak
-/;
+use Navel::Utils 'isint';
 
 #-> class variables
 
@@ -38,9 +35,9 @@ sub facilities {
 sub new {
     my ($class, $label) = @_;
 
-    croak('label must be defined') unless defined $label;
+    die "label must be defined\n" unless defined $label;
 
-    croak('facility is invalid') unless exists $facilities{$label};
+    die "facility is invalid\n" unless exists $facilities{$label};
 
     bless {
         label => $label

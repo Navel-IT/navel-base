@@ -61,11 +61,7 @@ our @EXPORT_OK = qw/
     reftype
     unbless
     clone
-    privasize
-    publicize
     flatten
-    replace_key
-    substitute_all_keys
     encode_yaml
     decode_yaml
     encode_json
@@ -123,18 +119,6 @@ our %EXPORT_TAGS = (
     list => [
         qw/
             flatten
-        /
-    ],
-    hash => [
-        qw/
-            replace_key
-            substitute_all_keys
-        /
-    ],
-    pripub => [
-        qw/
-            privasize
-            publicize
         /
     ],
     yaml => [
@@ -210,8 +194,10 @@ sub catch_warnings {
     $code_callback->();
 }
 
-sub try_require_namespace($) {
+sub try_require_namespace {
     my $class = shift;
+
+    croak('class must be defined') unless defined $class;
 
     my @return = (0, undef);
 
@@ -232,13 +218,13 @@ sub try_require_namespace($) {
     @return;
 }
 
-sub blessed($) {
+sub blessed {
    my $blessed = Scalar::Util::blessed(shift);
 
    defined $blessed ? $blessed : '';
 }
 
-sub reftype($) {
+sub reftype {
    my $reftype = Scalar::Util::reftype(shift);
 
    defined $reftype ? $reftype : '';
@@ -248,42 +234,6 @@ sub flatten {
     map {
         ref eq 'ARRAY' ? __SUB__->(@{$_}) : $_
     } @_;
-}
-
-sub replace_key($$$) {
-    my ($hash, $key, $new_key) = @_;
-
-    $hash->{$new_key} = delete $hash->{$key};
-}
-
-sub substitute_all_keys($$$@) {
-    my ($hash, $old, $new, $recursive) = @_;
-
-    croak('hash required') unless ref $hash eq 'HASH';
-
-    local $@;
-
-    for (keys %{$hash}) {
-        my $new_key = $_;
-
-        eval '$new_key =~ s/' . $old . '/' . $new . '/g';
-
-        $@ ? return 0 : replace_key($hash, $_, $new_key);
-
-        if ($recursive && reftype($hash->{$new_key}) eq 'HASH') {
-            __SUB__->($hash->{$new_key}, $old, $new, $recursive) || return 0;
-        }
-    }
-
-    1;
-}
-
-sub privasize($;$) {
-    substitute_all_keys(shift, '^(.*)', '__$1', shift);
-}
-
-sub publicize($;$) {
-    substitute_all_keys(shift, '^__', '', shift);
 }
 
 sub encode_yaml {

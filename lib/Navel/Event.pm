@@ -9,37 +9,42 @@ package Navel::Event 0.1;
 
 use Navel::Base;
 
-use constant {
-    OK => 1,
-    KO => -1,
-    INTERNAL_KO => -2
-};
-
-use Navel::Event::Serializer 'to';
+use Navel::Event::Serializer;
+use Navel::Event::Status;
 use Navel::Utils qw/
     blessed
-    croak
     isint
  /;
 
 #-> methods
 
+sub deserialize {
+    my $class = shift;
+
+    Navel::Event::Serializer::from(@_);
+}
+
 sub new {
     my ($class, %options) = @_;
 
-    my $self = bless {}, ref $class || $class;
+    my $self = bless {
+    }, ref $class || $class;
 
     if (blessed($options{collector}) && $options{collector}->isa('Navel::Definition::Collector')) {
         $self->{collector} = $options{collector};
         $self->{collection} = $self->{collector}->{collection};
     } else {
-        croak('collection must be defined') unless defined $options{collection};
+        die "collection must be defined\n" unless defined $options{collection};
 
         $self->{collector} = undef;
         $self->{collection} = $options{collection};
     }
 
-    $self->set_status_to_ok();
+    $self->{status} = Navel::Event::Status->new(
+        status => $options{status},
+        public_interface => $options{public_interface}
+    );
+
     $self->{data} = $options{data};
 
     $self->{$_} = isint($options{$_}) ? $options{$_} : time for qw/
@@ -50,39 +55,16 @@ sub new {
     $self;
 }
 
-sub set_status_to_ok {
+sub serialize {
     my $self = shift;
 
-    $self->{status_code} = OK;
-
-    $self;
-}
-
-sub set_status_to_ko {
-    my $self = shift;
-
-    $self->{status_code} = KO;
-
-    $self;
-}
-
-sub set_status_to_internal_ko {
-    my $self = shift;
-
-    $self->{status_code} = INTERNAL_KO;
-
-    $self;
-}
-
-sub serialized_data {
-    my $self = shift;
-
-    to(
-        data => $self->{data},
+    Navel::Event::Serializer::to(
+        collection => $self->{collection},
+        collector => $self->{collector},
+        status => $self->{status},
         starting_time => $self->{starting_time},
         ending_time => $self->{ending_time},
-        collector => $self->{collector},
-        collection => $self->{collection}
+        data => $self->{data}
     );
 }
 

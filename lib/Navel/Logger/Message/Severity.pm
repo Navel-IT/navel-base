@@ -62,11 +62,11 @@ sub severities {
 sub new {
     my ($class, $label) = @_;
 
-    croak('label must be defined') unless defined $label;
+    die "label must be defined\n" unless defined $label;
 
     $label = lc $label;
 
-    croak('severity is invalid') unless exists $severities{$label};
+    die "severity is invalid\n" unless exists $severities{$label};
 
     bless {
         label => $label

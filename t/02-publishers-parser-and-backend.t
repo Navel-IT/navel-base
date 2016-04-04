@@ -14,8 +14,7 @@ use Test::Exception;
 BEGIN {
     use_ok('Navel::Definition::Publisher::Parser');
     use_ok('Navel::Broker::Publisher');
-    use_ok('Navel::Definition::Collector');
-    use_ok('Navel::Event::Serializer', ':all');
+    use_ok('Navel::Definition::Collector::Parser');
 }
 
 #-> main
@@ -24,7 +23,9 @@ my $valid_publishers_definitions_path = 't/02-valid-publishers.yml';
 
 my $invalid_publishers_definitions_path = 't/02-invalid-publishers.yml';
 
-my $valid_publishers;
+my $collectors_definitions_path = 't/01-collectors.yml';
+
+my ($valid_publishers, $collectors);
 
 lives_ok {
     $valid_publishers = Navel::Definition::Publisher::Parser->new()->read(
@@ -32,28 +33,24 @@ lives_ok {
     )->make();
 } 'making configuration from ' . $valid_publishers_definitions_path;
 
+lives_ok {
+    $collectors = Navel::Definition::Collector::Parser->new()->read(
+        file_path => $collectors_definitions_path
+    )->make();
+} 'making configuration from ' . $collectors_definitions_path;
+
 for my $valid_publisher (@{$valid_publishers->{definitions}}) {
     lives_ok {
         my $valid_publisher_runtime = Navel::Broker::Publisher->new(
             definition => $valid_publisher
         )->push_in_queue(
-            event_definition => {
-                collector => Navel::Definition::Collector->new(
-                    {
-                        name => 'test-1',
-                        collection => 'test',
-                        type => 'script',
-                        async => 0,
-                        singleton => 1,
-                        scheduling => 15,
-                        source => undef,
-                        input => undef
-                    }
-                )
+            {
+                collector => $collectors->{definitions}->[0],
+                status => 'OK'
             }
         );
 
-        from($_->serialized_data()) for @{$valid_publisher_runtime->{queue}};
+        $_->deserialize($_->serialize()) for @{$valid_publisher_runtime->{queue}};
 
         $valid_publisher_runtime->clear_queue();
     } $valid_publisher->{name} . ': not connectable and push_in_queue() + (de)serialize events + clear_queue()';
