@@ -11,12 +11,9 @@ use Navel::Base;
 
 use parent 'Navel::Base::Definition';
 
-use Navel::Utils qw/
-    catch_warnings
-    try_require_namespace
-/;
+#-> class variables
 
-our %PROPERTIES;
+my %properties;
 
 #-> methods
 
@@ -29,8 +26,8 @@ sub validate {
             type => 'object',
             additionalProperties => 0,
             required => [
-                @{$PROPERTIES{persistant}},
-                @{$PROPERTIES{runtime}}
+                @{$properties{persistant}},
+                @{$properties{runtime}}
             ],
             properties => {
                 name => {
@@ -61,6 +58,16 @@ sub validate {
                     type => 'integer',
                     minimum => 0
                 },
+                connectable => {
+                    type => [
+                        qw/
+                            integer
+                            boolean
+                        /
+                    ],
+                    minimum => 0,
+                    maximum => 1
+                },
                 auto_connect => {
                     type => [
                         qw/
@@ -73,52 +80,9 @@ sub validate {
                 }
             }
         },
-        code_validator => sub {
-            my @errors;
-
-            if (ref $raw_definition eq 'HASH') {
-                my @load_backend_class;
-
-                catch_warnings(
-                    sub {
-                        push @errors, @_;
-                    },
-                    sub {
-                        @load_backend_class = try_require_namespace($raw_definition->{backend});
-                    }
-                );
-
-                if ($load_backend_class[0]) {
-                    push @errors, 'the subroutine ' . $raw_definition->{backend} . '::publish is missing' unless $raw_definition->{backend}->can('publish');
-
-                    if (__PACKAGE__->seems_connectable($raw_definition->{backend})) {
-                        for (qw/
-                            connect
-                            disconnect
-                            is_connected
-                            is_connecting
-                            is_disconnected
-                            is_disconnecting
-                        /) {
-                            push @errors, 'the subroutine ' . $raw_definition->{backend} . '::' . $_ . ' is missing' unless $raw_definition->{backend}->can($_);
-                        }
-                    }
-                } else {
-                    push @errors, $load_backend_class[1];
-                }
-            }
-
-            \@errors;
-        },
         raw_definition => $raw_definition,
         if_possible_suffix_errors_with_key_value => 'name'
     );
-}
-
-sub seems_connectable {
-    my ($class, $backend_class) = @_;
-
-    eval '$' . (defined $backend_class ? $backend_class : $class->{backend}) . '::IS_CONNECTABLE' or 0;
 }
 
 sub new {
@@ -135,18 +99,19 @@ sub merge {
 
 sub persistant_properties {
     shift->SUPER::persistant_properties(
-        runtime_properties => $PROPERTIES{runtime}
+        runtime_properties => $properties{runtime}
     );
 }
 
 BEGIN {
-    %PROPERTIES = (
+    %properties = (
         persistant => [qw/
             name
             backend
             backend_input
             scheduling
             auto_clean
+            connectable
             auto_connect
         /],
         runtime => [qw/
@@ -154,8 +119,8 @@ BEGIN {
     );
 
     __PACKAGE__->create_setters(
-        @{$PROPERTIES{persistant}},
-        @{$PROPERTIES{runtime}}
+        @{$properties{persistant}},
+        @{$properties{runtime}}
     );
 }
 

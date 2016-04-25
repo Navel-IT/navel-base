@@ -1,17 +1,19 @@
 # Copyright 2015 Navel-IT
-# navel-base is developed by Yoann Le Garff, Nicolas Boquet and Yann Le Bras under GNU GPL v3
+# navel-scheduler is developed by Yoann Le Garff, Nicolas Boquet and Yann Le Bras under GNU GPL v3
 
 #-> BEGIN
 
 #-> initialization
 
-package t::lib::Navel::Broker::Publisher::Backend::KoDummyConnectable 0.1;
+package t::lib::Navel::Broker::Client::Fork::Publisher::Backend::Dummy 0.1;
 
 use Navel::Base;
 
-our $IS_CONNECTABLE = 1;
+#-> methods
 
-#-> functions
+sub is_connectable {
+    1;
+}
 
 sub publish {
 }
@@ -32,7 +34,7 @@ __END__
 
 =head1 NAME
 
-t::lib::Navel::Broker::Publisher::Backend::KoDummyConnectable
+t::lib::Navel::Broker::Client::Fork::Publisher::Backend::Dummy
 
 =head1 AUTHOR
 

@@ -13,7 +13,9 @@ use parent 'Navel::Base::Definition';
 
 use Mojo::URL;
 
-our %PROPERTIES;
+#-> class variables
+
+my %properties;
 
 #-> methods
 
@@ -26,8 +28,8 @@ sub validate {
             type => 'object',
             additionalProperties => 0,
             required => [
-                @{$PROPERTIES{persistant}},
-                @{$PROPERTIES{runtime}}
+                @{$properties{persistant}},
+                @{$properties{runtime}}
             ],
             properties => {
                 name => {
@@ -134,7 +136,7 @@ sub merge {
 
 sub persistant_properties {
     shift->SUPER::persistant_properties(
-        runtime_properties => $PROPERTIES{runtime}
+        runtime_properties => $properties{runtime}
     );
 }
 
@@ -165,7 +167,7 @@ sub url {
 }
 
 BEGIN {
-    %PROPERTIES = (
+    %properties = (
         persistant => [qw/
             name
             interface_mask
@@ -182,8 +184,8 @@ BEGIN {
     );
 
     __PACKAGE__->create_setters(
-        @{$PROPERTIES{persistant}},
-        @{$PROPERTIES{runtime}}
+        @{$properties{persistant}},
+        @{$properties{runtime}}
     );
 }
 
