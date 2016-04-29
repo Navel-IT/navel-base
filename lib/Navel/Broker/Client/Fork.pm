@@ -24,15 +24,22 @@ use Navel::Utils qw/
 sub new {
     my ($class, %options) = @_;
 
-    croak('logger must be of Navel::Logger class') unless blessed($options{logger}) && $options{logger}->isa('Navel::Logger');
+    my $self;
 
-    croak('definition is invalid') unless blessed($options{definition}) and $options{definition}->isa('Navel::Definition::Publisher') || $options{definition}->isa('Navel::Definition::Consumer');
+    if (ref $class) {
+        $self = $class;
+    } else {
+        croak('logger must be of Navel::Logger class') unless blessed($options{logger}) && $options{logger}->isa('Navel::Logger');
 
-    my $self = bless {
-        logger => $options{logger},
-        definition => $options{definition},
-        queue => []
-    }, ref $class || $class;
+        croak('definition is invalid') unless blessed($options{definition}) and $options{definition}->isa('Navel::Definition::Publisher') || $options{definition}->isa('Navel::Definition::Consumer');
+
+        $self = bless {
+            logger => $options{logger},
+            meta_configuration => $options{meta_configuration},
+            definition => $options{definition},
+            queue => []
+        }, $class;
+    }
 
     my $definition_class = join '::', @{$self->definition_class()};
 
@@ -55,7 +62,7 @@ sub new {
         serialiser => Navel::AnyEvent::Fork::RPC::Serializer::Sereal::SERIALIZER
     );
 
-    $self->{logger}->debug('spawned a new process for ' . $definition_class . '/' . $self->{definition}->{name} . '.');
+    $self->{logger}->info('spawned a new process for ' . $definition_class . '.' . $self->{definition}->{name} . '.');
 
     $self;
 }
@@ -63,7 +70,7 @@ sub new {
 sub rpc {
     my ($self, %options) = @_;
 
-    croak('method must be defined') unless defined $options{method};
+    croak('method must be defined') unless defined $options{method} || $options{exit};
 
     $options{options} = [] unless ref $options{options} eq 'ARRAY';
 
@@ -72,22 +79,16 @@ sub rpc {
 
     if (defined $self->{rpc}) {
         $self->{rpc}->(
-            $options{namespace},
+            $options{exit},
             $options{method},
+            $self->{meta_configuration},
+            $self->{definition}->properties(),
             @{$options{options}},
             $options{callback}
         );
     }
 
     $self;
-}
-
-sub exit {
-    shift->rpc(
-        namespace => 'CORE',
-        method => 'exit',
-        options => \@_
-    );
 }
 
 sub clear_queue {
@@ -135,30 +136,44 @@ sub definition_class {
 sub wrapped_code {
     my $self = shift;
 
-    my $role_relative_method = $self->definition_class()->[-1] eq 'Publisher' ? 'publish' : 'consume';
-
     my $wrapped_code .= "package Navel::Broker::Client::Fork::Worker;
 
-BEGIN {
-    open STDIN, '</dev/null';
-    open STDOUT, '>/dev/null';
-    open STDERR, '>&STDOUT';
-}" . '
+{
+    BEGIN {
+        open STDIN, '</dev/null';
+        open STDOUT, '>/dev/null';
+        open STDERR, '>&STDOUT';
+    }" . '
 
-sub log {
-    AnyEvent::Fork::RPC::event(@_);
-}
+    our $stopping;
 
-sub run {
-    my ($done, $namespace, $method, @options) = @_;
+    sub log {
+        AnyEvent::Fork::RPC::event(@_);
+    }
+};
 
-    if (defined $namespace) {
-        $done->(($namespace . ' . "'::'" . ' . $method)->(@options));
-    } else {
+{
+    sub run {
+        my ($done, $exit, $method, $meta_configuration, $definition, @options) = @_;
+
         local $@;
 
+        if ($Navel::Broker::Client::Fork::Worker::stopping) {
+            $done->();
+
+            return;
+        }
+
+        if ($exit) {
+            $Navel::Broker::Client::Fork::Worker::stopping = 1;
+
+            $done->();
+
+            exit;
+        }
+
         eval {
-            (' . "'" . $self->{definition}->{backend} . "::'" . ' . $method)->($done, @options);
+            (' . "'" . $self->{definition}->{backend} . "::'" . ' . $method)->($done, $meta_configuration, $definition, @options);
         }; ' . "
 
         if (\$@) {
@@ -172,12 +187,11 @@ sub run {
             $done->();
         }
 
+        return;
     }
 
-    return;
-}
-
-require ' . $self->{definition}->{backend} . ';
+    require ' . $self->{definition}->{backend} . ';
+};
 
 1;';
 
