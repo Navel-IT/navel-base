@@ -70,16 +70,6 @@ sub validate {
                     minimum => 0,
                     maximum => 1
                 },
-                singleton => {
-                    type => [
-                        qw/
-                            integer
-                            boolean
-                        /
-                    ],
-                    minimum => 0,
-                    maximum => 1
-                },
                 scheduling => {
                     type => 'integer',
                     minimum => 5
@@ -141,7 +131,6 @@ BEGIN {
             name
             collection
             type
-            singleton
             scheduling
             source
             input
