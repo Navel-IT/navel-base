@@ -157,7 +157,7 @@ our %EXPORT_TAGS = (
 sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
     my %options = @_;
 
-    $options{work_dir} = defined $options{work_dir} ? $options{work_dir} : '/';
+    local $!;
 
     my $pid = fork;
 
@@ -167,11 +167,11 @@ sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
         exit 0;
     }
 
-    POSIX::setsid() or die 'setsid: ' . $! . "\n";
+    POSIX::setsid() || die 'setsid: ' . $! . "\n";
 
     umask 0;
 
-    chdir $options{work_dir};
+    chdir $options{work_dir} || die 'cannot chdir to ' . $options{work_dir} . ': ' . $! . "\n" if defined $options{work_dir};
 
     write_file($options{pid_file}, $$) if defined $options{pid_file};
 
