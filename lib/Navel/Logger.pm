@@ -48,6 +48,48 @@ sub new {
     }, ref $class || $class;
 }
 
+sub queue {
+    my $self = shift;
+
+    [
+        grep {
+            $self->{severity}->compare($_->{severity});
+        } @{$self->{queue}}
+    ];
+}
+
+sub queue_to_string {
+    my ($self, %options) = @_;
+
+    my $colored = exists $options{colored} ? $options{colored} : $self->{colored};
+
+    [
+        map {
+            $colored ? colored($_->to_string(), $_->{severity}->color()) : $_->to_string();
+        } @{$self->queue()}
+    ];
+}
+
+sub queue_to_syslog {
+    my $self = shift;
+
+    [
+        map {
+            $_->to_syslog();
+        } @{$self->queue()}
+    ];
+}
+
+sub say_queue {
+    my ($self, %options) = @_;
+
+    my $queue_to_string = $self->queue_to_string(%options);
+
+    say join "\n", @{$queue_to_string} if @{$queue_to_string};
+
+    $self;
+}
+
 sub push_in_queue {
     my ($self, %options) = @_;
 
@@ -73,37 +115,7 @@ sub push_in_queue {
         );
     }
 
-    push @{$self->{queue}}, $message if $self->{severity}->compare($message->{severity});
-
-    $self;
-}
-
-sub queue_to_string {
-    my ($self, %options) = @_;
-
-    my $colored = exists $options{colored} ? $options{colored} : $self->{colored};
-
-    [
-        map {
-            $colored ? colored($_->to_string(), $_->{severity}->color()) : $_->to_string();
-        } @{$self->{queue}}
-    ];
-}
-
-sub queue_to_syslog {
-    my $self = shift;
-
-    [
-        map {
-            $_->to_syslog();
-        } @{$self->{queue}}
-    ];
-}
-
-sub say_queue {
-    my ($self, %options) = @_;
-
-    say join "\n", @{$self->queue_to_string(%options)};
+    push @{$self->{queue}}, $message;
 
     $self;
 }
@@ -119,38 +131,38 @@ sub clear_queue {
 sub flush_queue {
     my ($self, %options) = @_;
 
-    if (@{$self->{queue}}) {
-        if ($self->{syslog}) {
-            local $@;
+    if ($self->{syslog}) {
+        local $@;
 
-            for (@{$self->queue_to_syslog()}) {
-                eval {
-                    syslog(@{$_});
-                };
+        for (@{$self->queue_to_syslog()}) {
+            eval {
+                syslog(@{$_});
+            };
 
-                if ($@) {
-                    $self->crit(
-                        Navel::Logger::Message->stepped_message('cannot push messages into syslog.',
-                            [
-                                $@
-                            ]
-                        )
-                    )->say_queue();
-                }
+            if ($@) {
+                $self->crit(
+                    Navel::Logger::Message->stepped_message('cannot push messages into syslog.',
+                        [
+                            $@
+                        ]
+                    )
+                )->say_queue();
             }
-        } elsif (defined $self->{file_path}) {
-            my $cannot_push_messages = 'cannot push messages into ' . $self->{file_path};
+        }
+    } elsif (defined $self->{file_path}) {
+        my $cannot_push_messages = 'cannot push messages into ' . $self->{file_path};
 
-            my $formatted_queue = $self->queue_to_string(
-                colored => 0
-            );
+        my $queue_to_string = $self->queue_to_string(
+            colored => 0
+        );
 
+        if (@{$queue_to_string}) {
             if ($options{async}) {
                 aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0, sub {
                     my $filehandle = shift;
 
                     if ($filehandle) {
-                        aio_write($filehandle, (join "\n", @{$formatted_queue}) . "\n", sub {
+                        aio_write($filehandle, (join "\n", @{$queue_to_string}) . "\n", sub {
                             aio_close($filehandle,
                                 sub {
                                 }
@@ -178,7 +190,7 @@ sub flush_queue {
                         [
                             map {
                                 $_ . "\n"
-                            } @{$formatted_queue}
+                            } @{$queue_to_string}
                         ]
                     );
                 };
@@ -193,12 +205,12 @@ sub flush_queue {
                     )->say_queue();
                 }
             }
-        } else {
-            $self->say_queue();
         }
-
-        $self->clear_queue();
+    } else {
+        $self->say_queue();
     }
+
+    $self->clear_queue();
 }
 
 BEGIN {
