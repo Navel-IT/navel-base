@@ -1,5 +1,5 @@
-# Copyright 2015 Navel-IT
-# navel-base is developed by Yoann Le Garff, Nicolas Boquet and Yann Le Bras under GNU GPL v3
+# Copyright (C) 2015 Yoann Le Garff, Nicolas Boquet and Yann Le Bras
+# navel-base is licensed under the Apache License, Version 2.0
 
 #-> BEGIN
 
@@ -19,13 +19,13 @@ WriteMakefile(
     VERSION_FROM => 'lib/Navel/Base.pm',
     ABSTRACT => 'navel-base',
     AUTHOR => 'Yoann Le Garff, Nicolas Boquet and Yann Le Bras',
-    LICENSE => 'GNU GPL v3',
+    LICENSE => 'Apache License, Version 2.0',
     META_MERGE => {
         requires => {
             perl => $min_perl_version
         },
         resources => {
-            license => 'http://www.gnu.org/copyleft/gpl.html',
+            license => 'http://www.apache.org/licenses/LICENSE-2.0.html',
             repository => 'http://github.com/Navel-IT/navel-base'
         },
         no_index => {
