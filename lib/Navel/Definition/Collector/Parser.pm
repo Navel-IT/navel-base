@@ -25,7 +25,7 @@ BEGIN {
     __PACKAGE__->create_getters(qw/
         collection
         type
-        singleton
+        async
         scheduling
         source
         input

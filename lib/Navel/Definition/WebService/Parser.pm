@@ -26,12 +26,11 @@ BEGIN {
         interface_mask
         port
         tls
-        cas
+        ca
         cert
-        cipher
+        ciphers
         key
-        verifie
-        url
+        verify
     /);
 }
 
