@@ -31,6 +31,7 @@ BEGIN {
         ciphers
         key
         verify
+        url
     /);
 }
 
