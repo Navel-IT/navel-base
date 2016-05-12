@@ -64,9 +64,7 @@ our @EXPORT_OK = qw/
     flatten
     encode_yaml
     decode_yaml
-    encode_json
-    decode_json
-    encode_json_pretty
+    json_constructor
     encode_sereal_constructor
     decode_sereal_constructor
     strftime
@@ -129,13 +127,7 @@ our %EXPORT_TAGS = (
     ],
     json => [
         qw/
-            encode_json
-            decode_json
-        /
-    ],
-    json_pretty => [
-        qw/
-            encode_json_pretty
+            json_constructor
         /
     ],
     sereal => [
@@ -248,16 +240,8 @@ sub decode_yaml {
     Load(@_);
 }
 
-sub encode_json {
-    JSON->new()->allow_nonref()->utf8()->encode(@_);
-}
-
-sub decode_json {
-    JSON->new()->allow_nonref()->utf8()->decode(@_);
-}
-
-sub encode_json_pretty {
-    JSON->new()->allow_nonref()->utf8()->pretty()->encode(@_);
+sub json_constructor {
+    JSON->new()->allow_nonref()->utf8();
 }
 
 sub encode_sereal_constructor {
