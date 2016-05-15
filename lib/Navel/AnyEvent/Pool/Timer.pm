@@ -132,11 +132,19 @@ sub is_pooled {
 }
 
 sub begin {
-    shift->{running} = 1;
+    my $self = shift;
+
+    $self->{running} = 1;
+
+    $self;
 }
 
 sub end {
-    shift->{running} = 0;
+    my $self = shift;
+
+    $self->{running} = 0;
+
+    $self;
 }
 
 sub exec {
