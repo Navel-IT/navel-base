@@ -51,7 +51,7 @@ WriteMakefile(
         'Mojo::Base' => 0,
         'Mojo::URL' => 0,
         'YAML::XS' => 0,
-        'JSON' => 0,
+        'JSON::XS' => 0,
         'Sereal' => 0,
         'POSIX' => 0,
         'Clone' => 0,
