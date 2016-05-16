@@ -17,7 +17,7 @@ use Sereal;
     sub {
         Sereal::Encoder->new(
             {
-                no_shared_hashkeys => 1
+                no_bless_objects => 1
             }
         )->encode(\@_);
     },

@@ -12,7 +12,7 @@ use Navel::Base;
 use Navel::Event;
 use Navel::Definition::Collector;
 use Navel::Utils qw/
-    :scalar
+    blessed
     :sereal
     croak
     isint
@@ -27,10 +27,6 @@ sub to {
 
     croak('starting_time is invalid') unless isint($options{starting_time});
     croak('ending_time is invalid') unless isint($options{ending_time});
-
-    $options{collector} = unbless(
-        clone($options{collector})
-    ) if blessed($options{collector}) && $options{collector}->isa('Navel::Definition::Collector');
 
     encode_sereal_constructor()->encode(
         {
@@ -54,14 +50,7 @@ sub from {
     eval {
         $deserialized->{collector} = Navel::Definition::Collector->new($deserialized->{collector});
 
-        $event = Navel::Event->new(
-            (
-                %{$deserialized},
-                (
-                    status => $deserialized->{status}
-                )
-            )
-        );
+        $event = Navel::Event->new(%{$deserialized});
     };
 
     croak($@) if $@;

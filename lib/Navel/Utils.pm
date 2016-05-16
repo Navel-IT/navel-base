@@ -40,7 +40,7 @@ use YAML::XS qw/
     Dump
     Load
 /;
-use JSON qw//;
+use JSON::XS qw//;
 use Sereal qw//;
 
 #-> export
@@ -241,11 +241,15 @@ sub decode_yaml {
 }
 
 sub json_constructor {
-    JSON->new()->allow_nonref()->utf8();
+    JSON::XS->new()->allow_nonref()->utf8();
 }
 
 sub encode_sereal_constructor {
-    Sereal::Encoder->new();
+    Sereal::Encoder->new(
+        {
+            no_bless_objects => 1
+        }
+    );
 }
 
 sub decode_sereal_constructor {
