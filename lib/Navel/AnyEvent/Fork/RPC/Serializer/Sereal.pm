@@ -15,11 +15,7 @@ use Sereal;
 
 (
     sub {
-        Sereal::Encoder->new(
-            {
-                no_bless_objects => 1
-            }
-        )->encode(\@_);
+        Sereal::Encoder->new()->encode(\@_);
     },
     sub {
         @{Sereal::Decoder->new()->decode(shift)};
