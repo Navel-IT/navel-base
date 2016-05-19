@@ -9,9 +9,11 @@ package Navel::Event 0.1;
 
 use Navel::Base;
 
-use Navel::Event::Serializer;
+use Navel::Definition::Collector;
 use Navel::Event::Status;
 use Navel::Utils qw/
+    croak
+    :sereal
     blessed
     isint
  /;
@@ -19,9 +21,23 @@ use Navel::Utils qw/
 #-> methods
 
 sub deserialize {
-    my $class = shift;
+    my ($class, $deserialized) = (shift, decode_sereal_constructor()->decode(shift));
 
-    Navel::Event::Serializer::from(@_);
+    return $deserialized if blessed($deserialized) && $deserialized->isa(__PACKAGE__);
+
+    local $@;
+
+    eval {
+        $deserialized->{collector} = Navel::Definition::Collector->new($deserialized->{collector});
+    };
+
+    my $event = eval {
+        $class->new(%{$deserialized});
+    };
+
+    croak($@) if $@;
+
+    $event;
 }
 
 sub new {
@@ -37,10 +53,10 @@ sub new {
         die "collection must be defined\n" unless defined $options{collection};
 
         $self->{collector} = undef;
-        $self->{collection} = $options{collection};
+        $self->{collection} = sprintf '%s', $options{collection};
     }
 
-    $self->{status} = Navel::Event::Status->new(
+    $self->{status} = blessed($options{status}) && $options{status}->isa('Navel::Event::Status') ? $options{status} : Navel::Event::Status->new(
         status => $options{status},
         public_interface => $options{public_interface}
     );
@@ -56,16 +72,7 @@ sub new {
 }
 
 sub serialize {
-    my $self = shift;
-
-    Navel::Event::Serializer::to(
-        collection => $self->{collection},
-        collector => $self->{collector},
-        status => $self->{status},
-        starting_time => $self->{starting_time},
-        ending_time => $self->{ending_time},
-        data => $self->{data}
-    );
+    encode_sereal_constructor()->encode(shift);
 }
 
 # sub AUTOLOAD {}
