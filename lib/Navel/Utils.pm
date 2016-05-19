@@ -53,7 +53,6 @@ our @EXPORT_OK = qw/
     read_file
     write_file
     append_file
-    catch_warnings
     try_require_namespace
     isint
     isfloat
@@ -88,11 +87,6 @@ our %EXPORT_TAGS = (
             read_file
             write_file
             append_file
-        /
-    ],
-    warnings => [
-        qw/
-            catch_warnings
         /
     ],
     namespace => [
@@ -174,18 +168,6 @@ sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
     $options{work_dir};
 }
 
-sub catch_warnings {
-    my ($warning_callback, $code_callback) = @_;
-
-    croak('warning_callback and code_callback should be code reference') unless ref $warning_callback eq 'CODE' && ref $code_callback eq 'CODE';
-
-    local $SIG{__WARN__} = sub {
-        $warning_callback->(@_);
-    };
-
-    $code_callback->();
-}
-
 sub try_require_namespace {
     my $class = shift;
 
@@ -245,15 +227,11 @@ sub json_constructor {
 }
 
 sub encode_sereal_constructor {
-    Sereal::Encoder->new(
-        {
-            no_bless_objects => 1
-        }
-    );
+    Sereal::Encoder->new(@_);
 }
 
 sub decode_sereal_constructor {
-    Sereal::Decoder->new();
+    Sereal::Decoder->new(@_);
 }
 
 1;

@@ -28,7 +28,11 @@ sub to {
     croak('starting_time is invalid') unless isint($options{starting_time});
     croak('ending_time is invalid') unless isint($options{ending_time});
 
-    encode_sereal_constructor()->encode(
+    encode_sereal_constructor(
+        {
+            no_bless_objects => 1
+        }
+    )->encode(
         {
             collector => $options{collector},
             collection => defined $options{collection} ? sprintf '%s', $options{collection} : $options{collection},
