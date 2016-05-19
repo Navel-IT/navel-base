@@ -114,11 +114,13 @@ sub auto_clean {
 }
 
 sub push_in_queue {
-    my ($self, $event_definition) = @_;
+    my ($self, $event) = @_;
 
-    croak('event_definition must be a HASH reference') unless ref $event_definition eq 'HASH';
+    unless (blessed($event) && $event->isa('Navel::Event')) {
+        croak('event must be a HASH reference or an object of Navel::Event class') unless ref $event eq 'HASH';
 
-    my $event = Navel::Event->new(%{$event_definition});
+        $event = Navel::Event->new(%{$event});
+    }
 
     $self->auto_clean();
 
@@ -139,6 +141,8 @@ sub wrapped_code {
     my $wrapped_code .= "package Navel::Broker::Client::Fork::Worker;
 
 {
+    use Navel::Event;
+
     BEGIN {
         open STDIN, '</dev/null';
         open STDOUT, '>/dev/null';
