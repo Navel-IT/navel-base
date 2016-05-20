@@ -72,19 +72,16 @@ sub rpc {
 
     croak('method must be defined') unless defined $options{method} || $options{exit};
 
-    $options{options} = [] unless ref $options{options} eq 'ARRAY';
-
-    $options{callback} = sub {
-    } unless ref $options{callback} eq 'CODE';
-
     if (defined $self->{rpc}) {
         $self->{rpc}->(
             $options{exit},
             $options{method},
             $self->{meta_configuration},
             $self->{definition}->properties(),
-            @{$options{options}},
-            $options{callback}
+            @{
+                ref $options{options} eq 'ARRAY' ? $options{options} : []
+            },
+            ref $options{callback} eq 'CODE' ? $options{callback} : sub {}
         );
     }
 
