@@ -44,6 +44,7 @@ sub new {
         colored => defined $options{colored} ? $options{colored} : 1,
         syslog => $options{syslog} || 0,
         file_path => $options{file_path},
+        aio_filehandle => undef,
         queue => []
     }, ref $class || $class;
 }
@@ -93,14 +94,8 @@ sub say_queue {
 sub push_in_queue {
     my ($self, %options) = @_;
 
-    my $message;
-
-    if (blessed($options{message})) {
-        croak('message must be of Navel::Logger::Message class') unless $options{message}->isa('Navel::Logger::Message');
-
-        $message = $options{message};
-    } else {
-        $message = Navel::Logger::Message->new(
+    unless (blessed($options{message}) && $options{message}->isa('Navel::Logger::Message')) {
+        $options{message} = Navel::Logger::Message->new(
             (
                 %options,
                 (
@@ -115,7 +110,7 @@ sub push_in_queue {
         );
     }
 
-    push @{$self->{queue}}, $message;
+    push @{$self->{queue}}, $options{message};
 
     $self;
 }
@@ -124,6 +119,38 @@ sub clear_queue {
     my $self = shift;
 
     undef @{$self->{queue}};
+
+    $self;
+}
+
+sub async_open {
+    my ($self, %options) = @_;
+
+    unless (blessed($self->{aio_filehandle})) {
+        local $!;
+
+        aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0666, sub {
+            if (my $filehandle = shift) {
+                $self->{aio_filehandle} = $filehandle;
+
+                $options{on_success}->($self->{aio_filehandle}) if ref $options{on_success} eq 'CODE';
+            } else {
+                $options{on_error}->($!) if ref $options{on_error} eq 'CODE';
+            }
+        });
+    } else {
+        $options{on_success}->($self->{aio_filehandle}) if ref $options{on_success} eq 'CODE';
+    }
+
+    $self;
+}
+
+sub async_close {
+    my ($self, %options) = @_;
+
+    aio_close($self->{aio_filehandle}, $options{callback} eq 'CODE' ? $options{callback} : sub {}) if blessed($self->{aio_filehandle});
+
+    undef $self->{aio_filehandle};
 
     $self;
 }
@@ -138,16 +165,6 @@ sub flush_queue {
             eval {
                 syslog(@{$_});
             };
-
-            if ($@) {
-                $self->crit(
-                    Navel::Logger::Message->stepped_message('cannot push messages into syslog.',
-                        [
-                            $@
-                        ]
-                    )
-                )->say_queue();
-            }
         }
     } elsif (defined $self->{file_path}) {
         my $cannot_push_messages = 'cannot push messages into ' . $self->{file_path};
@@ -158,26 +175,15 @@ sub flush_queue {
 
         if (@{$queue_to_string}) {
             if ($options{async}) {
-                aio_open($self->{file_path}, AnyEvent::IO::O_CREAT | AnyEvent::IO::O_WRONLY | AnyEvent::IO::O_APPEND, 0, sub {
-                    my $filehandle = shift;
-
-                    if ($filehandle) {
-                        aio_write($filehandle, (join "\n", @{$queue_to_string}) . "\n", sub {
-                            aio_close($filehandle,
-                                sub {
-                                }
-                            );
+                $self->async_open(
+                    on_success => sub {
+                        aio_write(shift, (join "\n", @{$queue_to_string}) . "\n", sub {
                         });
-                    } else {
-                        $self->crit(
-                            Navel::Logger::Message->stepped_message($cannot_push_messages . '.',
-                                [
-                                    $!
-                                ]
-                            )
-                        )->say_queue();
+                    },
+                    on_error => sub {
+                        $self->async_close();
                     }
-                });
+                );
             } else {
                 local $@;
 
@@ -194,16 +200,6 @@ sub flush_queue {
                         ]
                     );
                 };
-
-                if ($@) {
-                    $self->crit(
-                        Navel::Logger::Message->stepped_message($cannot_push_messages . '.',
-                            [
-                                $!
-                            ]
-                        )
-                    )->say_queue();
-                }
             }
         }
     } else {
@@ -228,7 +224,11 @@ BEGIN {
 
 # sub AUTOLOAD {}
 
-# sub DESTROY {}
+sub DESTROY {
+    local $!;
+
+    shift->async_close();
+}
 
 1;
 
