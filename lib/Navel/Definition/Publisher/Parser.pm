@@ -29,6 +29,7 @@ BEGIN {
         auto_clean
         connectable
         auto_connect
+        except_collections
     /);
 }
 

@@ -45,6 +45,7 @@ WriteMakefile(
         'JSON::Validator' => 0,
         'Scalar::Util' => 0,
         'Scalar::Util::Numeric' => 0,
+        'List::MoreUtils' => 0,
         'Term::ANSIColor' => 0,
         'Sys::Syslog' => 0,
         'File::Slurp' => 0,

@@ -36,6 +36,10 @@ use Data::Structure::Util 'unbless';
 
 use Clone 'clone';
 
+use List::MoreUtils qw/
+    any
+/;
+
 use YAML::XS qw/
     Dump
     Load
@@ -60,6 +64,7 @@ our @EXPORT_OK = qw/
     reftype
     unbless
     clone
+    any
     flatten
     encode_yaml
     decode_yaml
@@ -110,6 +115,7 @@ our %EXPORT_TAGS = (
     ],
     list => [
         qw/
+            any
             flatten
         /
     ],

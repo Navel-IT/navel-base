@@ -77,6 +77,16 @@ sub validate {
                     ],
                     minimum => 0,
                     maximum => 1
+                },
+                except_collections => {
+                    type => 'array',
+                    items => {
+                        type => qw/
+                            string
+                            integer
+                            number
+                        /
+                    }
                 }
             }
         },
@@ -113,6 +123,7 @@ BEGIN {
             auto_clean
             connectable
             auto_connect
+            except_collections
         /],
         runtime => [qw/
         /]

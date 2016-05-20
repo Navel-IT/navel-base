@@ -46,7 +46,9 @@ for my $publisher (@{$publishers->{definitions}}) {
                 facility => 'local0'
             ),
             definition => $publisher
-        )->push_in_queue(
+        );
+
+        $publisher_runtime->push_in_queue(
             {
                 collector => $collectors->{definitions}->[0],
                 status => 'OK'

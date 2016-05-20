@@ -17,6 +17,7 @@ use Navel::Event;
 use Navel::Utils qw/
     croak
     blessed
+    any
 /;
 
 #-> methods
@@ -121,9 +122,11 @@ sub push_in_queue {
 
     $self->auto_clean();
 
+    any {
+        $_ eq $event->{collection};
+    } @{$self->{definition}->{except_collections}} and return 0;
+    
     push @{$self->{queue}}, $event;
-
-    $self;
 }
 
 sub definition_class {
