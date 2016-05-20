@@ -27,7 +27,9 @@ sub write {
     croak('on_* must be defined') unless ref $options{on_success} eq 'CODE' && ref $options{on_error} eq 'CODE';
 
     if ($options{async}) {
-        aio_open($options{file_path}, IO::AIO::O_CREAT | IO::AIO::O_WRONLY, 0,
+        local $!;
+
+        aio_open($options{file_path}, IO::AIO::O_CREAT | IO::AIO::O_WRONLY, 0666,
             sub {
                 my $filehandle = shift;
 
