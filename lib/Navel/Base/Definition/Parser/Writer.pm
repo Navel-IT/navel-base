@@ -14,7 +14,7 @@ use AnyEvent::IO;
 use Navel::Utils qw/
     croak
     encode_yaml
-    write_file
+    path
 /;
 
 #-> methods
@@ -72,13 +72,13 @@ sub write {
         local $@;
 
         eval {
-            write_file(
-                $options{file_path},
+            path($options{file_path})->spew_utf8(
                 {
-                    err_mode => 'carp',
-                    binmode => ':utf8'
+                    truncate => 1
                 },
-                \encode_yaml($options{definitions})
+                [
+                    encode_yaml($options{definitions})
+                ]
             );
         };
 

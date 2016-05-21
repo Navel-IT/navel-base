@@ -21,7 +21,7 @@ use Navel::Logger::Message::Severity;
 use Navel::Utils qw/
     blessed
     croak
-    append_file
+    path
 /;
 
 #-> globals
@@ -188,11 +188,7 @@ sub flush_queue {
                 local $@;
 
                 eval {
-                    append_file(
-                        $self->{file_path},
-                        {
-                            binmode => ':utf8'
-                        },
+                    path($self->{file_path})->append_utf8(
                         [
                             map {
                                 $_ . "\n"

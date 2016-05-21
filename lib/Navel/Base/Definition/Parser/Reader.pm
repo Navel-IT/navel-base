@@ -11,7 +11,7 @@ use Navel::Base;
 
 use Navel::Utils qw/
     croak
-    read_file
+    path
     decode_yaml
 /;
 
@@ -26,10 +26,7 @@ sub read {
 
     my $deserialized = eval {
         decode_yaml(
-            scalar read_file(
-                $options{file_path},
-                binmode => ':utf8'
-            )
+            path($options{file_path})->slurp_utf8()
         );
     };
 

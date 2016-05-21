@@ -19,11 +19,7 @@ use Carp qw/
 
 use POSIX 'strftime';
 
-use File::Slurp qw/
-    read_file
-    write_file
-    append_file
-/;
+use Path::Tiny;
 
 use Scalar::Util qw//;
 
@@ -36,9 +32,7 @@ use Data::Structure::Util 'unbless';
 
 use Clone 'clone';
 
-use List::MoreUtils qw/
-    any
-/;
+use List::MoreUtils 'any';
 
 use YAML::XS qw/
     Dump
@@ -54,9 +48,7 @@ our @EXPORT_OK = qw/
     croak
     confess
     daemonize
-    read_file
-    write_file
-    append_file
+    path
     try_require_namespace
     isint
     isfloat
@@ -87,11 +79,9 @@ our %EXPORT_TAGS = (
             daemonize
         /
     ],
-    fileslurp => [
+    io => [
         qw/
-            read_file
-            write_file
-            append_file
+            path
         /
     ],
     namespace => [
@@ -165,7 +155,7 @@ sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
 
     chdir $options{work_dir} || die 'cannot chdir to ' . $options{work_dir} . ': ' . $! . "\n" if defined $options{work_dir};
 
-    write_file($options{pid_file}, $$) if defined $options{pid_file};
+    path($options{pid_file})->spew($$) if defined $options{pid_file};
 
     open STDIN, '</dev/null';
     open STDOUT, '>/dev/null';

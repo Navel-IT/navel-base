@@ -48,7 +48,7 @@ WriteMakefile(
         'List::MoreUtils' => 0,
         'Term::ANSIColor' => 0,
         'Sys::Syslog' => 0,
-        'File::Slurp' => 0,
+        'Path::Tiny' => 0,
         'Mojo::Base' => 0,
         'Mojo::URL' => 0,
         'YAML::XS' => 0,
