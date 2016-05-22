@@ -24,11 +24,11 @@ sub new {
 BEGIN {
     __PACKAGE__->create_getters(qw/
         collection
-        type
         async
         scheduling
-        source
-        input
+        execution_timeout
+        backend
+        backend_input
     /);
 }
 

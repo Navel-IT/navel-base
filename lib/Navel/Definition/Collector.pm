@@ -11,11 +11,6 @@ use Navel::Base;
 
 use parent 'Navel::Base::Definition';
 
-use constant {
-    COLLECTOR_TYPE_PM => 'package',
-    COLLECTOR_TYPE_PL => 'script'
-};
-
 #-> class variables
 
 my %properties;
@@ -53,13 +48,6 @@ sub validate {
                         /
                     ]
                 },
-                type => {
-                    type => 'string',
-                    enum => [
-                        COLLECTOR_TYPE_PM,
-                        COLLECTOR_TYPE_PL
-                    ]
-                },
                 async => {
                     type => [
                         qw/
@@ -74,17 +62,20 @@ sub validate {
                     type => 'integer',
                     minimum => 5
                 },
-                source => {
+                execution_timeout => {
+                    type => 'integer',
+                    minimum => 0
+                },
+                backend => {
                     type => [
                         qw/
-                            null
                             string
                             integer
                             number
                         /
                     ]
                 },
-                input => {
+                backend_input => {
                 }
             }
         },
@@ -111,29 +102,15 @@ sub persistant_properties {
     );
 }
 
-sub is_type_pm {
-    shift->{type} eq COLLECTOR_TYPE_PM;
-}
-
-sub is_type_pl {
-    shift->{type} eq COLLECTOR_TYPE_PL;
-}
-
-sub resolve_basename {
-    my $self = shift;
-
-    defined $self->{source} ? $self->{source} : $self->{name};
-}
-
 BEGIN {
     %properties = (
         persistant => [qw/
             name
             collection
-            type
             scheduling
-            source
-            input
+            execution_timeout
+            backend
+            backend_input
         /],
         runtime => [qw/
         /]
