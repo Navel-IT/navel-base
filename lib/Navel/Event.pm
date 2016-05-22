@@ -17,11 +17,17 @@ use Navel::Utils qw/
     blessed
     isint
  /;
+ 
+#-> class variables
+
+my $decode_sereal_constructor = decode_sereal_constructor();
+
+my $encode_sereal_constructor = encode_sereal_constructor();
 
 #-> methods
 
 sub deserialize {
-    my ($class, $deserialized) = (shift, decode_sereal_constructor()->decode(shift));
+    my ($class, $deserialized) = (shift, $decode_sereal_constructor->decode(shift));
 
     return $deserialized if blessed($deserialized) && $deserialized->isa(__PACKAGE__);
 
@@ -72,7 +78,7 @@ sub new {
 }
 
 sub serialize {
-    encode_sereal_constructor()->encode(shift);
+    $encode_sereal_constructor->encode(shift);
 }
 
 # sub AUTOLOAD {}
