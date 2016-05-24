@@ -17,18 +17,8 @@ use Navel::Utils qw/
 #-> class variables
 
 my %status = (
-    OK => {
-        private => 0,
-        value => 1
-    },
-    KO => {
-        private => 0,
-        value => -1
-    },
-    __KO => {
-        private => 1,
-        value => -2
-    }
+    std => 0,
+    itl => -1
 );
 
 #-> methods
@@ -47,7 +37,7 @@ sub integer_to_status_key {
     my $status;
 
     for (keys %status) {
-        if ($integer == $status{$_}->{value}) {
+        if ($integer == $status{$_}) {
             $status = $_;
 
             last;
@@ -58,36 +48,27 @@ sub integer_to_status_key {
 }
 
 sub new {
-    my ($class, %options) = @_;
+    my ($class, $status) = @_;
 
     my $self = bless {}, ref $class || $class;
 
-    $self->set_status(
-        status => $options{status},
-        public_interface => $options{public_interface}
-    );
+    $self->set_status(defined $status ? $status : $status{std});
 
     $self;
 }
 
 sub set_status {
-    my ($self, %options) = @_;
+    my ($self, $status) = @_;
 
-    my $status;
-
-    if (isint($options{status})) {
-        $status = $self->integer_to_status_key($options{status});
+    if (isint($status)) {
+        $status = $self->integer_to_status_key($status);
 
         die "invalid status\n" unless defined $status;
     } else {
-        die "invalid status\n" unless defined $options{status} && exists $status{$options{status}};
-
-        $status = $options{status};
+        die "invalid status\n" unless defined $status && exists $status{$status};
     }
 
-    die "this status is private\n" if $options{public_interface} && $status{$status}->{private};
-
-    $self->{status} = $status{$status}->{value};
+    $self->{status} = $status{$status};
 
     $self;
 }

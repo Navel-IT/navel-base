@@ -62,10 +62,7 @@ sub new {
         $self->{collection} = sprintf '%s', $options{collection};
     }
 
-    $self->{status} = blessed($options{status}) && $options{status}->isa('Navel::Event::Status') ? $options{status} : Navel::Event::Status->new(
-        status => $options{status},
-        public_interface => $options{public_interface}
-    );
+    $self->{status} = blessed($options{status}) && $options{status}->isa('Navel::Event::Status') ? $options{status} : Navel::Event::Status->new($options{status});
 
     $self->{data} = $options{data};
 

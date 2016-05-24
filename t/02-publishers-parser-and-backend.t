@@ -50,8 +50,7 @@ for my $publisher (@{$publishers->{definitions}}) {
 
         $publisher_runtime->push_in_queue(
             {
-                collector => $collectors->{definitions}->[0],
-                status => 'OK'
+                collector => $collectors->{definitions}->[0]
             }
         );
 
