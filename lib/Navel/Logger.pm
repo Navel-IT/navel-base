@@ -96,16 +96,14 @@ sub push_in_queue {
 
     unless (blessed($options{message}) && $options{message}->isa('Navel::Logger::Message')) {
         $options{message} = Navel::Logger::Message->new(
+            %options,
             (
-                %options,
-                (
-                    time => time,
-                    datetime_format => $self->{datetime_format},
-                    hostname => $self->{hostname},
-                    service => $self->{service},
-                    service_pid => $self->{service_pid},
-                    facility => $self->{facility}->{label}
-                )
+                time => time,
+                datetime_format => $self->{datetime_format},
+                hostname => $self->{hostname},
+                service => $self->{service},
+                service_pid => $self->{service_pid},
+                facility => $self->{facility}->{label}
             )
         );
     }

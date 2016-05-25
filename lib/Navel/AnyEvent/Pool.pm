@@ -9,10 +9,6 @@ package Navel::AnyEvent::Pool 0.1;
 
 use Navel::Base;
 
-use constant {
-    TIMER_BACKEND_PACKAGE => 'Navel::AnyEvent::Pool::Timer'
-};
-
 use Navel::AnyEvent::Pool::Timer;
 
 use Navel::Utils qw/
@@ -57,9 +53,9 @@ sub attach_timer {
 
     my $timer = delete $options{timer};
 
-    my $package = TIMER_BACKEND_PACKAGE;
+    my $package = 'Navel::AnyEvent::Pool::Timer';
 
-    if (blessed($timer) && $timer->isa(TIMER_BACKEND_PACKAGE)) {
+    if (blessed($timer) && $timer->isa($package)) {
         $options{name} = $timer->{name};
 
         $package = $timer;
@@ -71,12 +67,10 @@ sub attach_timer {
     croak('too many jobs already registered (maximum of ' . $self->{maximum} . ')') if $self->{maximum} && @{$self->jobs()} >= $self->{maximum};
 
     $self->{jobs}->{timers}->{$options{name}} = $package->new(
+        %{$self->{on_callbacks}},
+        %options,
         (
-            %{$self->{on_callbacks}},
-            %options,
-            (
-                pool => $self
-            )
+            pool => $self
         )
     );
 }
@@ -96,7 +90,7 @@ sub detach_timer {
 sub timers {
     [
         grep {
-            $_->isa(TIMER_BACKEND_PACKAGE)
+            $_->isa('Navel::AnyEvent::Pool::Timer')
         } @{shift->jobs()}
     ];
 }

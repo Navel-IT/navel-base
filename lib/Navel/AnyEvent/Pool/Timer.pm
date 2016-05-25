@@ -100,11 +100,9 @@ sub new {
     }
 
     $self->{anyevent_timer} = AnyEvent->timer(
+        %options,
         (
-            %options,
-            (
-                cb => $self->{callback}
-            )
+            cb => $self->{callback}
         )
     );
 
