@@ -22,14 +22,16 @@ use Navel::Utils qw/
 sub write {
     my ($self, %options) = @_;
 
-    croak('file_path must be defined') unless defined $options{file_path};
+    $self->{file_path} = $options{file_path} if defined $options{file_path};
+
+    croak('file_path must be defined') unless defined $self->{file_path};
 
     croak('on_* must be defined') unless ref $options{on_success} eq 'CODE' && ref $options{on_error} eq 'CODE';
 
     if ($options{async}) {
         local $!;
 
-        aio_open($options{file_path}, IO::AIO::O_CREAT | IO::AIO::O_WRONLY, 0666,
+        aio_open($self->{file_path}, IO::AIO::O_CREAT | IO::AIO::O_WRONLY, 0666,
             sub {
                 my $filehandle = shift;
 
@@ -37,7 +39,7 @@ sub write {
                     my $aio_close = sub {
                         aio_close(shift,
                             sub {
-                                $options{on_error}->($options{file_path} . ': ' . $!) unless shift;
+                                $options{on_error}->($self->{file_path} . ': ' . $!) unless shift;
                             }
                         );
                     };
@@ -49,22 +51,22 @@ sub write {
                             aio_write($filehandle, $serialized_definitions,
                                 sub {
                                     if (shift == length $serialized_definitions) {
-                                        $options{on_success}->($options{file_path});
+                                        $options{on_success}->($self->{file_path});
                                     } else {
-                                        $options{on_error}->($options{file_path} . ': the definitions have not been properly written, they are probably corrupt');
+                                        $options{on_error}->($self->{file_path} . ': the definitions have not been properly written, they are probably corrupt');
                                     }
 
                                     $aio_close->($filehandle);
                                 }
                             );
                         } else {
-                            $options{on_error}->($options{file_path} . ': ' . $!);
+                            $options{on_error}->($self->{file_path} . ': ' . $!);
 
                             $aio_close->($filehandle);
                         }
                     });
                 } else {
-                    $options{on_error}->($options{file_path} . ': ' . $!);
+                    $options{on_error}->($self->{file_path} . ': ' . $!);
                 }
             }
         );
@@ -72,7 +74,7 @@ sub write {
         local $@;
 
         eval {
-            path($options{file_path})->spew_utf8(
+            path($self->{file_path})->spew_utf8(
                 {
                     truncate => 1
                 },
@@ -83,9 +85,9 @@ sub write {
         };
 
         unless ($@) {
-            $options{on_success}->($options{file_path});
+            $options{on_success}->($self->{file_path});
         } else {
-            $options{on_error}->($options{file_path} . ': ' . $@);
+            $options{on_error}->($self->{file_path} . ': ' . $@);
         }
     }
 

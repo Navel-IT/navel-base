@@ -29,6 +29,7 @@ sub new {
         definition_class => $options{definition_class},
         do_not_need_at_least_one => $options{do_not_need_at_least_one},
         defnitions_validation_on_errors => $options{defnitions_validation_on_errors},
+        file_path => undef,
         raw => [],
         definitions => []
     }, ref $class || $class;
@@ -37,15 +38,15 @@ sub new {
 }
 
 sub read {
-    my $self = shift;
+    my ($self, %options) = @_;
 
-    $self->{raw} = $self->SUPER::read(@_);
+    $self->{raw} = $self->SUPER::read(%options);
 
     $self;
 }
 
 sub write {
-    my $self = shift;
+    my ($self, %options) = @_;
 
     $self->SUPER::write(
         definitions => [
@@ -53,7 +54,7 @@ sub write {
                 $_->persistant_properties()
             } @{$self->{definitions}}
         ],
-        @_
+        %options
     );
 
     $self;

@@ -20,17 +20,19 @@ use Navel::Utils qw/
 sub read {
     my ($self, %options) = @_;
 
-    croak('file_path must be defined') unless defined $options{file_path};
+    $self->{file_path} = $options{file_path} if defined $options{file_path};
+
+    croak('file_path must be defined') unless defined $self->{file_path};
 
     local $@;
 
     my $deserialized = eval {
         decode_yaml(
-            path($options{file_path})->slurp_utf8()
+            path($self->{file_path})->slurp_utf8()
         );
     };
 
-    die $options{file_path} . ': ' . $@ . "\n" if $@;
+    die $self->{file_path} . ': ' . $@ . "\n" if $@;
 
     $deserialized;
 }
