@@ -125,7 +125,7 @@ sub push_in_queue {
     any {
         $_ eq $event->{collection};
     } @{$self->{definition}->{except_collections}} and return 0;
-    
+
     push @{$self->{queue}}, $event;
 }
 
@@ -204,7 +204,21 @@ sub wrapped_code {
 
 # sub AUTOLOAD {}
 
-# sub DESTROY {}
+sub DESTROY {
+    my $self = shift;
+
+    local $@;
+
+    eval {
+        $self->rpc(
+            exit => 1
+        );
+
+        undef $self->{rpc};
+    };
+
+    $self;
+}
 
 1;
 
