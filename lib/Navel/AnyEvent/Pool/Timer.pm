@@ -9,8 +9,6 @@ package Navel::AnyEvent::Pool::Timer 0.1;
 
 use Navel::Base;
 
-use constant POOL_PACKAGE => 'Navel::AnyEvent::Pool';
-
 use AnyEvent;
 
 use Navel::Utils qw/
@@ -49,7 +47,7 @@ sub new {
     if (ref $class) {
         $self = $class;
 
-        $self->detach_pool() if blessed($temp{pool}) && $temp{pool}->isa(POOL_PACKAGE);
+        $self->detach_pool() if blessed($temp{pool}) && $temp{pool}->isa('Navel::AnyEvent::Pool');
 
         while (my ($option_name, $option_value) = each %temp) {
             $self->{$option_name} = $option_value if defined $option_value;
@@ -72,7 +70,7 @@ sub new {
             unless ($self->is_pooled() && $self->{pool}->{maximum_simultaneous_jobs} && @{$self->{pool}->jobs_running()} >= $self->{pool}->{maximum_simultaneous_jobs}) {
                 $callback->($self);
             } else {
-                $self->{on_maximum_simultaneous_jobs}->($self->{name}) if ref $self->{on_disabled} eq 'CODE';
+                $self->{on_maximum_simultaneous_jobs}->($self->{name}) if ref $self->{on_maximum_simultaneous_jobs} eq 'CODE';
             }
         };
 
@@ -126,7 +124,7 @@ sub detach_pool {
 sub is_pooled {
     my $self = shift;
 
-    blessed($self->{pool}) && $self->{pool}->isa(POOL_PACKAGE);
+    blessed($self->{pool}) && $self->{pool}->isa('Navel::AnyEvent::Pool');
 }
 
 sub begin {
