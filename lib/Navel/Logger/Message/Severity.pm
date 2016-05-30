@@ -18,35 +18,35 @@ use Navel::Utils qw/
 
 my %severities = (
     emerg => {
-        priority => 0,
+        value => 0,
         color => 'magenta'
     },
     alert => {
-        priority => 1,
+        value => 1,
         color => 'red'
     },
     crit => {
-        priority => 2,
+        value => 2,
         color => 'red'
     },
     err => {
-        priority => 3,
+        value => 3,
         color => 'red'
     },
     warning => {
-        priority => 4,
+        value => 4,
         color => 'yellow'
     },
     notice => {
-        priority => 5,
+        value => 5,
         color => 'white'
     },
     info => {
-        priority => 6,
+        value => 6,
         color => 'green'
     },
     debug => {
-        priority => 7,
+        value => 7,
         color => 'cyan'
     }
 );
@@ -73,6 +73,10 @@ sub new {
     }, ref $class || $class;
 }
 
+sub value {
+    $severities{shift->{label}}->{value};
+}
+
 sub color {
     $severities{shift->{label}}->{color};
 }
@@ -82,7 +86,7 @@ sub compare {
 
     croak('severity must be of ' . __PACKAGE__ . ' class') unless blessed($severity) && $severity->isa(__PACKAGE__);
 
-    $severities{$self->{label}}->{priority} >= $severities{$severity->{label}}->{priority};
+    $self->value() >= $severity->value();
 }
 
 # sub AUTOLOAD {}

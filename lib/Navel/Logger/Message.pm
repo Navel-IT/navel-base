@@ -72,6 +72,12 @@ sub set_severity {
     $self;
 }
 
+sub priority {
+    my $self = shift;
+
+    $self->{facility}->value() * 8 + $self->{severity}->value();
+}
+
 sub prepare_properties {
     my $self = shift;
 
@@ -96,17 +102,13 @@ sub constructor_properties {
 }
 
 sub to_string {
-    my $self = shift;
+    my $self = shift->prepare_properties();
 
-    $self->prepare_properties();
-
-    (isint($self->{time}) && defined $self->{datetime_format} && length $self->{datetime_format} ? strftime($self->{datetime_format}, (localtime $self->{time})) . ' ' : '') . (length $self->{hostname} ? $self->{hostname} . ' ' : '') . (length $self->{service} ? $self->{service} . (isint($self->{service_pid}) ? '[' . $self->{service_pid} . ']' : '') : '') . ': [' . $self->{facility}->{label} . '.' . $self->{severity}->{label} . ']: ' . (defined $self->{text} ? $self->{text} : '');
+    (isint($self->{time}) && defined $self->{datetime_format} && length $self->{datetime_format} ? strftime($self->{datetime_format}, (localtime $self->{time})) . ' ' : '') . (length $self->{hostname} ? $self->{hostname} . ' ' : '') . (length $self->{service} ? $self->{service} . (isint($self->{service_pid}) ? '[' . $self->{service_pid} . ']' : '') : '') . ' ' . $self->priority() . ' ' . (defined $self->{text} ? $self->{text} : '');
 }
 
 sub to_syslog {
-    my $self = shift;
-
-    $self->prepare_properties();
+    my $self = shift->prepare_properties();
 
     [
         $self->{facility}->{label} . '|' . $self->{severity}->{label},

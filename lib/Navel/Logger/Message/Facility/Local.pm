@@ -37,11 +37,17 @@ sub new {
 
     die "label must be defined\n" unless defined $label;
 
+    $label = lc $label;
+
     die "facility is invalid\n" unless exists $facilities{$label};
 
     bless {
         label => $label
     }, ref $class || $class;
+}
+
+sub value {
+    $facilities{shift->{label}};
 }
 
 # sub AUTOLOAD {}
