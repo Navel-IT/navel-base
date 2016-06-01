@@ -28,7 +28,7 @@ sub read {
 
     my $deserialized = eval {
         decode_yaml(
-            path($self->{file_path})->slurp_utf8()
+            path($self->{file_path})->slurp()
         );
     };
 

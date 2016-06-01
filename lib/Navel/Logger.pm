@@ -186,7 +186,7 @@ sub flush_queue {
                 local $@;
 
                 eval {
-                    path($self->{file_path})->append_utf8(
+                    path($self->{file_path})->append(
                         [
                             map {
                                 $_ . "\n"

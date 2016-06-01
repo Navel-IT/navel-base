@@ -74,7 +74,7 @@ sub write {
         local $@;
 
         eval {
-            path($self->{file_path})->spew_utf8(
+            path($self->{file_path})->spew(
                 {
                     truncate => 1
                 },
