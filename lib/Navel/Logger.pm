@@ -9,6 +9,11 @@ package Navel::Logger 0.1;
 
 use Navel::Base;
 
+use open qw/
+    :std
+    :utf8
+/;
+
 use AnyEvent::IO;
 
 use Term::ANSIColor 'colored';
@@ -23,11 +28,6 @@ use Navel::Utils qw/
     croak
     path
 /;
-
-#-> globals
-
-binmode STDOUT, ':utf8';
-binmode STDERR, ':utf8';
 
 #-> methods
 
