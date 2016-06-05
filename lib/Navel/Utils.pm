@@ -168,24 +168,12 @@ sub try_require_namespace {
     my $class = shift;
 
     croak('class must be defined') unless defined $class;
+    
+    local $@;
+  
+    eval 'require ' . $class;
 
-    my @return = (0, undef);
-
-    if (defined $class) {
-        local $@;
-
-        eval 'require ' . $class;
-
-        if ($@) {
-            $return[1] = $@;
-        } else {
-            $return[0] = 1;
-        }
-    } else {
-        $return[1] = 'class must be defined';
-    }
-
-    @return;
+    $@;
 }
 
 sub blessed {
