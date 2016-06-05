@@ -67,44 +67,42 @@ sub make_definition {
 sub make {
     my ($self, %options) = @_;
 
-    my @load_definition_class = try_require_namespace($self->{definition_class});
+    my $load_class_error = try_require_namespace($self->{definition_class});
 
-    if ($load_definition_class[0]) {
-        if (ref $self->{raw} eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
-            my @errors;
+    croak($load_class_error) if $load_class_error;
 
-            local $@;
+    if (ref $self->{raw} eq 'ARRAY' and @{$self->{raw}} || $self->{do_not_need_at_least_one}) {
+        my @errors;
 
-            for (@{$self->{raw}}) {
-                my $definition_parameters = ref $options{extra_parameters} eq 'HASH'
-                ?
-                    {
-                        %{$_},
-                        %{$options{extra_parameters}}
-                    }
-                : $_;
+        local $@;
 
-                eval {
-                    $self->make_definition($definition_parameters);
-                };
-
-                unless ($@) {
-                    $self->add_definition($definition_parameters);
-                } else {
-                    push @errors, $@;
+        for (@{$self->{raw}}) {
+            my $definition_parameters = ref $options{extra_parameters} eq 'HASH'
+            ?
+                {
+                    %{$_},
+                    %{$options{extra_parameters}}
                 }
-            }
+            : $_;
 
-            if (@errors) {
-                die \@errors;
+            eval {
+                $self->make_definition($definition_parameters);
+            };
+
+            unless ($@) {
+                $self->add_definition($definition_parameters);
             } else {
-                undef $self->{raw};
+                push @errors, $@;
             }
+        }
+
+        if (@errors) {
+            die \@errors;
         } else {
-            die $self->{definition_class} . ": definitions must be encapsulated in an array\n";
+            undef $self->{raw};
         }
     } else {
-        croak($self->{definition_class} . ': ' . $load_definition_class[1]);
+        die $self->{definition_class} . ": definitions must be encapsulated in an array\n";
     }
 
     $self;

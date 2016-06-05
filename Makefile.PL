@@ -56,7 +56,10 @@ WriteMakefile(
         'Sereal' => 0,
         'POSIX' => 0,
         'Clone' => 0,
-        'Data::Structure::Util' => 0
+        'Data::Structure::Util' => 0,
+        'Mojolicious' => 0,
+        'Getopt::Long::Descriptive' => 0,
+        'Sys::Hostname' => 0
     },
     TEST_REQUIRES => {
         'Test::More' => 0,
