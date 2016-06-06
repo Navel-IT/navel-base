@@ -75,7 +75,7 @@ sub new {
 
             my $userinfo = $controller->req()->url()->to_abs()->userinfo();
 
-            unless (secure_compare(defined $userinfo ? $userinfo : '', $self->daemon()->{configuration}->{definition}->{webservices}->{credentials}->{login} . ':' . $self->daemon()->{configuration}->{definition}->{webservices}->{credentials}->{password})) {
+            unless (secure_compare(defined $userinfo ? $userinfo : '', $self->daemon()->{core}->{meta}->{definition}->{webservices}->{credentials}->{login} . ':' . $self->daemon()->{core}->{meta}->{definition}->{webservices}->{credentials}->{password})) {
                 $controller->res()->headers()->www_authenticate('Basic');
 
                 $controller->render(

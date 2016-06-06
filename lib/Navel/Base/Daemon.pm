@@ -36,10 +36,10 @@ sub run {
 
     croak('program_name must be defined') unless defined $program_name;
 
-    my $main_argument = 'main-configuration-file-path';
+    my $meta_argument = 'meta-configuration-file-path';
 
     my ($options, $usage) = describe_options(
-        $program_name . ' %o <' . $main_argument . '>',
+        $program_name . ' %o <' . $meta_argument . '>',
         [
             'log-datetime-format=s',
             'set datetime format (default: %b %d %H:%M:%S)',
@@ -115,10 +115,10 @@ sub run {
         exit 0;
     }
 
-    my $main_configuration_file_path = shift @ARGV;
+    my $meta_configuration_file_path = shift @ARGV;
 
-    unless (defined $main_configuration_file_path) {
-        say 'Missing argument: ' . $main_argument . ' must be defined';
+    unless (defined $meta_configuration_file_path) {
+        say 'Missing argument: ' . $meta_argument . ' must be defined';
 
         $usage->exit(1);
     }
@@ -178,7 +178,7 @@ sub run {
     my $daemon = eval {
         $class->new(
             logger => $logger,
-            main_configuration_file_path => $main_configuration_file_path,
+            meta_configuration_file_path => $meta_configuration_file_path,
             enable_webservices => ! $options->no_web_services() && ! $options->validate_configuration()
         );
     };
@@ -211,34 +211,30 @@ sub run {
 sub new {
     my ($class, %options) = @_;
 
-    croak('logger option must be an object of the Navel::Logger class') unless blessed($options{logger}) && $options{logger}->isa('Navel::Logger');
+    croak('meta option must be an object of the Navel::Base::Daemon::Parser class') unless blessed($options{meta}) && $options{meta}->isa('Navel::Base::Daemon::Parser');
 
-    croak('parser option must be an object of the Navel::Base::Daemon::Parser class') unless blessed($options{parser}) && $options{parser}->isa('Navel::Base::Daemon::Parser');
-
-    croak('core_class option namespace must be defined') unless defined $options{core_class};
-
-    croak('mojolicious_application_class option must be defined') unless defined $options{mojolicious_application_class};
-
-    die "main configuration file path is missing\n" unless defined $options{main_configuration_file_path};
+    die "meta_configuration_file_path is missing\n" unless defined $options{meta_configuration_file_path};
 
     my $self = bless {
-        main_configuration_file_path => $options{main_configuration_file_path},
-        configuration => $options{parser}->new()->read(
-            file_path => $options{main_configuration_file_path}
-        ),
-        webserver => undef,
-        logger => $options{logger}
+        meta_configuration_file_path => $options{meta_configuration_file_path},
+        webserver => undef
     }, ref $class || $class;
 
+    $options{meta}->read(
+        file_path => $self->{meta_configuration_file_path}
+    );
+
     $self->{webservices} = Navel::Definition::WebService::Parser->new()->read(
-        file_path => $self->{configuration}->{definition}->{webservices}->{definitions_from_file}
+        file_path => $options{meta}->{definition}->{webservices}->{definitions_from_file}
     )->make();
 
     my $load_class_error = try_require_namespace($options{core_class});
 
     croak($load_class_error) if $load_class_error;
 
-    $self->{core} = $options{core_class}->new(%{$self});
+    $self->{core} = $options{core_class}->new(%options);
+
+    croak('core_class must create an object of the Navel::Base::Daemon::Core class') unless blessed($self->{core}) && $self->{core}->isa('Navel::Base::Daemon::Core');
 
     if ($options{enable_webservices} && @{$self->{webservices}->{definitions}}) {
         $load_class_error = try_require_namespace($options{mojolicious_application_class});
@@ -271,19 +267,19 @@ sub webserver {
 
     eval {
         if ($action) {
-            $self->{logger}->notice('starting the webservices.');
+            $self->{core}->{logger}->notice('starting the webservices.');
 
             $self->{webserver}->silent(1)->start();
         } else {
-            $self->{logger}->notice('stopping the webservices.');
+            $self->{core}->{logger}->notice('stopping the webservices.');
 
             $self->{webserver}->stop();
         }
     };
 
-    $self->{logger}->crit(Navel::Logger::Message->stepped_message($@)) if $@;
+    $self->{core}->{logger}->crit(Navel::Logger::Message->stepped_message($@)) if $@;
 
-    $self->{logger}->flush_queue();
+    $self->{core}->{logger}->flush_queue();
 
     $self;
 }
@@ -294,12 +290,12 @@ sub start {
     if ($self->webserver()) {
         local $@;
 
-        while (my ($method, $value) = each %{$self->{configuration}->{definition}->{webservices}->{mojo_server}}) {
+        while (my ($method, $value) = each %{$self->{core}->{meta}->{definition}->{webservices}->{mojo_server}}) {
             eval {
                 $self->{webserver}->$method($value);
             };
 
-            $self->{logger}->crit(Navel::Logger::Message->stepped_message($@))->flush_queue() if $@;
+            $self->{core}->{logger}->crit(Navel::Logger::Message->stepped_message($@))->flush_queue() if $@;
         }
 
         $self->webserver(1);
