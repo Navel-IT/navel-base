@@ -32,14 +32,17 @@ sub Getopt::Long::Descriptive::Usage::exit {
 }
 
 sub run {
-    my ($class, $program_name) = @_;
+    my ($class, %options) = @_;
 
-    croak('program_name must be defined') unless defined $program_name;
+    croak('program_name must be defined') unless defined $options{program_name};
 
     my $meta_argument = 'meta-configuration-file-path';
 
-    my ($options, $usage) = describe_options(
-        $program_name . ' %o <' . $meta_argument . '>',
+    my @describe_options = (
+        [
+            'validate-configuration',
+            'validate the configuration and exit with the proper code'
+        ],
         [
             'log-datetime-format=s',
             'set datetime format (default: %b %d %H:%M:%S)',
@@ -93,11 +96,6 @@ sub run {
         ],
         [],
         [
-            'validate-configuration',
-            'validate the configuration and exit with the proper code'
-        ],
-        [],
-        [
             'version',
             'print version'
         ],
@@ -105,6 +103,13 @@ sub run {
             'help',
             'print help'
         ]
+    );
+
+    unshift @describe_options, @{$options{options}} if ref $options{options} eq 'ARRAY';
+
+    my ($options, $usage) = describe_options(
+        $options{program_name} . ' %o <' . $meta_argument . '>',
+        @describe_options
     );
 
     $usage->exit(0) if $options->help();
@@ -131,7 +136,7 @@ sub run {
             hostname => eval {
                 hostname();
             },
-            service => $program_name,
+            service => $options{program_name},
             facility => $options->log_facility(),
             severity => $options->log_severity(),
             colored => ! $options->log_no_color(),
@@ -147,6 +152,8 @@ sub run {
 
         $usage->exit(1);
     }
+
+    $options{before_daemonization}->($class, $options, $logger) if ref $options{before_daemonization} eq 'CODE';
 
     if ($options->daemonize() && ! $options->validate_configuration()) {
         $logger->info('daemonizing.')->flush_queue();
@@ -195,7 +202,9 @@ sub run {
         exit 0;
     }
 
-    $logger->notice('initialization.')->flush_queue();
+    $options{before_starting}->($daemon, $options) if ref $options{before_starting} eq 'CODE';
+
+    $logger->notice('initialization done.')->flush_queue();
 
     eval {
         $daemon->start();
