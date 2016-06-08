@@ -9,6 +9,11 @@ package Navel::Logger 0.1;
 
 use Navel::Base;
 
+use open qw/
+    :std
+    :utf8
+/;
+
 use AnyEvent::IO;
 
 use Term::ANSIColor 'colored';

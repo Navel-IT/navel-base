@@ -59,7 +59,9 @@ WriteMakefile(
         'Data::Structure::Util' => 0,
         'Mojolicious' => 0,
         'Getopt::Long::Descriptive' => 0,
-        'Sys::Hostname' => 0
+        'Sys::Hostname' => 0,
+        'I18N::Langinfo' => 0,
+        'Encode' => 0
     },
     TEST_REQUIRES => {
         'Test::More' => 0,

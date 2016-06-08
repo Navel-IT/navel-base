@@ -14,12 +14,26 @@ use warnings;
 
 use utf8;
 
-use open qw/
-    :std
-    :utf8
+use feature qw//;
+
+use I18N::Langinfo qw/
+    langinfo
+    CODESET
 /;
 
-use feature qw//;
+use Encode 'decode';
+
+#-> class variables
+
+my $codeset = langinfo(CODESET);
+
+#-> ARGV
+
+eval {
+    @ARGV = map {
+        decode($codeset, $_);
+    } @ARGV;
+};
 
 #-> methods
 
