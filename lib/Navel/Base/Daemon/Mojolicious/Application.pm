@@ -44,16 +44,6 @@ sub new {
         }
     );
 
-    $self->plugin('Navel::Mojolicious::Plugin::JSON::XS');
-
-    $self->plugin('Navel::Mojolicious::Plugin::Logger',
-        {
-            logger => $self->daemon()->{core}->{logger}
-        }
-    );
-
-    $self->plugin('Navel::Mojolicious::Plugin::Swagger2::StdResponses');
-
     $self->log()->level('debug')->unsubscribe('message')->on(
         message => sub {
             my ($log, $level, @lines) = @_;
@@ -93,13 +83,6 @@ sub new {
         }
     );
 
-    $self->plugin(
-        'Mojolicious::Plugin::Swagger2' => {
-            swagger => $self->swagger(),
-            route => $authenticated
-        }
-    );
-
     $authenticated->websocket('/api/logger/stream')->to('WebSocket::CoreLogger#stream');
 
     $self->hook(
@@ -128,6 +111,23 @@ sub new {
                 ok => \@ok,
                 ko => \@ko
             };
+        }
+    );
+
+    $self->plugin(
+        'Mojolicious::Plugin::Swagger2' => {
+            swagger => $self->swagger(),
+            route => $authenticated
+        }
+    );
+
+    $self->plugin('Navel::Mojolicious::Plugin::Swagger2::StdResponses');
+
+    $self->plugin('Navel::Mojolicious::Plugin::JSON::XS');
+
+    $self->plugin('Navel::Mojolicious::Plugin::Logger',
+        {
+            logger => $self->daemon()->{core}->{logger}
         }
     );
 
