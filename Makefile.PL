@@ -57,6 +57,7 @@ WriteMakefile(
         'POSIX' => 0,
         'Clone' => 0,
         'Data::Structure::Util' => 0,
+        'IO::Socket::SSL' => 1.84,
         'Mojolicious' => 0,
         'Getopt::Long::Descriptive' => 0,
         'Sys::Hostname' => 0,
