@@ -42,7 +42,7 @@ sub register {
             JSON::XS::true();
         },
         false => sub () {
-            JSON::XS::true();
+            JSON::XS::false();
         }
     );
 }
