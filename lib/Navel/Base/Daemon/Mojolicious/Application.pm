@@ -38,12 +38,6 @@ sub new {
         }
     );
 
-    $self->helper(
-        swagger => sub {
-            $options{swagger};
-        }
-    );
-
     $self->log()->level('debug')->unsubscribe('message')->on(
         message => sub {
             my ($log, $level, @lines) = @_;
@@ -116,7 +110,7 @@ sub new {
 
     $self->plugin(
         'Mojolicious::Plugin::Swagger2' => {
-            swagger => $self->swagger(),
+            swagger => $options{swagger},
             route => $authenticated
         }
     );
