@@ -19,7 +19,7 @@ sub show_status {
     $controller->$callback(
         {
             version => $controller->daemon()->VERSION(),
-            api_version => $controller->app()->defaults()->{swagger_spec}->get('/info/version')
+            api_version => $controller->stash('swagger')->api_spec()->get('/info/version')
         },
         200
     );
