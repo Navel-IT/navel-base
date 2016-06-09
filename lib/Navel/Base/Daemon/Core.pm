@@ -65,7 +65,6 @@ sub register_core_logger {
     $self;
 }
 
-
 sub recv {
     my $self = shift;
 
