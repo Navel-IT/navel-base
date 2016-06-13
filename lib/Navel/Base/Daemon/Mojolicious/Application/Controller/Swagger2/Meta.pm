@@ -24,58 +24,6 @@ sub show_meta {
     );
 }
 
-sub modify_webservices_credentials {
-    my ($controller, $arguments, $callback) = @_;
-
-    my (@ok, @ko);
-
-    local $@;
-
-    my $body = eval {
-        decode_json($controller->req()->body());
-    };
-
-    unless ($@) {
-        if (ref $body eq 'HASH') {
-            my $meta_definition = $controller->daemon()->{core}->{meta}->{definition};
-
-            eval {
-                $controller->daemon()->{core}->{meta}->set_definition(
-                    {
-                        %{$meta_definition},
-                        %{
-                            {
-                                webservices => {
-                                    %{$meta_definition->{webservices}},
-                                    credentials => {
-                                        %{$meta_definition->{webservices}->{credentials}},
-                                        %{$body}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                );
-            };
-
-            unless ($@) {
-                push @ok, 'changing credentials of webservices.';
-            } else {
-                push @ko, $@;
-            }
-        } else {
-            push @ko, 'body need to represent a hashtable.';
-        }
-    } else {
-        push @ko, $@;
-    }
-
-    $controller->$callback(
-        $controller->ok_ko(\@ok, \@ko),
-        @ko ? 400 : 200
-    );
-}
-
 # sub AUTOLOAD {}
 
 # sub DESTROY {}
