@@ -14,18 +14,19 @@ use JSON::Validator;
 use Navel::Utils qw/
     clone
     unbless
+    croak
 /;
 
 #-> methods
 
 sub new {
-    my ($class, %options) = @_;
+    my ($class, $definition) = @_;
 
-    my $definition = unbless(
-        clone($options{definition})
+    $definition = unbless(
+        clone($definition)
     );
 
-    my $errors = $class->validate($options{definition});
+    my $errors = $class->validate($definition);
 
     die $errors if @{$errors};
 
@@ -69,25 +70,29 @@ sub properties {
 }
 
 sub persistant_properties {
-    my ($properties, %options) = (shift->properties(), @_);
+    my ($properties, $runtime_properties) = (shift->properties(), @_);
 
-    delete $properties->{$_} for @{$options{runtime_properties}};
+    croak('runtime_properties must be a ARRAY reference') unless ref $runtime_properties eq 'ARRAY';
+
+    delete $properties->{$_} for @{$runtime_properties};
 
     $properties;
 }
 
 sub merge {
-    my ($self, %options) = @_;
+    my ($self, $hash_to_merge) = @_;
+
+    croak('hash_to_merge must be a HASH reference') unless ref $hash_to_merge eq 'HASH';
 
     my $errors = $self->validate(
         {
             %{$self->properties()},
-            %{$options{values}}
+            %{$hash_to_merge}
         }
     );
 
     unless (@{$errors}) {
-        while (my ($property, $value) = each %{$options{values}}) {
+        while (my ($property, $value) = each %{$hash_to_merge}) {
             $self->{$property} = $value;
         }
     }
@@ -96,7 +101,7 @@ sub merge {
 }
 
 BEGIN {
-    sub create_setters { # only works for a subclass with SUPER::merge()
+    sub create_setters {
         my $class = shift;
 
         no strict 'refs';
@@ -105,7 +110,11 @@ BEGIN {
 
         for my $property (@_) {
             *{$class . '::set_' . $property} = sub {
-                shift->merge(@_);
+                shift->SUPER::merge(
+                    {
+                        $property => shift
+                    }
+                );
             };
         }
     }

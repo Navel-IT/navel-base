@@ -122,22 +122,12 @@ sub validate {
     );
 }
 
-sub new {
-    shift->SUPER::new(
-        definition => shift
-    );
-}
-
-sub merge {
-    shift->SUPER::merge(
-        values => shift
-    );
+sub full_name {
+    __PACKAGE__ . '.' . shift->{name};
 }
 
 sub persistant_properties {
-    shift->SUPER::persistant_properties(
-        runtime_properties => $properties{runtime}
-    );
+    shift->SUPER::persistant_properties($properties{runtime});
 }
 
 sub url {

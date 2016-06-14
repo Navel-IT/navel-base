@@ -42,12 +42,10 @@ sub new {
         }, $class;
     }
 
-    my $definition_class = join '::', @{$self->definition_class()};
-
     my $wrapped_code = $self->wrapped_code();
 
     $self->{logger}->debug(
-        Navel::Logger::Message->stepped_message('dump of the source of the ' . $definition_class . ' wrapper for ' . $self->{definition}->{backend} . '/' . $self->{definition}->{name} . '.',
+        Navel::Logger::Message->stepped_message($self->{definition}->full_name() . ': dump of the source.',
             [
                 split /\n/, $wrapped_code
             ]
@@ -63,7 +61,7 @@ sub new {
         serialiser => Navel::AnyEvent::Fork::RPC::Serializer::Sereal::SERIALIZER
     );
 
-    $self->{logger}->info('spawned a new process for ' . $definition_class . '.' . $self->{definition}->{name} . '.');
+    $self->{logger}->info($self->{definition}->full_name() . ': spawned a new process.');
 
     $self;
 }
@@ -127,12 +125,6 @@ sub push_in_queue {
     } @{$self->{definition}->{except_collections}} and return 0;
 
     push @{$self->{queue}}, $event;
-}
-
-sub definition_class {
-    [
-        split /::/, blessed(shift->{definition})
-    ];
 }
 
 sub wrapped_code {

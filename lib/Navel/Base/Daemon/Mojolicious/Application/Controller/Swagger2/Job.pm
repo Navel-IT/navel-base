@@ -38,15 +38,15 @@ my $action_on_job_by_type_and_name = sub {
     if ($jobAction eq 'enable') {
         $job->{$enable_property} = 1;
 
-        push @ok, 'enabling job ' . $job->{name} . '.';
+        push @ok, $job->full_name() . ': enabled.';
     } elsif ($jobAction eq 'disable') {
         $job->{$enable_property} = 0;
 
-        push @ok, 'disabling job ' . $job->{name} . '.';
+        push @ok, $job->full_name() . ': disabled.';
     } elsif ($jobAction eq 'execute') {
         $job->exec();
 
-        push @ok, 'executing job ' . $job->{name} . '.';
+        push @ok, $job->full_name() . ': force execution.';
     }
 
     $controller->$callback(

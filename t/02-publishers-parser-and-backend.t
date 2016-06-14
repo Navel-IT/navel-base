@@ -57,7 +57,7 @@ for my $publisher (@{$publishers->{definitions}}) {
         $_->deserialize($_->serialize()) for @{$publisher_runtime->{queue}};
 
         $publisher_runtime->clear_queue();
-    } $publisher->{name} . ': not connectable and push_in_queue() + (de)serialize events + clear_queue()';
+    } $publisher->full_name() . ': not connectable and push_in_queue() + (de)serialize events + clear_queue()';
 }
 
 done_testing();

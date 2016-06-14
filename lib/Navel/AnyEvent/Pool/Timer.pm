@@ -70,7 +70,7 @@ sub new {
             unless ($self->is_pooled() && $self->{pool}->{maximum_simultaneous_jobs} && @{$self->{pool}->jobs_running()} >= $self->{pool}->{maximum_simultaneous_jobs}) {
                 $callback->($self);
             } else {
-                $self->{on_maximum_simultaneous_jobs}->($self->{name}) if ref $self->{on_maximum_simultaneous_jobs} eq 'CODE';
+                $self->{on_maximum_simultaneous_jobs}->($self) if ref $self->{on_maximum_simultaneous_jobs} eq 'CODE';
             }
         };
 
@@ -80,13 +80,13 @@ sub new {
                     unless ($self->{running}) {
                         $wrapped_callback->();
                     } else {
-                        $self->{on_singleton_already_running}->($self->{name}) if ref $self->{on_singleton_already_running} eq 'CODE';
+                        $self->{on_singleton_already_running}->($self) if ref $self->{on_singleton_already_running} eq 'CODE';
                     }
                 } else {
                     $wrapped_callback->();
                 }
             } else {
-                $self->{on_disabled}->($self->{name}) if ref $self->{on_disabled} eq 'CODE';
+                $self->{on_disabled}->($self) if ref $self->{on_disabled} eq 'CODE';
             }
         };
     }
@@ -105,6 +105,10 @@ sub new {
     );
 
     $self;
+}
+
+sub full_name {
+    __PACKAGE__ . '.' . shift->{name};
 }
 
 sub detach_pool {

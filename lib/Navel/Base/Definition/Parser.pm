@@ -158,7 +158,7 @@ sub add_definition {
     my $definition = $self->make_definition($raw_definition);
 
     die $self->{definition_class} . ': the maximum number of definition (' . $self->{maximum} . ") has been reached\n" if $self->{maximum} && @{$self->{definitions}} > $self->{maximum};
-    die $self->{definition_class} . ": duplicate definition detected\n" if defined $self->definition_by_name($definition->{name});
+    die $self->{definition_class} . ': duplicate definition (' . $definition->full_name() . ") detected\n" if defined $self->definition_by_name($definition->{name});
 
     push @{$self->{definitions}}, $definition;
 

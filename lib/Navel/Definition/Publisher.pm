@@ -95,22 +95,14 @@ sub validate {
     );
 }
 
-sub new {
-    shift->SUPER::new(
-        definition => shift
-    );
-}
+sub full_name {
+    my $self = shift;
 
-sub merge {
-    shift->SUPER::merge(
-        values => shift
-    );
+    __PACKAGE__ . '.' . $self->{backend} . '.' . $self->{name};
 }
 
 sub persistant_properties {
-    shift->SUPER::persistant_properties(
-        runtime_properties => $properties{runtime}
-    );
+    shift->SUPER::persistant_properties($properties{runtime});
 }
 
 BEGIN {
