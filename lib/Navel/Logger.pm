@@ -165,8 +165,6 @@ sub flush_queue {
             };
         }
     } elsif (defined $self->{file_path}) {
-        my $cannot_push_messages = 'cannot push messages into ' . $self->{file_path};
-
         my $queue_to_string = $self->queue_to_string(
             colored => 0
         );

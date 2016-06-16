@@ -32,12 +32,10 @@ sub register {
             croak('ok must be a ARRAY') unless ref $ok eq 'ARRAY';
             croak('ko must be a ARRAY') unless ref $ko eq 'ARRAY';
 
-            my @infos = (
+            $register_options->{logger}->info($_) for (
                 @{$ok},
                 @{$ko}
             );
-
-            $register_options->{logger}->info($_) for @infos;
 
             {
                 ok => $ok,

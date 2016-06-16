@@ -33,14 +33,12 @@ my $action_on_job_by_type_and_name = sub {
 
     my (@ok, @ko);
 
-    my $enable_property = 'enabled';
-
     if ($jobAction eq 'enable') {
-        $job->{$enable_property} = 1;
+        $job->{enabled} = 1;
 
         push @ok, $job->full_name() . ': enabled.';
     } elsif ($jobAction eq 'disable') {
-        $job->{$enable_property} = 0;
+        $job->{enabled} = 0;
 
         push @ok, $job->full_name() . ': disabled.';
     } elsif ($jobAction eq 'execute') {
@@ -127,17 +125,17 @@ sub enable_job_by_type_and_name {
     );
 }
 
-sub execute_job_by_type_and_name {
-    $action_on_job_by_type_and_name->(
-        @_,
-        'execute'
-    );
-}
-
 sub disable_job_by_type_and_name {
     $action_on_job_by_type_and_name->(
         @_,
         'disable'
+    );
+}
+
+sub execute_job_by_type_and_name {
+    $action_on_job_by_type_and_name->(
+        @_,
+        'execute'
     );
 }
 

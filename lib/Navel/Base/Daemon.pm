@@ -36,8 +36,6 @@ sub run {
 
     croak('program_name must be defined') unless defined $options{program_name};
 
-    my $meta_argument = 'meta-configuration-file-path';
-
     my @describe_options = (
         [
             'validate-configuration',
@@ -108,7 +106,7 @@ sub run {
     unshift @describe_options, @{$options{options}} if ref $options{options} eq 'ARRAY';
 
     my ($options, $usage) = describe_options(
-        $options{program_name} . ' %o <' . $meta_argument . '>',
+        $options{program_name} . ' %o <meta-configuration-file-path>',
         @describe_options
     );
 
@@ -123,7 +121,7 @@ sub run {
     my $meta_configuration_file_path = shift @ARGV;
 
     unless (defined $meta_configuration_file_path) {
-        say 'Missing argument: ' . $meta_argument . ' must be defined';
+        say 'Missing argument: meta-configuration-file-path must be defined';
 
         $usage->exit(1);
     }
