@@ -133,13 +133,13 @@ sub persistant_properties {
 sub url {
     my $self = shift;
 
-    my $url = Mojo::URL->new()->host(
+    my $url = Mojo::URL->new()->scheme(
+        'http' . ($self->{tls} ? 's' : '')
+    )->host(
         $self->{interface_mask}
     )->port(
         $self->{port}
     );
-
-    $url->scheme('https') if $self->{tls};
 
     for (qw/
         ca
