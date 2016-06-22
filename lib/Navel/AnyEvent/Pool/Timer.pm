@@ -159,8 +159,10 @@ sub DESTROY {
     $self->detach_pool();
 
     undef $self->{anyevent_timer};
+    
+    undef $self->{callback};
 
-    1;
+    $self;
 }
 
 1;
