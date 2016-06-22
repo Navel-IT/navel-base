@@ -66,10 +66,7 @@ sub new {
 
     $self->{data} = $options{data};
 
-    $self->{$_} = isint($options{$_}) ? $options{$_} : time for qw/
-        starting_time
-        ending_time
-    /;
+    $self->{time} = isint($options{time}) ? $options{time} : time;
 
     $self;
 }
