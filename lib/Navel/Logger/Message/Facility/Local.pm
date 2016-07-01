@@ -9,8 +9,6 @@ package Navel::Logger::Message::Facility::Local 0.1;
 
 use Navel::Base;
 
-use Navel::Utils 'isint';
-
 #-> class variables
 
 my %facilities = (

@@ -50,10 +50,7 @@ sub new {
         }
     );
 
-    my $routes = $self->routes();
-
-    my $authenticated = $routes->under(
-        '/',
+    my $authenticated = $self->routes()->under(
         sub {
             my $controller = shift;
 
