@@ -11,8 +11,6 @@ use Navel::Base;
 
 use Mojo::Base 'Mojolicious::Controller';
 
-use Mojo::JSON 'decode_json';
-
 #-> methods
 
 sub show_meta {
