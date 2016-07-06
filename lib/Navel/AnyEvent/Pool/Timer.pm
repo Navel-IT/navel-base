@@ -49,8 +49,8 @@ sub new {
 
         $self->detach_pool() if blessed($temp{pool}) && $temp{pool}->isa('Navel::AnyEvent::Pool');
 
-        while (my ($option_name, $option_value) = each %temp) {
-            $self->{$option_name} = $option_value if defined $option_value;
+        for (keys %temp) {
+            $self->{$_} = $temp{$_} if defined $temp{$_};
         }
     } else {
         croak('callback must a CODE reference') unless ref $callback eq 'CODE';
@@ -159,7 +159,7 @@ sub DESTROY {
     $self->detach_pool();
 
     undef $self->{anyevent_timer};
-    
+
     undef $self->{callback};
 
     $self;

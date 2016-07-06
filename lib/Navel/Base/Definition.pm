@@ -92,9 +92,7 @@ sub merge {
     );
 
     unless (@{$errors}) {
-        while (my ($property, $value) = each %{$hash_to_merge}) {
-            $self->{$property} = $value;
-        }
+        $self->{$_} = $hash_to_merge->{$_} for keys %{$hash_to_merge};
     }
 
     $errors;

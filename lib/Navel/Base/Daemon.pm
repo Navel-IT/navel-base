@@ -25,11 +25,15 @@ use Navel::Utils qw/
 
 #-> methods
 
+#->
+
 sub Getopt::Long::Descriptive::Usage::exit {
     print shift->text();
 
     exit shift;
 }
+
+#->
 
 sub run {
     my ($class, %options) = @_;
@@ -297,9 +301,9 @@ sub start {
     if ($self->webserver()) {
         local $@;
 
-        while (my ($method, $value) = each %{$self->{core}->{meta}->{definition}->{webservices}->{mojo_server}}) {
+        for (keys %{$self->{core}->{meta}->{definition}->{webservices}->{mojo_server}}) {
             eval {
-                $self->{webserver}->$method($value);
+                $self->{webserver}->$_($self->{core}->{meta}->{definition}->{webservices}->{mojo_server}->{$_});
             };
 
             $self->{core}->{logger}->crit(Navel::Logger::Message->stepped_message($@))->flush_queue() if $@;
