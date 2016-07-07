@@ -11,6 +11,7 @@ use Navel::Base;
 
 use Mojo::Base 'Mojolicious::Plugin';
 
+use Navel::Logger::Message;
 use Navel::Utils qw/
     croak
     blessed
@@ -32,7 +33,7 @@ sub register {
             croak('ok must be a ARRAY') unless ref $ok eq 'ARRAY';
             croak('ko must be a ARRAY') unless ref $ko eq 'ARRAY';
 
-            $register_options->{logger}->info($_) for (
+            $register_options->{logger}->info(Navel::Logger::Message->stepped_message($_)) for (
                 @{$ok},
                 @{$ko}
             );
