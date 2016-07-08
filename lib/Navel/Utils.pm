@@ -28,8 +28,6 @@ use Scalar::Util::Numeric qw/
     isfloat
 /;
 
-use Data::Structure::Util 'unbless';
-
 use Clone 'clone';
 
 use List::MoreUtils 'any';
@@ -54,7 +52,6 @@ our @EXPORT_OK = qw/
     isfloat
     blessed
     reftype
-    unbless
     clone
     any
     flatten
@@ -99,7 +96,6 @@ our %EXPORT_TAGS = (
         qw/
             blessed
             reftype
-            unbless
             clone
         /
     ],

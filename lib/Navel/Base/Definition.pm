@@ -13,18 +13,21 @@ use JSON::Validator;
 
 use Navel::Utils qw/
     clone
-    unbless
     croak
 /;
 
 #-> methods
 
+sub properties {
+    return {
+        %{clone(shift)}
+    };
+}
+
 sub new {
     my ($class, $definition) = @_;
 
-    $definition = unbless(
-        clone($definition)
-    );
+    $definition = properties($definition);
 
     my $errors = $class->validate($definition);
 
@@ -61,12 +64,6 @@ sub validate {
             $definition_fullname . ': ' . (defined $_  ? $_ : '?')
         } @errors
     ];
-}
-
-sub properties {
-    unbless(
-        clone(shift)
-    );
 }
 
 sub persistant_properties {
