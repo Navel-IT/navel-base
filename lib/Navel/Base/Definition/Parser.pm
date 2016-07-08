@@ -96,11 +96,9 @@ sub make {
             }
         }
 
-        if (@errors) {
-            die \@errors;
-        } else {
-            undef $self->{raw};
-        }
+        die \@errors if @errors;
+
+        undef $self->{raw};
     } else {
         die $self->{definition_class} . ": definitions must be encapsulated in an array\n";
     }
