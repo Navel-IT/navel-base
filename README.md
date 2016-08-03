@@ -1,8 +1,6 @@
 navel-base
 ==========
 
-Base for Navel projects.
-
 Status
 ------
 
