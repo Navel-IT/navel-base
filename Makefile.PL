@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-use ExtUtils::MakeMaker 6.64;
+use ExtUtils::MakeMaker;
 
 #-> main
 
@@ -47,6 +47,9 @@ WriteMakefile(
         'Sereal' => 0,
         'I18N::Langinfo' => 0,
         'Encode' => 0
+    },
+    CONFIGURE_REQUIRES => {
+        'ExtUtils::MakeMaker' => 6.64
     },
     TEST_REQUIRES => {
         'Test::More' => 0
