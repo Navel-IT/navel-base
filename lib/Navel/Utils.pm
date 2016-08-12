@@ -51,7 +51,6 @@ our @EXPORT_OK = qw/
     isint
     isfloat
     blessed
-    reftype
     clone
     any
     flatten
@@ -95,7 +94,6 @@ our %EXPORT_TAGS = (
     scalar => [
         qw/
             blessed
-            reftype
             clone
         /
     ],
@@ -173,15 +171,7 @@ sub try_require_namespace {
 }
 
 sub blessed {
-   my $blessed = Scalar::Util::blessed(shift);
-
-   defined $blessed ? $blessed : '';
-}
-
-sub reftype {
-   my $reftype = Scalar::Util::reftype(shift);
-
-   defined $reftype ? $reftype : '';
+    Scalar::Util::blessed(shift) // '';
 }
 
 sub flatten {
