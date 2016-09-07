@@ -21,7 +21,10 @@ use POSIX 'strftime';
 
 use Path::Tiny;
 
-use Scalar::Util qw//;
+use Scalar::Util qw/
+    weaken
+    unweaken
+/;
 
 use Scalar::Util::Numeric qw/
     isint
@@ -50,6 +53,8 @@ our @EXPORT_OK = qw/
     try_require_namespace
     isint
     isfloat
+    weaken
+    unweaken
     blessed
     clone
     any
@@ -93,6 +98,8 @@ our %EXPORT_TAGS = (
     ],
     scalar => [
         qw/
+            weaken
+            unweaken
             blessed
             clone
         /
@@ -162,9 +169,9 @@ sub try_require_namespace {
     my $class = shift;
 
     croak('class must be defined') unless defined $class;
-    
+
     local $@;
-  
+
     eval 'require ' . $class;
 
     $@;
