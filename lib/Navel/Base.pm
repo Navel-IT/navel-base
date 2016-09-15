@@ -1,4 +1,4 @@
-# Copyright (C) 2015 Yoann Le Garff, Nicolas Boquet and Yann Le Bras
+# Copyright (C) 2015-2016 Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 # navel-base is licensed under the Apache License, Version 2.0
 
 #-> BEGIN
@@ -75,7 +75,7 @@ This automatically turn on 'v5.18' (with related features), 'strict', 'warnings'
 
 =head1 COPYRIGHT
 
-Copyright (C) 2015 Yoann Le Garff, Nicolas Boquet and Yann Le Bras
+Copyright (C) 2015-2016 Yoann Le Garff, Nicolas Boquet and Yann Le Bras
 
 =head1 LICENSE
 
