@@ -35,11 +35,7 @@ use Clone 'clone';
 
 use List::MoreUtils 'any';
 
-use YAML::XS qw/
-    Dump
-    Load
-/;
-use JSON::XS qw//;
+use Cpanel::JSON::XS qw//;
 use Sereal qw//;
 
 #-> export
@@ -59,8 +55,6 @@ our @EXPORT_OK = qw/
     clone
     any
     flatten
-    encode_yaml
-    decode_yaml
     json_constructor
     encode_sereal_constructor
     decode_sereal_constructor
@@ -108,12 +102,6 @@ our %EXPORT_TAGS = (
         qw/
             any
             flatten
-        /
-    ],
-    yaml => [
-        qw/
-            encode_yaml
-            decode_yaml
         /
     ],
     json => [
@@ -187,20 +175,8 @@ sub flatten {
     } @_;
 }
 
-sub encode_yaml {
-    local $YAML::XS::QuoteNumericStrings = 0;
-
-    Dump(@_);
-}
-
-sub decode_yaml {
-    local $YAML::XS::QuoteNumericStrings = 0;
-
-    Load(@_);
-}
-
 sub json_constructor {
-    JSON::XS->new()->allow_nonref()->utf8();
+    Cpanel::JSON::XS->new()->allow_nonref()->utf8();
 }
 
 sub encode_sereal_constructor {
