@@ -7,7 +7,7 @@
 
 package Navel::Base 0.1;
 
-use v5.18;
+use v5.20;
 
 use strict;
 use warnings;
@@ -39,13 +39,13 @@ eval {
 
 sub import {
     $_->import() for qw/
-        v5.18
+        v5.20
         strict
         warnings
         utf8
     /;
 
-    feature->import(':5.18');
+    feature->import(':5.20');
 }
 
 # sub AUTOLOAD {}
