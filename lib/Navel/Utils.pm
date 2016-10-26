@@ -138,7 +138,7 @@ sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
         exit 0;
     }
 
-    POSIX::setsid() || die 'setsid: ' . $! . "\n";
+    POSIX::setsid || die 'setsid: ' . $! . "\n";
 
     umask 0;
 
@@ -176,7 +176,7 @@ sub flatten {
 }
 
 sub json_constructor {
-    Cpanel::JSON::XS->new()->allow_nonref()->utf8();
+    Cpanel::JSON::XS->new->allow_nonref->utf8;
 }
 
 sub encode_sereal_constructor {

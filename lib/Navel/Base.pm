@@ -38,7 +38,7 @@ eval {
 #-> methods
 
 sub import {
-    $_->import() for qw/
+    $_->import for qw/
         v5.20
         strict
         warnings
