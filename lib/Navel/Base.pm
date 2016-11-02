@@ -14,8 +14,6 @@ use warnings;
 
 use utf8;
 
-use feature qw//;
-
 use I18N::Langinfo qw/
     langinfo
     CODESET
@@ -44,8 +42,6 @@ sub import {
         warnings
         utf8
     /;
-
-    feature->import(':5.20');
 }
 
 # sub AUTOLOAD {}
