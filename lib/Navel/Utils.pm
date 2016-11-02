@@ -35,8 +35,10 @@ use Clone 'clone';
 
 use List::MoreUtils 'any';
 
-use Cpanel::JSON::XS qw//;
-use Sereal qw//;
+BEGIN {
+    require Cpanel::JSON::XS;
+    require Sereal;
+}
 
 #-> export
 
