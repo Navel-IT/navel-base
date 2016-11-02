@@ -12,6 +12,10 @@ use v5.20;
 use strict;
 use warnings;
 
+BEGIN {
+    require feature;
+}
+
 use utf8;
 
 use I18N::Langinfo qw/
@@ -42,6 +46,8 @@ sub import {
         warnings
         utf8
     /;
+
+    feature->import(':5.20');
 }
 
 # sub AUTOLOAD {}
