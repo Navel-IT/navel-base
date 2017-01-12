@@ -27,6 +27,7 @@ use Scalar::Util qw/
 /;
 
 use Scalar::Util::Numeric qw/
+    isnum
     isint
     isfloat
 /;
@@ -49,6 +50,7 @@ our @EXPORT_OK = qw/
     daemonize
     path
     try_require_namespace
+    isnum
     isint
     isfloat
     weaken
@@ -88,6 +90,7 @@ our %EXPORT_TAGS = (
     ],
     numeric => [
         qw/
+            isnum
             isint
             isfloat
         /
