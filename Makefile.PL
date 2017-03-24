@@ -40,7 +40,6 @@ WriteMakefile(
         'Clone' => 0,
         'List::MoreUtils' => 0,
         'Cpanel::JSON::XS' => 0,
-        'Sereal' => 0,
         'I18N::Langinfo' => 0,
         'Encode' => 0
     },

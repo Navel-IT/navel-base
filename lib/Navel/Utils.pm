@@ -38,7 +38,6 @@ use List::MoreUtils 'any';
 
 BEGIN {
     require Cpanel::JSON::XS;
-    require Sereal;
 }
 
 #-> export
@@ -60,8 +59,6 @@ our @EXPORT_OK = qw/
     any
     flatten
     json_constructor
-    encode_sereal_constructor
-    decode_sereal_constructor
     strftime
 /;
 
@@ -112,12 +109,6 @@ our %EXPORT_TAGS = (
     json => [
         qw/
             json_constructor
-        /
-    ],
-    sereal => [
-        qw/
-            encode_sereal_constructor
-            decode_sereal_constructor
         /
     ],
     time => [
@@ -182,14 +173,6 @@ sub flatten {
 
 sub json_constructor {
     Cpanel::JSON::XS->new->allow_nonref->utf8;
-}
-
-sub encode_sereal_constructor {
-    Sereal::Encoder->new(@_);
-}
-
-sub decode_sereal_constructor {
-    Sereal::Decoder->new(@_);
 }
 
 1;
