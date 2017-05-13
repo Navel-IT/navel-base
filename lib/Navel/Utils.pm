@@ -124,8 +124,6 @@ our %EXPORT_TAGS = (
 sub daemonize { # http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html
     my %options = @_;
 
-    local $!;
-
     my $pid = fork;
 
     if ($pid < 0) {
